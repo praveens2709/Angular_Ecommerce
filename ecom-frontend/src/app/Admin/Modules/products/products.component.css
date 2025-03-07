@@ -1,0 +1,74 @@
+
+.card-header {
+  padding: 1rem;
+  font-size: 1.125rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.p-datatable tbody tr:hover {
+  background-color: #f8f9fa; 
+  transition: background-color 0.2s ease-in-out;
+}
+
+.p-datatable img {
+  border-radius: 0.375rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); 
+}
+
+.p-datatable thead tr {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+.text-primary {
+  color: #007bff !important;
+}
+
+.text-success {
+  color: #28a745 !important;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+.card-footer {
+  font-size: 0.9rem;
+}
+
+.btn-outline-primary {
+  border-radius: 50%;
+  padding: 0.5rem;
+}
+
+.p-tag {
+  padding: 0 10px;
+}
+
+.p-element .p-overlay {
+  position: absolute;
+  top: -151px !important;
+    left: -1px !important;
+}
+
+.form-group {
+  flex: 1;
+}
+
+.image-preview {
+  width: 80px;
+  height: 80px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.image-preview img {
+  object-fit: contain;
+}
+
+.product-img{
+  width: 100px;
+  height: 80px;
+  object-fit: contain;
+}

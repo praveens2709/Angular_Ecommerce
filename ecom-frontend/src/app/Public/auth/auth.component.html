@@ -1,0 +1,18 @@
+<div class="parent d-flex justify-content-center align-items-center">
+  <div class="container position-relative bg-white">
+    <div class="form-box login position-absolute end-0 bg-white d-flex flex-column justify-content-center">
+      <app-login *ngIf="isLogin" (switchToRegister)="toggleForm()"></app-login>
+      <app-register
+        *ngIf="!isLogin"
+        (switchToLogin)="toggleForm()"
+      ></app-register>
+    </div>
+    <div class="left-box position-absolute w-100 h-100">
+      <div
+        class="left-panel left position-absolute h-100 text-white d-flex flex-column justify-content-center align-items-center"
+      >
+        <h1>Welcome!</h1>
+      </div>
+    </div>
+  </div>
+</div>

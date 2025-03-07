@@ -1,0 +1,152 @@
+<p-dialog
+  [(visible)]="isDialogVisible"
+  [header]="dialogTitle"
+  (onHide)="closeDialog()"
+  [closable]="true"
+  [style]="{ width: '450px' }"
+>
+  <form [formGroup]="addressForm" (ngSubmit)="onSubmit()" class="dialog-content">
+    <!-- Name -->
+    <div class="form-group mb-3">
+      <label for="fullName">Name *</label>
+      <input
+        id="fullName"
+        type="text"
+        formControlName="fullName"
+        class="form-control"
+        placeholder="Enter Name"
+      />
+      <small *ngIf="addressForm.get('fullName')?.invalid && addressForm.get('fullName')?.touched" class="text-danger small-error-modal">
+        Name is required
+      </small>
+    </div>
+
+    <!-- Mobile -->
+    <div class="form-group mb-3">
+      <label for="mobile">Mobile *</label>
+      <input
+        id="mobile"
+        type="text"
+        formControlName="mobile"
+        class="form-control"
+        placeholder="Enter Mobile Number"
+        maxlength="10"
+        (input)="restrictToNumbers($event, 10)"
+      />
+      <small *ngIf="addressForm.get('mobile')?.invalid && addressForm.get('mobile')?.touched" class="text-danger small-error-modal">
+        <div *ngIf="addressForm.get('mobile')?.errors?.['required']">Mobile number is required</div>
+        <div *ngIf="addressForm.get('mobile')?.errors?.['pattern']">Enter a valid 10-digit mobile number</div>
+      </small>
+    </div>
+
+    <!-- Pincode & State -->
+    <div class="d-flex mb-3">
+      <div class="form-group me-2 w-50">
+        <label for="postalCode">Pincode *</label>
+        <input
+          id="postalCode"
+          type="text"
+          formControlName="postalCode"
+          class="form-control"
+          placeholder="Enter Pincode"
+          maxlength="6"
+          (input)="restrictToNumbers($event, 6)"
+        />
+        <small *ngIf="addressForm.get('postalCode')?.invalid && addressForm.get('postalCode')?.touched" class="text-danger small-error-modal">
+          <div *ngIf="addressForm.get('postalCode')?.errors?.['required']">Pincode is required</div>
+          <div *ngIf="addressForm.get('postalCode')?.errors?.['pattern']">Enter a valid 6-digit pincode</div>
+        </small>
+      </div>
+      <div class="form-group w-50">
+        <label for="state">State *</label>
+        <input
+          id="state"
+          type="text"
+          formControlName="state"
+          class="form-control"
+          placeholder="Enter State"
+        />
+        <small *ngIf="addressForm.get('state')?.invalid && addressForm.get('state')?.touched" class="text-danger small-error-modal">
+          State is required
+        </small>
+      </div>
+    </div>
+
+    <!-- Address -->
+    <div class="form-group mb-3">
+      <label for="street">Address *</label>
+      <input
+        id="street"
+        type="text"
+        formControlName="street"
+        class="form-control"
+        placeholder="House No, Building, Street, Area"
+      />
+      <small *ngIf="addressForm.get('street')?.invalid && addressForm.get('street')?.touched" class="text-danger small-error-modal">
+        Address is required
+      </small>
+    </div>
+
+    <!-- City / District -->
+    <div class="form-group mb-3">
+      <label for="city">City / District *</label>
+      <input
+        id="city"
+        type="text"
+        formControlName="city"
+        class="form-control"
+        placeholder="Enter City / District"
+      />
+      <small *ngIf="addressForm.get('city')?.invalid && addressForm.get('city')?.touched" class="text-danger small-error-modal">
+        City is required
+      </small>
+    </div>
+
+    <!-- Type of Address -->
+    <div class="form-group mb-4">
+      <label>Type of Address *</label>
+      <div class="d-flex align-items-center">
+        <div class="me-3">
+          <p-radioButton
+            name="type"
+            value="Home"
+            formControlName="type"
+            inputId="home"
+            label="Home"
+          ></p-radioButton>
+        </div>
+        <div>
+          <p-radioButton
+            name="type"
+            value="Work"
+            formControlName="type"
+            inputId="work"
+            label="Work"
+          ></p-radioButton>
+        </div>
+      </div>
+      <small *ngIf="addressForm.get('type')?.invalid && addressForm.get('type')?.touched" class="text-danger small-error-modal">
+        Please select a type of address
+      </small>
+    </div>
+  </form>
+
+  <!-- Fixed Footer -->
+  <div class="dialog-footer fixed-footer">
+    <button
+      type="button"
+      class="cancel-address-btn rounded-0 py-3 mt-0"
+      (click)="closeDialog()"
+    >
+      Cancel
+    </button>
+    <button
+      type="submit"
+      (click)="onSubmit()"
+      class="save-address-btn rounded-0 py-3 mt-0"
+      [disabled]="addressForm.invalid"
+    >
+      Save
+    </button>
+  </div>
+</p-dialog>

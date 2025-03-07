@@ -1,0 +1,163 @@
+<div class="card shadow-sm border-0 rounded-3">
+  <!-- Caption Section -->
+  <div
+    class="card-header bg-light d-flex justify-content-between align-items-center"
+  >
+    <h3 class="mb-0 text-primary fs-5 fw-bold">Categories</h3>
+    <button
+      class="btn btn-outline-primary btn-sm px-2 py-1 p-0"
+      (click)="openDialog('add')"
+    >
+      <i class="pi pi-plus pt-1"></i>
+    </button>
+  </div>
+
+  <!-- Data Table -->
+  <div>
+    <p-table
+      [value]="categories"
+      [paginator]="true"
+      [rows]="5"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [scrollable]="true"
+      [scrollHeight]="'500px'"
+      [tableStyle]="{ 'min-width': '100%' }"
+      class="table-striped table-hover align-middle mb-0"
+    >
+      <!-- Header -->
+      <ng-template pTemplate="header">
+        <tr class="bg-secondary text-white">
+          <th class="py-3 px-4">Category Name</th>
+          <th class="py-3 px-4">Number of Products</th>
+          <th class="py-3 px-4">Status</th>
+          <th class="py-3 px-4">Actions</th>
+        </tr>
+      </ng-template>
+
+      <!-- Body -->
+      <ng-template pTemplate="body" let-category>
+        <tr>
+          <td class="py-3 px-4 text-dark fw-semibold">{{ category.name }}</td>
+          <td class="py-3 px-4">{{ category.productCount }}</td>
+          <td class="py-3 px-4">
+            <p-tag
+              [value]="category.status"
+              [severity]="getSeverity(category.status)"
+            ></p-tag>
+          </td>
+          <td class="px-4 d-flex gap-2">
+            <button
+              class="btn btn-sm btn-outline-primary p-0 px-2 py-1"
+              (click)="openDialog('edit', category)"
+            >
+              <i class="pi pi-pencil pt-1"></i>
+            </button>
+            <button
+              class="btn btn-sm btn-outline-danger p-0 px-2 py-1"
+              (click)="openDeleteDialog(category)"
+            >
+              <i class="pi pi-trash pt-1"></i>
+            </button>
+            <!-- <button
+              class="btn btn-sm btn-outline-secondary p-0 px-2 py-1"
+              (click)="toggleCategoryStatus(category)"
+            >
+              <i class="pi pi-ban pt-1"></i>
+            </button> -->
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Summary -->
+  <div class="card-footer bg-light text-secondary text-center py-3">
+    In total, there are {{ categories ? categories.length : 0 }} categories.
+  </div>
+
+  <!-- Add/Edit Dialog -->
+  <p-dialog
+    [(visible)]="dialogVisible"
+    [modal]="true"
+    [closable]="true"
+    [header]="dialogMode === 'edit' ? 'Edit Category' : 'Add Category'"
+    [style]="{ width: '700px' }"
+  >
+    <form
+      (ngSubmit)="saveCategory()"
+      #categoryForm="ngForm"
+      class="d-flex flex-column gap-3"
+    >
+      <!-- Category Name Field -->
+      <div class="form-group">
+        <label for="name">Category Name</label>
+        <input
+          id="name"
+          type="text"
+          class="form-control"
+          [(ngModel)]="currentCategory.name"
+          name="name"
+          required
+        />
+      </div>
+
+      <!-- Status Field -->
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select
+          id="status"
+          class="form-control"
+          [(ngModel)]="currentCategory.status"
+          name="status"
+          required
+        >
+          <option value="ACTIVE">Active</option>
+          <option value="INACTIVE">Inactive</option>
+        </select>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="d-flex gap-3 justify-content-end">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="!categoryForm.form.valid"
+        >
+          Save
+        </button>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="dialogVisible = false"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  </p-dialog>
+
+  <!-- Delete Confirmation Dialog -->
+  <p-dialog
+    [(visible)]="deleteDialogVisible"
+    [modal]="true"
+    [closable]="false"
+    header="Confirm Deletion"
+    [style]="{ width: '500px' }"
+  >
+    <p>
+      Are you sure you want to delete <strong>{{ currentCategory.name }}</strong
+      >?
+    </p>
+    <div class="d-flex justify-content-end mt-3 gap-2">
+      <button
+        class="btn btn-danger"
+        (click)="currentCategory._id ? deleteCategory() : null"
+      >
+        Delete
+      </button>
+      <button class="btn btn-secondary" (click)="deleteDialogVisible = false">
+        Cancel
+      </button>
+    </div>
+  </p-dialog>
+</div>

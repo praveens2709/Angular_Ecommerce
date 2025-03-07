@@ -1,0 +1,36 @@
+/* Header Styles */
+.dopeshope-navbar {
+  z-index: 999;
+  transition: 0.5s;
+}
+
+.navbar a {
+  text-decoration: none;
+  color: #e8270d;
+  transition: color 0.3s ease;
+}
+
+.navbar a:hover,
+.navbar a.active {
+  color: #c5341e;
+}
+
+.navbar a::after {
+  background-color: #c5341e;
+}
+
+.navbar a:hover::after,
+.navbar a.active::after {
+  width: 100%;
+  left: 0;
+  background-color: #c5341e;
+}
+
+.pi-shopping-bag {
+  color: #e8270d;
+}
+
+a:hover .pi-shopping-bag,
+a.active .pi-shopping-bag {
+  color: #c5341e;
+}

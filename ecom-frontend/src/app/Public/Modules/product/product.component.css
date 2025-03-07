@@ -1,0 +1,114 @@
+.shop-left input {
+    border: 1px solid #992603;
+    color: #992603;
+    box-shadow: none;
+}
+
+.shop-left input::placeholder {
+    color: #992603;
+    opacity: 0.6;
+}
+
+.shop-left .p-button.p-button-text {
+    background-color: #992603;
+    color: #fff;
+    border-color: #992603;
+}
+
+.shop-left .acc-heading {
+    color: #ffffff;
+    background: #992603;
+    padding: 0.5rem;
+}
+
+.shop-left .p-button {
+    padding: 0.42rem;
+}
+
+.search-btn {
+    width: 45px;
+    height: 40px;
+}
+
+.acc-heading h5,
+.acc-heading p {
+    font-family: "Josefin Sans", serif;
+    letter-spacing: 1px;
+}
+
+.product-topbar {
+    padding: 0 12px 0 20px;
+}
+
+.product-topbar p {
+    font-family: "Josefin Sans", serif;
+    font-size: 18px;
+}
+
+.product {
+    overflow: hidden;
+    transition: transform 0.3s ease-in-out;
+}
+
+.product-img {
+    height: 250px;
+    background: #e0465a36;
+}
+
+.product-img img {
+    object-fit: contain;
+}
+
+.product-content {
+    padding: 5px 45px 5px 5px;
+}
+
+.product-name {
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}
+
+.price {
+    font-size: 0.8rem;
+    color: #992603;
+}
+
+.stock-label {
+    bottom: 10px;
+    left: 0px;
+    padding: 2px 7px;
+    font-size: 0.5rem;
+    z-index: 10;
+}
+
+.bg-green {
+    background-color: #28a745;
+}
+
+.bg-yellow {
+    background-color: #ffc107;
+}
+
+.bg-red {
+    background-color: #dc3545;
+}
+
+.product:hover {
+    transform: translateY(-5px);
+}
+
+.divider3 {
+    width: 95%;
+    margin: 15px auto 0;
+    border: 0.5px solid #992603;
+    opacity: 0.5;
+}
+
+.mt--3 {
+    margin-top: -3px;
+}

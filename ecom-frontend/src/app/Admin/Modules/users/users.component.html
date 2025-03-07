@@ -1,0 +1,115 @@
+<div class="card shadow-sm border-0 rounded-3">
+  <div class="card-header bg-light d-flex justify-content-between align-items-center">
+    <h3 class="mb-0 text-primary fs-5 fw-bold">Users</h3>
+    <div class="p-input-icon-right w-64">
+      <i class="pi pi-search"></i>
+      <input
+        pInputText
+        type="text"
+        (input)="onGlobalFilter($event)"
+        placeholder="Search keyword"
+        class="p-inputtext-sm w-full ps-1"
+      />
+    </div>
+  </div>
+
+  <!-- Responsive Table Wrapper -->
+  <div>
+    <p-table
+      #dt
+      [value]="users"
+      dataKey="id"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [paginator]="true"
+      [scrollable]="true"
+      [scrollHeight]="'500px'"
+      [globalFilterFields]="['firstName', 'lastName', 'email', 'gender', 'mobile']"
+      [tableStyle]="{ 'min-width': '100%' }"
+      class="p-datatable p-datatable-striped"
+    >
+      <!-- Column Headers -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="min-width: 150px; border-bottom: 1px solid #d1d5db">
+            First Name
+            <p-columnFilter
+              type="text"
+              field="firstName"
+              placeholder="Search by first name"
+              class="w-full"
+            ></p-columnFilter>
+          </th>
+          <th style="min-width: 150px; border-bottom: 1px solid #d1d5db">
+            Last Name
+            <p-columnFilter
+              type="text"
+              field="lastName"
+              placeholder="Search by last name"
+              class="w-full"
+            ></p-columnFilter>
+          </th>
+          <th style="min-width: 250px; border-bottom: 1px solid #d1d5db">
+            Email
+            <p-columnFilter
+              type="text"
+              field="email"
+              placeholder="Search by email"
+              class="w-full"
+            ></p-columnFilter>
+          </th>
+          <th style="min-width: 200px; max-width: 200px; border-bottom: 1px solid #d1d5db">
+            Gender
+            <p-columnFilter
+              field="gender"
+              matchMode="equals"
+              [showMenu]="false"
+            >
+              <ng-template
+                pTemplate="filter"
+                let-value
+                let-filter="filterCallback"
+              >
+                <p-dropdown
+                  [ngModel]="value"
+                  [options]="genders"
+                  (onChange)="filter($event.value)"
+                  placeholder="Select Gender"
+                  [showClear]="true"
+                  class="w-100"
+                ></p-dropdown>
+              </ng-template>
+            </p-columnFilter>
+          </th>
+          <th style="min-width: 200px; max-width: 200px; border-bottom: 1px solid #d1d5db">
+            Mobile
+            <p-columnFilter
+              type="text"
+              field="mobile"
+              placeholder="Search by mobile"
+              class="w-full"
+            ></p-columnFilter>
+          </th>
+        </tr>
+      </ng-template>
+
+      <!-- Table Body -->
+      <ng-template pTemplate="body" let-user>
+        <tr style="border-bottom: 1px solid #e5e7eb">
+          <td class="px-3">{{ user.firstName }}</td>
+          <td class="px-3">{{ user.lastName }}</td>
+          <td class="px-3">{{ user.email }}</td>
+          <td class="px-3">{{ user.gender }}</td>
+          <td class="px-3">{{ user.mobile }}</td>
+        </tr>
+      </ng-template>
+
+      <!-- Empty Message -->
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5" class="text-center py-4">No users found.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

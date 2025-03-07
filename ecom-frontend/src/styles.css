@@ -1,0 +1,606 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=La+Belle+Aurore&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Homemade+Apple&display=swap');
+
+/* admin */
+* {
+  /* margin: 0;
+  padding: 0; */
+  box-sizing: border-box;
+  font-family: "Nunito", serif;
+}
+
+a {
+  text-decoration: none !important;
+}
+
+.p-column-filter-row-items {
+  padding-left: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.p-dropdown-panel .p-dropdown-items {
+  padding: 0 0;
+  margin-bottom: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  line-height: 1.5;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.p-toast {
+  max-width: 280px;
+}
+
+.p-toast .p-toast-message .p-toast-message-content {
+  padding: 0px;
+}
+
+.p-toast .p-toast-message .p-toast-message-content .p-toast-message-icon {
+  font-size: 1rem;
+  margin: 8px 0 0 5px;
+}
+
+.p-toast .p-toast-message .p-toast-message-content .p-toast-detail {
+  margin: 0;
+  font-size: 12px;
+}
+
+.p-toast .p-toast-message .p-toast-message-content .p-toast-summary {
+  font-weight: 700;
+  font-size: 16px;
+  margin-top: 7px;
+}
+
+.card .p-tag {
+  border-radius: 8px !important;
+}
+
+.card button {
+  border-radius: 8px !important;
+}
+
+.card .p-dropdown {
+  border-radius: 8px !important;
+}
+
+.p-button.p-button-icon-only.p-button-rounded {
+  border-radius: 50%;
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+.p-column-filter .p-inputtext {
+  padding: 0.2rem 0.5rem !important;
+  font-size: 18px !important;
+  border-radius: 8px !important;
+}
+
+.p-input-icon-right .p-inputtext {
+  border-radius: 8px !important;
+}
+
+.p-component {
+  font-size: 18px;
+}
+
+.p-tag {
+  font-size: 0.75rem !important;
+}
+
+.disabled-row {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.dopeshope {
+  font-family: 'La Belle Aurore', cursive;
+  font-weight: 700;
+  z-index: 10;
+  color: #c5341e;
+  letter-spacing: 0.05em;
+}
+
+.navbar {
+  /* font-family: 'Cinzel', serif; */
+  max-width: 800px;
+  font-weight: 500;
+  z-index: 10;
+  padding-top: 5px !important;
+}
+
+.cart-count {
+  width: 16px;
+  height: 16px;
+  font-size: 12px;
+  top: -5px;
+  right: -13px;
+}
+
+.navbar a:after {
+  background: none repeat scroll 0 0 transparent;
+  content: '';
+  display: block;
+  position: absolute;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  left: 50%;
+  transition: width 0.3s ease 0s, left 0.3s ease 0s;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 30%, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.fadeInUp {
+  animation-name: fadeInUp;
+}
+
+.animate {
+  animation-duration: 1s;
+  animation-fill-mode: both;
+}
+
+.one {
+  animation-delay: 0.3s;
+}
+
+.two {
+  animation-delay: 0.5s;
+}
+
+.three {
+  animation-delay: 0.7s;
+}
+
+.four {
+  animation-delay: 1s;
+}
+
+.five {
+  animation-delay: 1.4s;
+}
+
+.six {
+  animation-delay: 1.8s;
+}
+
+.shop-left .p-accordion .p-accordion-header .p-accordion-header-link {
+  color: #495057 !important;
+  text-decoration: none !important;
+}
+
+.shop-left .p-dropdown {
+  border: 1px solid #c5341e;
+}
+
+.shop-left .p-dropdown .p-dropdown-label.p-placeholder {
+  color: #c5341e;
+}
+
+.shop-left .p-dropdown .p-dropdown-trigger {
+  color: #c5341e;
+}
+
+.shop-right .p-inputtext {
+  color: #c5341e;
+  padding: 0.2rem 0.5rem;
+}
+
+.product-topbar .p-dropdown:not(.p-disabled).p-focus {
+  box-shadow: none;
+  border-color: #992603;
+}
+
+.product-topbar .p-dropdown:not(.p-disabled):hover {
+  border-color: #992603;
+}
+
+.product-topbar .p-dropdown-item {
+  /* font-family: "Josefin Sans", serif; */
+  font-size: 17px;
+  padding: 7px 10px;
+  color: #992603;
+}
+
+.product-topbar .p-dropdown-item:hover {
+  background-color: rgba(205, 29, 13, 0.62);
+  color: #ffffff;
+}
+
+.product-topbar .p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight.p-focus {
+  background: #c81808fa;
+  color: #fff;
+}
+
+.back-button-container {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 10;
+}
+
+.shopping-bag-icon .p-button,
+.back-button {
+  width: 42px;
+  height: 42px;
+  color: #fff;
+  background: #992603;
+  border: 1px solid #992603;
+  border-radius: 50%;
+  padding: 0.5rem 1rem;
+  font-size: 0.7rem;
+}
+
+.shopping-bag-icon .p-button:hover,
+.back-button:hover {
+  color: #992603;
+  background: #fff;
+}
+
+.shop-right .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+  background: #e0465a36;
+  border-color: #e0465a36;
+}
+
+/* Shared Styles for p-checkbox and p-radioButton */
+.p-checkbox .p-checkbox-box,
+.p-radiobutton .p-radiobutton-box {
+  transition: none !important;
+  box-shadow: none !important;
+}
+
+.p-checkbox-box.p-highlight,
+.p-radiobutton-box.p-highlight {
+  background: #992603 !important;
+  border-color: #992603 !important;
+}
+
+.p-checkbox-box,
+.p-radiobutton-box {
+  border-color: #ccc !important;
+}
+
+.p-checkbox-box:hover,
+.p-radiobutton-box:hover {
+  border-color: #992603 !important;
+}
+
+
+/* Cart Body */
+.cart-body {
+  padding: 3rem 10rem !important;
+}
+
+.cl-2-content {
+  .pi {
+    font-size: 13px;
+  }
+
+  .p-button .p-button-icon-left {
+    margin-right: 0;
+  }
+}
+
+.cart-right h6 {
+  /* font-family: "Josefin sans", serif; */
+  font-size: 15px;
+  color: #505050;
+  padding-top: 11.3px;
+}
+
+.cart-right span {
+  /* font-family: "Josefin sans", serif; */
+  font-size: 14px !important;
+  color: #5b5b5b !important;
+}
+
+.cart-right .span {
+  /* font-family: Assistant, Helvetica, Arial, sans-serif !important; */
+  font-size: 14px;
+  color: #5b5b5b;
+  margin-top: -4px;
+}
+
+.cart-body .red {
+  color: #dc3545 !important;
+}
+
+.cart-right .total-amount {
+  /* font-family: "Josefin sans", serif; */
+  font-size: 17px;
+  color: #444444;
+}
+
+.cart-right .span2 {
+  /* font-family: Assistant, Helvetica, Arial, sans-serif !important; */
+  font-size: 15px;
+  color: #444444;
+  margin-top: -5px;
+  letter-spacing: 0.7px;
+}
+
+.cart-right button,
+.modal-body button,
+.profile-box2 button,
+.edit-remove-address button,
+.save-address-btn,
+.common-confirm-btn,
+.edit-remove-card button,
+.delete-account .delete-btn {
+  /* font-family: "Josefin sans", serif; */
+  font-size: 15px;
+  background: rgb(183, 29, 12);
+  color: #ffffff;
+  border-radius: 2px;
+  line-height: 16px;
+  margin-top: 15px;
+  letter-spacing: 1px;
+  padding: 10px 0 8px;
+  border: none;
+  font-weight: 600;
+
+  span {
+    color: #ffffff !important;
+    margin-bottom: 3px;
+  }
+}
+
+.cart-right button:hover,
+.profile-box2 button:hover,
+.edit-remove-address button:hover,
+.save-address-btn:hover,
+.common-confirm-btn:hover,
+.edit-remove-card button:hover,
+.delete-account .delete-btn:hover {
+  background-color: #992603;
+}
+
+.mrp {
+  color: #606060;
+}
+
+.modal-content {
+  .p-dialog .p-dialog-header {
+    border-bottom: 1px solid #dee2e6;
+    padding: 0.5rem 1rem;
+  }
+
+  .p-dialog .p-dialog-header .p-dialog-title {
+    font-size: 1rem !important;
+  }
+
+  .p-dialog .p-dialog-content {
+    background: #ffffff;
+    color: #495057;
+    padding: 1rem;
+  }
+
+}
+
+.small-error {
+  font-size: 12px;
+  margin-left: 5px;
+  position: absolute;
+  left: 0;
+  bottom: -18px;
+}
+
+.small-error-modal {
+  font-size: 12px;
+}
+
+.custom-calendar .p-inputtext {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  outline: none;
+}
+
+.calendar-input-wrapper {
+  border: 1px solid #a1a1a1;
+}
+
+.pi-calendar {
+  padding: 0 20px;
+  font-size: 22px;
+}
+
+.p-datepicker {
+  padding: 0;
+  border-radius: 0;
+}
+
+.p-calendar {
+  display: flex;
+}
+
+.p-datepicker .p-datepicker-header .p-datepicker-prev,
+.p-datepicker .p-datepicker-header .p-datepicker-next {
+  width: 2rem;
+  height: 2rem;
+  color: #6c757d;
+  border: 0 none;
+  background: transparent;
+  border-radius: 50%;
+  margin-top: 0;
+  padding: 0;
+}
+
+.p-datepicker-title .p-datepicker-month {
+  margin-right: 1rem;
+}
+
+.p-datepicker-title .p-datepicker-year {
+  margin-left: 1rem;
+}
+
+.p-datepicker-title .p-datepicker-month,
+.p-datepicker-title .p-datepicker-year {
+  margin-top: 0;
+  background: none;
+  color: #000;
+  font-size: 20px;
+  padding: 0;
+  border-radius: 0;
+}
+
+.p-datepicker-title .p-datepicker-month:hover,
+.p-datepicker-title .p-datepicker-year:hover {
+  background: none;
+  color: #000;
+}
+
+.address-section .p-dialog,
+.cards-section .p-dialog {
+  height: 500px;
+  max-height: none;
+}
+
+.address-section .p-dialog .p-dialog-header,
+.cards-section .p-dialog .p-dialog-header,
+.common-modal .p-dialog .p-dialog-header {
+  border-bottom: 0 none;
+  background: #ffffff;
+  color: #535766;
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
+  padding: 10px 15px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #d4d5d9;
+
+  .p-dialog-title {
+    font-weight: 800;
+    font-size: 14px;
+  }
+}
+
+.edit-profile p,
+label,
+.address-section .p-dialog-content label,
+.cards-section .p-dialog-content label {
+  font-size: 14px;
+  color: #535766;
+  font-weight: 500;
+}
+
+.profile-box2 input,
+.address-section .p-dialog-content .form-group input,
+.cards-section .p-dialog-content .form-group input {
+  border: 1px solid #a1a1a1;
+  box-shadow: none;
+  border-radius: 0;
+  font-size: 18px;
+}
+
+
+.add-address,
+.add-card {
+  font-size: 13px;
+  color: #992603;
+  border: 1px solid #992603;
+  cursor: pointer;
+  transition: 0.3s;
+
+  .pi-plus {
+    font-size: 13px;
+    margin-top: -1px;
+  }
+}
+
+.add-address:hover,
+.add-card:hover {
+  background: #992603;
+  color: #ffffff;
+}
+
+.address-section,
+.cards-section,
+.delete-account,
+.common-modal {
+  width: 80%;
+
+  h6 {
+    color: #992603;
+  }
+
+  .profile-box {
+    width: 100%;
+    background: #f3f3f3c2;
+  }
+
+  .dialog-content {
+    padding: 20px 0;
+  }
+
+  .fixed-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    z-index: 10;
+  }
+
+  .fixed-footer button {
+    width: 50%;
+  }
+
+  .cancel-address-btn,
+  .keep-btn,
+  .common-cancel-btn {
+    font-size: 15px;
+    background: #6c757d;
+    color: #ffffff;
+    line-height: 16px;
+    margin-top: 15px;
+    letter-spacing: 1px;
+    padding: 10px 0 8px;
+    border: none;
+    font-weight: 600;
+  }
+
+  .cancel-address-btn:hover,
+  .keep-btn:hover,
+  .common-cancel-btn:hover {
+    background: #646464;
+  }
+}
+
+.saved-addresses img,
+.saved-cards img {
+  width: 200px;
+  opacity: 0.7;
+}
+
+.saved-addresses p,
+.saved-cards p {
+  font-size: 15px !important;
+  color: #606060 !important;
+}
+
+.text-orange{
+  color: #ba6708 !important;
+  cursor: pointer;
+}

@@ -1,0 +1,140 @@
+<app-cart-header></app-cart-header>
+<div class="cart-body animate three fadeInUp">
+  <app-back-button></app-back-button>
+  <div class="container">
+    <div class="row px-lg-5">
+      <!-- Left Column -->
+      <div class="col-lg-8 border-end">
+        <div class="cart-left">
+          <div
+            class="cl-1 d-flex align-items-center justify-content-between mb-4 px-2"
+          >
+            <div class="d-flex align-items-center gap-2">
+              <!-- Main Checkbox for Select All -->
+              <p-checkbox
+                binary="true"
+                [(ngModel)]="isChecked"
+                (onChange)="toggleSelectAll()"
+              ></p-checkbox>
+              <h6>
+                {{ selectedItemCount }}/{{ cartItems.length }} ITEMS SELECTED
+              </h6>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+              <button
+                class="h5 border-0 bg-transparent"
+                (click)="removeAllFromCart()"
+              >
+                REMOVE ALL
+              </button>
+              <span></span>
+              <button class="h5 border-0 bg-transparent">
+                MOVE TO WISHLIST
+              </button>
+            </div>
+          </div>
+          <div
+            *ngFor="let item of cartItems; let i = index"
+            class="cl-2 rounded-1 p-2 d-flex align-items-center gap-2 mt-2 position-relative"
+          >
+            <button
+              type="button"
+              class="btn-close position-absolute"
+              (click)="removeFromCart(item.id)"
+            ></button>
+            <!-- Product Image -->
+            <div class="col-lg-3 cl-2-img position-relative">
+              <div class="product-img2">
+                <img [src]="item.image" alt="" class="w-100 h-100" />
+                <p-checkbox
+                  binary="true"
+                  [(ngModel)]="item.isSelected"
+                  (onChange)="toggleSelection(i)"
+                  class="position-absolute custom-checkbox"
+                ></p-checkbox>
+              </div>
+            </div>
+            <!-- Product Info -->
+            <div class="col-lg-8 cl-2-content d-flex flex-column">
+              <p class="fw-bold">{{ item.brand }}</p>
+              <p class="fw-medium fs-7">{{ item.name }}</p>
+              <p class="light-color d-flex gap-1">
+                Sold by:
+                <span class="light-color text-uppercase">{{
+                  item.seller
+                }}</span>
+              </p>
+              <button
+                pButton
+                type="button"
+                label="Qty: {{ item.quantity || 1 }}"
+                icon="pi pi-angle-down"
+                (click)="openQuantityModal(item)"
+                class="p-button-text mb-1"
+              ></button>
+              <div class="d-flex gap-1 pt-1">
+                <p class="fw-bold">{{ item.price | currency : "INR" }}</p>
+                <span class="fw-normal text-decoration-line-through">{{
+                  item.mrp | currency : "INR"
+                }}</span>
+                <span class="fw-medium red">{{ item.discount }}% OFF</span>
+              </div>
+              <div class="d-flex align-items-center gap-1">
+                <img src="assets/images/return.png" alt="return" />
+                <p class="fw-normal d-flex gap-1 fw-medium">
+                  7 days <span class="fw-normal">return available</span>
+                </p>
+              </div>
+              <p class="d-flex gap-1">
+                Delivery in <span class="fw-medium">3-5 days</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Right Column -->
+      <div class="col-lg-4">
+        <app-price-details
+          [priceDetails]="priceDetails"
+          [buttonText]="'Place Order'"
+          [buttonLink]="'/address'"
+          [isButtonDisabled]="priceDetails.itemsCount === 0"
+          warningMessage="Please select at least one item to continue"
+        ></app-price-details>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal content -->
+<div class="modal-content">
+  <p-dialog
+    [(visible)]="isModalVisible"
+    header="Select Quantity"
+    [modal]="true"
+    [closable]="true"
+    (onHide)="closeQuantityModal()"
+    [style]="{ width: '400px' }"
+  >
+    <div class="modal-body">
+      <div class="sizes d-flex gap-2 flex-wrap mb-2">
+        <button
+          *ngFor="let qty of availableQuantities"
+          type="button"
+          class="size-btn fw-bold rounded-circle"
+          [ngClass]="{ selected: qty === selectedQuantity }"
+          (click)="selectQuantity(qty)"
+        >
+          {{ qty }}
+        </button>
+      </div>
+      <button
+        pButton
+        type="button"
+        label="Done"
+        (click)="closeQuantityModal()"
+        class="w-100 p-button-raised"
+      ></button>
+    </div>
+  </p-dialog>
+</div>

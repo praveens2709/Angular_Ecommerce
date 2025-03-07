@@ -1,0 +1,64 @@
+<app-header></app-header>
+
+<div class="my-account">
+  <div class="acc-header animate three fadeInUp">
+    <h6 class="fw-bold mb-0">Account</h6>
+    <p class="fw-normal pb-2 mb-0 border-bottom">
+      <ng-container *ngIf="userName; else signInSignUp">
+        {{ userName }}
+      </ng-container>
+      <ng-template #signInSignUp>
+        <p class="fw-normal pb-2 mb-0 d-flex gap-1">Guest | <a routerLink="/public/auth" class="text-orange">Sign In</a></p>
+      </ng-template>
+    </p>
+  </div>
+
+  <div class="row animate four fadeInUp">
+    <div class="col-lg-3 acc-body border-end">
+      <div class="acc-left me-2">
+        <p
+          class="py-3 border-bottom"
+          [class.active]="'/account/overview' === currentRoute"
+          routerLink="/account/overview">
+          Overview
+        </p>
+        <div class="py-2 dark">Orders</div>
+        <p
+          class="pb-3 border-bottom"
+          [class.active]="'/account/orders' === currentRoute"
+          routerLink="/account/orders">
+          Orders & Returns
+        </p>
+        <div class="py-2 dark">Account</div>
+        <p
+          class="pb-1"
+          [class.active]="'/account/profile' === currentRoute"
+          routerLink="/account/profile">
+          Profile
+        </p>
+        <p
+          class="pb-1"
+          [class.active]="'/account/addresses' === currentRoute"
+          routerLink="/account/addresses">
+          Addresses
+        </p>
+        <p
+          class="pb-1"
+          [class.active]="'/account/cards' === currentRoute"
+          routerLink="/account/cards">
+          Saved Cards
+        </p>
+        <p
+          class="pb-3 border-bottom"
+          [class.active]="'/account/delete' === currentRoute"
+          routerLink="/account/delete">
+          Delete Account
+        </p>
+      </div>
+    </div>
+
+    <div class="col-lg-9 acc-body">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

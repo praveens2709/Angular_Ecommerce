@@ -1,0 +1,40 @@
+<div class="profile-box mt-3 px-5 py-4">
+  <h6 class="pb-2">Delete Account</h6>
+  <div class="delete-img text-center">
+    <img src="assets/images/hurt.png" alt="hurt" class="pt-2" />
+  </div>
+  <p class="pt-3 fw-semibold mb-2">Is this goodbye? Are you sure you don't want to reconsider?</p>
+  <ul>
+    <li>
+      <p>
+        You'll lose your order history, saved details and all other benefits.
+      </p>
+    </li>
+    <li>
+      <p>
+        Any pending orders, exchanges, returns or refunds will no longer be accessible via your account.
+      </p>
+    </li>
+    <li>
+      <p>
+        DopeShope may refuse or delay deletion in case there are any pending grievances related to orders, shipments, cancellations, or any other services offered by DopeShope.
+      </p>
+    </li>
+    <li>
+      <p>
+        DopeShope may retain certain data for legitimate reasons such as security, fraud prevention, future abuse, regulatory compliance including exercise of legal rights or comply with legal orders under applicable laws.
+      </p>
+    </li>
+  </ul>
+  <div class="agree-input-box d-flex align-items-center">
+    <p-checkbox [(ngModel)]="isAgreed" inputId="terms"></p-checkbox>
+    <p class="ps-2 mb-0">I agree to all the terms and conditions*</p>
+  </div>
+  <div class="delete-account mt-2 d-flex align-items-center justify-content-between gap-2 w-100">
+    <button [disabled]="!isAgreed" class="delete-btn w-100">DELETE ACCOUNT</button>
+    <span class="fs-3 pt-2 fw-lighter">|</span>
+    <button routerLink="/" (click)="scrollUp()" class="keep-btn w-100">
+      KEEP ACCOUNT
+    </button>
+  </div>
+</div>

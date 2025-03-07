@@ -1,0 +1,32 @@
+<div class="cart-header animate one fadeInUp">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        <a routerLink="/">
+          <div>
+            <h5>DopeShope</h5>
+          </div>
+        </a>
+        <div class="cart-pages d-flex align-items-center">
+          <h6 [class.active]="isActive('/cart')">
+            <a *ngIf="!isActive('/cart')">BAG</a>
+            <span *ngIf="isActive('/cart')">BAG</span>
+          </h6>
+          <span>-----------</span>
+          <h6 [class.active]="isActive('/address')">
+            <a *ngIf="!isActive('/address')">ADDRESS</a>
+            <span *ngIf="isActive('/address')">ADDRESS</span>
+          </h6>
+          <span>-----------</span>
+          <h6 [class.active]="isActive('/payment')">
+            <a *ngIf="!isActive('/payment')">PAYMENT</a>
+            <span *ngIf="isActive('/payment')">PAYMENT</span>
+          </h6>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+          <img src="assets/images/secure.png" alt="secure" />
+          <h6 class="fw-medium">100% SECURE</h6>
+        </div>
+      </div>
+    </div>
+  </div>
+  

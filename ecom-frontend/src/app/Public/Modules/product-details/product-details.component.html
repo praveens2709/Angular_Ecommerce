@@ -1,0 +1,51 @@
+<div class="page-container d-flex flex-column h-100">
+  <app-header></app-header>
+  <div class="container-fluid w-100 product-details-div d-flex animate three fadeInUp flex-grow-1 position-relative">
+    <app-back-button></app-back-button>
+    <!-- Main Image Container -->
+    <div class="product-image-container w-100">
+      <div class="product-bg position-relative d-flex justify-content-center align-items-center">
+        <h1 class="position-absolute dope-text">
+          <span class="first-letter">D</span>opeShop<span class="last-letter">e</span>
+      </h1>      
+        <img [src]="product?.image" alt="{{ product?.name }}" class="position-absolute w-100" />
+      </div>
+    </div>
+    <!-- Right Product Details -->
+    <div class="product-details w-100">
+      <h3 class="dopeshope fs-6 mb-2">DopeShope</h3>
+      <h6 class="fw-normal fs-3 pb-1 border-bottom">{{ product?.name }}</h6>
+      <p class="discount-percentage bg-danger text-white px-1 mb-0">-{{ product?.discount }}%</p>
+      <div class="d-flex flex-column">
+        <h5 class="d-flex gap-3 price fw-semibold mt-1 mb-0">{{ product?.price | currency : "INR" }}<p class="fw-lighter mb-0 mrp text-decoration-line-through">{{ product?.mrp | currency : "INR" }}</p></h5>
+        <h6 class="price-info fw-semibold mb-2">Inclusive of all taxes</h6>
+      </div>
+      <!-- Stock Status -->
+      <div class="stock-status d-flex align-items-center mb-3">
+        <span 
+          class="stock-label text-white"
+          [ngClass]="{
+            'bg-green': product?.inventoryStatus === 'INSTOCK',
+            'bg-yellow': product?.inventoryStatus === 'LOWSTOCK',
+            'bg-red': product?.inventoryStatus === 'OUTOFSTOCK'
+          }">
+          {{ getReadableStatus(product?.inventoryStatus) }}
+        </span>
+      </div>
+      <!-- Product Details -->
+      <div class="d-flex flex-column">
+        <p class="d-flex align-items-center gap-2 fw-semibold mt-1 mb-1">
+          Product Details
+          <i class="pi pi-tag description-icon fw-semibold"></i>
+        </p>
+        <h6 class="description fw-semibold mb-3 pb-2 border-bottom">{{ product?.description }}</h6>
+      </div>
+      <div (click)="addToCart(product)" class="add-to-cart d-flex align-items-center justify-content-around gap-2">
+        <button class="icon-btn border-0">
+          <i class="pi pi-shopping-bag"></i>
+        </button>
+        <span class="cart-text fw-medium">Add to Cart</span>
+      </div>
+    </div>
+  </div>
+</div>

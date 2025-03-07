@@ -1,0 +1,65 @@
+.address-delivery img {
+    width: 50px;
+    background: #e0465a36;
+    padding: 3px 2px;
+}
+
+.address-delivery p {
+    /* font-family: "Josefin sans", serif; */
+    font-size: 13px !important;
+}
+
+.cart-left .address-section {
+    width: 100%;
+}
+
+.cart-left .address-section h6,
+.cart-left .payment-section h6 {
+    /* font-family: "Josefin sans", serif; */
+    font-size: 20px;
+    color: #992603;
+}
+
+.profile-box {
+    background: #f5f5f5;
+}
+
+.add-address {
+    font-size: 13px;
+    color: #992603;
+    border: 1px solid #992603;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.add-address:hover{
+    background: #992603;
+    color: #fff;
+}
+
+.address-section span {
+    font-size: 13px;
+}
+
+.address-section p {
+    font-size: 15px;
+    color: #992603;
+}
+
+.address-font p {
+    font-size: 14px;
+}
+
+.address-font .dark {
+    color: #606060 !important;
+}
+
+.address-section button {
+    letter-spacing: 0.8px;
+    font-size: 14px;
+    color: #992603;
+}
+
+.address-type{
+    color: #dc3545;
+    border: 1px solid #dc3545;
+}

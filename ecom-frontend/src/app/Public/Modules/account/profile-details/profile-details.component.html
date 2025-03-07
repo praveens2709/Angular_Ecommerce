@@ -1,0 +1,27 @@
+<div class="profile-box2 px-5 py-4 mt-2">
+  <h6 class="pb-2 fw-semibold">Profile Details</h6>
+
+  <div *ngIf="user; else notLoggedIn">
+    <div class="d-flex gap-5">
+      <div>
+        <p class="pt-2">Full Name:</p>
+        <p class="pt-2">Mobile Number:</p>
+        <p class="pt-2">Email ID:</p>
+        <p class="pt-2">Gender:</p>
+        <p class="pt-2">Date of Birth:</p>
+      </div>
+      <div>
+        <p class="pt-2">{{ user?.fullName }}</p>
+        <p class="pt-2">{{ user?.mobile }}</p>
+        <p class="pt-2">{{ user?.email }}</p>
+        <p class="pt-2">{{ user?.gender }}</p>
+        <p class="pt-2">{{ user?.dateOfBirth || 'Not Provided' }}</p>
+      </div>
+    </div>
+    <button class="mt-3 py-2 w-100" [routerLink]="'/account/profile/edit'">Edit Profile</button>
+  </div>
+
+  <ng-template #notLoggedIn>
+    <p class="text-center mt-3">Please <a routerLink="/public/auth" class="text-orange">Sign In</a> to view your profile details.</p>
+  </ng-template>
+</div>

@@ -1,0 +1,39 @@
+.profile-box {
+  width: 100%;
+  background: #f3f3f3c2;
+
+  h6 {
+    border-bottom: 1px solid #992603;
+    padding-bottom: 0.5rem;
+  }
+
+  .delete-img img{
+    width: 200px;
+  }
+
+  p{
+    font-size: 18px;
+    color: #606060;
+  }
+
+  ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+
+    li {
+      margin-bottom: 0.3rem;
+
+      p {
+        color: #747474;
+        font-size: 16px;
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .agree-input-box {
+    p {
+      font-size: 14px;
+    }
+  }
+}

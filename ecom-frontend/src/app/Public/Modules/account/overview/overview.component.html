@@ -1,0 +1,21 @@
+<div class="profile-box d-flex justify-content-between p-4 mt-2">
+  <div class="d-flex align-items-center gap-4">
+    <div class="profile-img pt-2 px-1">
+      <img src='assets/images/user-profile.png' alt="profile-img" class="w-100 h-100" />
+    </div>
+    <div class="fw-normal email-add">{{ email }}</div>
+  </div>
+  <button class="edit-profile" [routerLink]="'/account/profile/edit'" [class.d-none]="!userId">
+    Edit Profile
+  </button>
+</div>
+
+<div class="row options">
+  <div class="col-lg-4" *ngFor="let option of overviewOptions" (click)="navigateToSection(option.section)">
+    <div class="option px-3 d-flex justify-content-center align-items-center flex-column cursor-pointer">
+      <img [src]="option.image" [alt]="option.altText" class="pb-1" />
+      <p class="fw-normal text-black mb-0 pb-0">{{ option.title }}</p>
+      <span class="text-center mt-0">{{ option.description }}</span>
+    </div>
+  </div>
+</div>

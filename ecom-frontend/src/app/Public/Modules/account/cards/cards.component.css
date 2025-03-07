@@ -1,0 +1,17 @@
+.cards-section {
+  span {
+    font-size: 13px;
+    color: #747474;
+  }
+  .profile-box {
+    .card-type-icon {
+      width: 40px;
+      height: auto;
+    }
+  }
+}
+
+.card-details p {
+  font-size: 16px;
+  color: #696969;
+}

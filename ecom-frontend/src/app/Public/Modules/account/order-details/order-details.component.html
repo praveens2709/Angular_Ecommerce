@@ -1,0 +1,62 @@
+<p class="dark my-2">Order Details</p>
+
+<div *ngIf="order">
+  <div class="order-box p-3">
+    <div *ngFor="let product of order.products">
+      <a
+        [routerLink]="['/product-detail', product.productId]"
+        class="text-decoration-none text-dark"
+      >
+        <div
+          class="d-flex align-items-center justify-content-between product-details border-0 pb-3 border-bottom"
+        >
+          <div class="d-flex align-items-center gap-3 pt-2">
+            <div class="order-img bg-white">
+              <img
+                [src]="product.image || 'assets/images/default.png'"
+                alt="product-img"
+                class="w-100 h-100"
+              />
+            </div>
+            <div class="order-details d-flex flex-column">
+              <p class="fw-medium mb-0">{{ product.storeName }}</p>
+              <span>{{ product.productName }}</span>
+              <span>Size: {{ product.size }}</span>
+            </div>
+          </div>
+          <i class="pi pi-angle-right text-black"></i>
+        </div>
+      </a>
+    </div>
+    <p
+      class="order-status mt-3 d-flex align-items-center gap-2 fw-semibold"
+      [ngClass]="getStatusClass(order.status)"
+    >
+      {{ order.status }}
+      <img [src]="getStatusIcon(order.status)" alt="{{ order.status }}" />
+    </p>
+    <p><strong>Order ID:</strong> {{ order._id }}</p>
+    <p><strong>Customer Name:</strong> {{ order.customerName }}</p>
+    <p><strong>Order Date:</strong> {{ order.orderDate | date }}</p>
+    <p><strong>Total Amount:</strong> ${{ order.totalAmount }}</p>
+    <button
+      class="cancel-order-btn w-100"
+      (click)="showCancelDialog()"
+      *ngIf="order.status !== 'Cancelled' && order.status !== 'Delivered'"
+    >
+      Cancel Order
+    </button>
+  </div>
+</div>
+
+<!-- Confirmation Dialog -->
+<app-common-dialog
+  [visible]="isDialogVisible"
+  title="Cancel Order"
+  message="Are you sure you want to cancel this order?"
+  confirmButtonText="Confirm"
+  cancelButtonText="Cancel"
+  (confirm)="confirmCancelOrder()"
+  (cancel)="closeDialog()"
+  (close)="isDialogVisible = false"
+></app-common-dialog>

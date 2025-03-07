@@ -1,0 +1,9 @@
+.order-warning i,
+span {
+    font-size: 13px;
+    color: #992603;
+}
+
+.disabled-button {
+    opacity: 0.8;
+}

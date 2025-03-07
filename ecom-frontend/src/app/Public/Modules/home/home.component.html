@@ -1,0 +1,37 @@
+<div class="container-fluid about-banner banner position-relative">
+  <div class="container">
+    <div class="text-center pt-2 fs-4 dopeshope position-relative animate one fadeInUp">
+      DopeShope
+    </div>
+    <div class="u-hover d-flex justify-content-evenly m-auto navbar animate two fadeInUp">
+      <a routerLink="/home" routerLinkActive="active" class="px-2 text-white position-relative">Home</a>
+      <a routerLink="/shop" class="px-2 text-white position-relative">Products</a>
+      <!-- <a routerLink="/about" class="px-2 text-white position-relative">About</a>
+      <a routerLink="/contact" class="px-2 text-white position-relative">Contact</a> -->
+      <a routerLink="/account" class="px-2 text-white position-relative">Account</a>
+      <a routerLink="/cart" class="position-relative text-white">
+        <i class="pi pi-shopping-bag"></i>
+        <div class="cart-count text-black rounded-circle fw-bold d-flex justify-content-center align-items-center bg-white position-absolute">
+          {{ cartCount }}
+        </div>
+      </a>
+    </div>
+    <div class="row content-row">
+      <div class="col-lg-8 col-xs-12 col-sm-10 content">
+        <h5 class="animate three fadeInUp">Let's Dope Shope</h5>
+        <h1 class="pt-lg-3 animate four fadeInUp">
+          WHERE STYLE<br /> MEETS ELEGANCE
+        </h1>
+        <p class="pt-lg-5 animate five fadeInUp">
+          DopeShope, Where style meets substance. Elevate your wardrobe with our carefully curated
+          collection of must-have apparel, accessories, and footwear to elevate your style game effortlessly.
+        </p>
+        <a routerLink="/shop">
+          <button type="button" (click)="scrollUp()" class="shop-now-btn mt-5 shadow-lg animate six fadeInUp">
+            SHOP NOW
+          </button>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

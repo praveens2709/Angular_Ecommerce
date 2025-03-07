@@ -1,0 +1,170 @@
+<div class="card shadow-sm border-0 rounded-3">
+  <!-- Caption Section -->
+  <div class="card-header bg-light d-flex justify-content-between align-items-center">
+    <h3 class="mb-0 text-primary fs-5 fw-bold">Products</h3>
+    <button class="btn btn-outline-primary btn-sm px-2 py-1 p-0" (click)="openDialog('add')">
+      <i class="pi pi-plus pt-1"></i>
+    </button>
+  </div>
+  <!-- Data Table -->
+  <div>
+    <p-table
+      [value]="products"
+      [paginator]="true"
+      [rows]="5"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [scrollable]="true"
+      [scrollHeight]="'500px'"
+      [tableStyle]="{ 'min-width': '100%' }"
+      class="table-striped table-hover align-middle mb-0"
+    >
+      <!-- Header -->
+      <ng-template pTemplate="header">
+        <tr class="bg-secondary text-white">
+          <th class="py-3 px-4">Name</th>
+          <th class="py-3 px-4">Image</th>
+          <th class="py-3 px-4">Price</th>
+          <th class="py-3 px-4">Category</th>
+          <th class="py-3 px-4">Status</th>
+          <th class="py-3 px-4">Actions</th>
+        </tr>
+      </ng-template>
+      <!-- Body -->
+      <ng-template pTemplate="body" let-product>
+        <tr>
+          <td class="py-3 px-4 text-dark fw-semibold">{{ product.name }}</td>
+          <td class="py-3 px-4">
+            <img
+              [src]="product.image || 'assets/images/placeholder.png'"
+              [alt]="product.name"
+              class="rounded shadow-sm product-img"
+            />
+          </td>
+          <td class="py-3 px-4 text-success fw-bold">
+            {{ product.price | currency : "INR" }}
+          </td>
+          <td class="py-3 px-4 text-muted">{{ product.category || 'No Category' }}</td>
+          <td class="py-3 px-4">
+            <p-tag [value]="product.inventoryStatus" [severity]="getSeverity(product.inventoryStatus)"></p-tag>
+          </td>
+          <td class="pb-0 px-4 d-flex gap-2" style="padding-top: 2rem">
+            <button class="btn btn-sm btn-outline-primary p-0 px-2 py-1" (click)="openDialog('edit', product)">
+              <i class="pi pi-pencil pt-1"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger p-0 px-2 py-1" (click)="openDeleteDialog(product)">
+              <i class="pi pi-trash pt-1"></i>
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <!-- Summary -->
+  <div class="card-footer bg-light text-secondary text-center py-3">
+    In total, there are {{ products ? products.length : 0 }} products.
+  </div>
+  <!-- Add/Edit Dialog -->
+  <p-dialog [(visible)]="dialogVisible" [modal]="true" [closable]="true" [header]="dialogMode === 'edit' ? 'Edit Product' : 'Add Product'" [style]="{ width: '700px' }">
+    <form [formGroup]="productForm" (ngSubmit)="saveProduct()" class="d-flex flex-column gap-3">
+      <!-- Name and Category Fields -->
+      <div class="d-flex gap-3">
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input
+            id="name"
+            type="text"
+            class="form-control"
+            formControlName="name"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="category">Category</label>
+          <select
+            id="category"
+            class="form-control"
+            formControlName="category"
+            required
+          >
+            <option *ngFor="let category of categories" [value]="category.name">
+              {{ category.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <!-- Price and Status Fields -->
+      <div class="d-flex gap-3">
+        <div class="form-group">
+          <label for="price">Price</label>
+          <input
+            id="price"
+            type="number"
+            class="form-control"
+            formControlName="price"
+            required
+            min="0"
+          />
+        </div>
+        <div class="form-group">
+          <label for="status">Status</label>
+          <select
+            id="status"
+            class="form-control"
+            formControlName="inventoryStatus"
+            required
+          >
+            <option value="INSTOCK">In Stock</option>
+            <option value="LOWSTOCK">Low Stock</option>
+            <option value="OUTOFSTOCK">Out of Stock</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" class="form-control" rows="3" formControlName="description" required></textarea>
+      </div>
+      <!-- Image Input and Preview -->
+      <div class="d-flex gap-3 align-items-center">
+        <div class="form-group">
+          <label for="image">Image</label>
+          <input
+            id="image"
+            type="file"
+            class="form-control"
+            (change)="onImageUpload($event)"
+            accept="image/*"
+          />
+        </div>
+        <div class="image-preview d-flex justify-content-center align-items-center">
+          <img
+            *ngIf="productForm.value.image"
+            [src]="productForm.value.image"
+            alt="Product Image"
+            class="w-100 h-100"
+          />
+          <img
+            *ngIf="!productForm.value.image"
+            src="assets/images/placeholder.png"
+            alt="No Image"
+            class="w-100 h-100"
+          />
+        </div>
+      </div>
+      <!-- Action Buttons -->
+      <div class="d-flex justify-content-end gap-3">
+        <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid">
+          Save Product
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+      </div>
+    </form>    
+  </p-dialog>
+  <!-- Delete Confirmation Dialog -->
+  <p-dialog [(visible)]="deleteDialogVisible" [modal]="true" [closable]="false" header="Confirm Deletion" [style]="{ width: '500px' }">
+    <p>Are you sure you want to delete <strong>{{ currentProduct.name }}</strong>?</p>
+    <div class="d-flex justify-content-end mt-3 gap-2">
+      <button class="btn btn-danger" (click)="deleteProduct()">Delete</button>
+      <button class="btn btn-secondary" (click)="deleteDialogVisible = false">Cancel</button>
+    </div>
+  </p-dialog>
+</div>

@@ -1,0 +1,49 @@
+<div class="cart-right">
+  <div class="d-flex align-items-center gap-2">
+    <h6 class="mb-3 fw-bold">PRICE DETAILS</h6>
+    <h6 class="pt-0 fw-semibold">({{ priceDetails.itemsCount }} Items)</h6>
+  </div>
+  <div class="d-flex align-items-center justify-content-between mt-3">
+    <span class="fw-medium">Total MRP</span>
+    <span class="span">{{ priceDetails.totalMRP | currency : "INR" }}</span>
+  </div>
+  <div class="d-flex align-items-center justify-content-between mt-2">
+    <span class="fw-medium">Discount on MRP</span>
+    <span class="span red"
+      >- {{ priceDetails.discount | currency : "INR" }}</span
+    >
+  </div>
+  <div class="d-flex align-items-center justify-content-between mt-2">
+    <span class="fw-medium">Platform Fee</span>
+    <span class="span red">{{ priceDetails.platformFee }}</span>
+  </div>
+  <div
+    class="d-flex align-items-center justify-content-between mt-2 pb-3 border-bottom"
+  >
+    <span class="fw-medium">Shipping Fee</span>
+    <span class="span red">{{ priceDetails.shippingFee }}</span>
+  </div>
+  <div class="d-flex align-items-center justify-content-between mt-2">
+    <span class="total-amount fw-semibold">Total Amount</span>
+    <span class="fw-bold span2">{{
+      priceDetails.totalAmount | currency : "INR"
+    }}</span>
+  </div>
+  <button
+    *ngIf="buttonText && buttonLink"
+    type="button"
+    class="w-100 mb-2"
+    [routerLink]="!isButtonDisabled ? buttonLink : null"
+    [ngClass]="{ 'disabled-button': isButtonDisabled }"
+    (click)="onButtonClick()"
+  >
+    {{ buttonText }}
+  </button>
+  <div
+    *ngIf="warningMessage && showWarning"
+    class="d-flex gap-1 align-items-center justify-content-center order-warning"
+  >
+    <i class="pi pi-info-circle"></i>
+    <span>{{ warningMessage }}</span>
+  </div>
+</div>

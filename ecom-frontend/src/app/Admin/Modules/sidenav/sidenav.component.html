@@ -1,0 +1,59 @@
+<div class="layout-container">
+  <!-- Sidenav -->
+  <div class="sidenav" [ngClass]="collapsed ? 'sidenav-collapsed' : ''">
+    <div class="logo-container d-flex align-items-center w-100">
+      <img
+        class="logo rounded-circle cursor-pointer"
+        (click)="toggleCollapse()"
+        src="../../../../assets/images/ds-logo.png"
+      />
+      <div class="logo-text ms-3 fw-bold text-white" @fadeInOut *ngIf="collapsed">
+        DopeShope
+      </div>
+      <button
+        class="btn-close ms-auto cursor-pointer rounded-circle bg-transparent p-0 mt-1 border-0"
+        @rotate
+        (click)="closeSidenav()"
+        *ngIf="collapsed"
+      >
+        <i class="pi pi-times close-icon pt-1"></i>
+      </button>
+    </div>
+    <ul
+      class="sidenav-nav list-unstyled m-0 d-flex flex-column align-items-center cursor-pointer"
+    >
+      <li class="sidenav-nav-item w-100" *ngFor="let data of navData">
+        <a
+          class="sidenav-nav-link d-flex align-items-center"
+          [routerLink]="[data.routerLink]"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <i class="sidenav-link-icon text-center" [class]="data.icon"></i>
+          <span class="sidenav-link-text" @fadeInOut *ngIf="collapsed">{{
+            data.label
+          }}</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Header -->
+  <div class="header position-fixed top-0 border-bottom px-4 py-2 d-flex align-items-center justify-content-between">
+    <div class="input-group w-50">
+      <input type="text" class="form-control" placeholder="Search..." />
+      <button class="btn btn-outline-secondary">
+        <i class="pi pi-search text-white pt-1"></i>
+      </button>
+    </div>
+  
+    <div class="d-flex align-items-center gap-3">
+      <button class="btn btn-outline-secondary rounded-circle pt-2">
+        <i class="pi pi-bell text-white"></i>
+      </button>
+      <button class="btn btn-outline-secondary rounded-circle pt-2">
+        <i class="pi pi-user text-white"></i>
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,27 @@
+/* Banner Styles */
+.pages-bg {
+    background-image: url(../../../../assets/images/home-neon-light-closet-design.jpg);
+    background-size: cover;
+    background-position: center 37%;
+  }
+  
+  .pages-bg h4 {
+    /* font-family: "Comfortaa", sans-serif; */
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 5px;
+  }
+  
+  .pages-bg h6 {
+    /* font-family: "Comfortaa", sans-serif; */
+    font-size: 16px;
+  }
+  
+  .opacity-dim {
+    opacity: 0.5;
+  }
+  
+  .gap-6{
+    gap: 5.5rem;
+  }
+  

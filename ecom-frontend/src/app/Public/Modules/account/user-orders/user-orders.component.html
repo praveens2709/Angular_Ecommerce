@@ -1,0 +1,34 @@
+<div class="mt-2">
+  <p class="dark mb-0">All Orders</p>
+</div>
+
+<div class="pt-2">
+  <div *ngFor="let order of orders" class="mb-3">
+    <div class="p-2 order-box">
+      <p
+        class="mb-1 order-status bg-white d-flex gap-1 align-items-center p-1 fw-semibold"
+        [ngClass]="getStatusClass(order.status)"
+      >
+        {{ order.status }}
+        <img [src]="getStatusIcon(order.status)" alt="{{ order.status }}" />
+      </p>
+
+      <a *ngIf="order._id" [routerLink]="['/account/order-details', order._id]">
+        <div class="d-flex align-items-center justify-content-between product-details">
+          <div class="d-flex align-items-center gap-3 pt-2">
+            <div class="order-img bg-white">
+              <img [src]="order.products[0]?.image || 'assets/images/default.png'" 
+                   alt="product-img" class="w-100 h-100"/>
+            </div>
+            <div class="order-details d-flex flex-column">
+              <p class="fw-medium mb-0">{{ order.products[0]?.storeName }}</p>
+              <span>{{ order.products[0]?.productName }}</span>
+              <span>Size: {{ order.products[0]?.size }}</span>
+            </div>
+          </div>
+          <i class="pi pi-angle-right text-black"></i>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>

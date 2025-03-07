@@ -1,0 +1,192 @@
+{
+  "auth": [
+    {
+      "id": "1",
+      "name": "Admin",
+      "email": "admin@gmail.com",
+      "password": "password"
+    }
+  ],
+  "categories": [
+    {
+      "id": "eba7",
+      "name": "Men's Clothing",
+      "status": "ACTIVE",
+      "productCount": 3
+    },
+    {
+      "id": "71ee",
+      "name": "Women's Clothing",
+      "status": "ACTIVE",
+      "productCount": 0
+    }
+  ],
+  "products": [
+    {
+      "id": "1",
+      "name": "Men's Cotton T-shirt",
+      "category": "Men's Clothing",
+      "price": 499,
+      "inventoryStatus": "INSTOCK",
+      "description": "A comfortable and breathable cotton t-shirt for men, offering a perfect balance of style and ease for everyday wear.",
+      "image": "assets/images/product.png",
+      "brand": "DopeShope",
+      "seller": "dopeshope pvt. ltd.",
+      "discount": 10,
+      "mrp": 554
+    },
+    {
+      "id": "2",
+      "name": "Women's Cotton T-shirt",
+      "category": "Women's Clothing",
+      "price": 599,
+      "inventoryStatus": "INSTOCK",
+      "description": "A comfortable and breathable cotton t-shirt for women, offering a perfect balance of style and ease for everyday wear.",
+      "image": "assets/images/product4.png",
+      "brand": "DopeShope",
+      "seller": "dopeshope pvt. ltd.",
+      "discount": 20,
+      "mrp": 749
+    },
+    {
+      "id": "3",
+      "name": "Men's Cotton T-shirt",
+      "category": "Men's Clothing",
+      "price": 559,
+      "inventoryStatus": "INSTOCK",
+      "description": "A comfortable and breathable cotton t-shirt for men, offering a perfect balance of style and ease for everyday wear.",
+      "image": "assets/images/product3.png",
+      "brand": "DopeShope",
+      "seller": "dopeshope pvt. ltd.",
+      "discount": 20,
+      "mrp": 699
+    }
+  ],
+  "users": [
+    {
+      "id": "1",
+      "firstName": "John",
+      "lastName": "Doe",
+      "fullName": "John Doe",
+      "email": "john.doe@example.com",
+      "gender": "Male",
+      "active": true,
+      "mobile": "1234567890",
+      "addresses": [
+        {
+          "fullName": "Praveen Sharma",
+          "mobile": "9116577183",
+          "postalCode": "342005",
+          "state": "Rajasthan",
+          "street": "275-A, Bapunagar, Jhalamand",
+          "city": "Jodhpur",
+          "type": "Home",
+          "id": "xb7zhq1ij"
+        },
+        {
+          "fullName": "Nikunj Rathi",
+          "mobile": "8955615637",
+          "postalCode": "342003",
+          "state": "Rajasthan",
+          "street": "69, Nikunj Vihar",
+          "city": "Jodhpur",
+          "type": "Home",
+          "id": "2g8406pvq"
+        }
+      ],
+      "cards": [
+        {
+          "id": "c1",
+          "cardHolderName": "John Doe",
+          "cardNumber": "4242424242424242",
+          "expiryMonth": "12",
+          "expiryYear": "2025",
+          "cardType": "VISA"
+        },
+        {
+          "id": "c2",
+          "cardHolderName": "John Doe",
+          "cardNumber": "5555555555554444",
+          "expiryMonth": "06",
+          "expiryYear": "2026",
+          "cardType": "MasterCard"
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "fullName": "Jane Smith",
+      "email": "jane.smith@example.com",
+      "gender": "Female",
+      "active": true,
+      "mobile": "9876543210",
+      "addresses": [
+        {
+          "id": "a3",
+          "fullName": "Jane Smith",
+          "street": "789 Oak Avenue",
+          "city": "Shelbyville",
+          "state": "IL",
+          "postalCode": "62565",
+          "country": "USA",
+          "type": "Home",
+          "mobile": "9876543210"
+        }
+      ],
+      "cards": [
+        {
+          "id": "c3",
+          "cardHolderName": "Jane Smith",
+          "cardNumber": "6011111111111117",
+          "expiryMonth": "03",
+          "expiryYear": "2027",
+          "cardType": "Discover"
+        }
+      ]
+    }
+  ],
+  "orders": [
+    {
+      "id": "1",
+      "customerName": "John Doe",
+      "orderDate": "2024-12-01",
+      "totalAmount": 120.5,
+      "status": "Delivered"
+    },
+    {
+      "id": "2",
+      "customerName": "Jane Smith",
+      "orderDate": "2024-12-03",
+      "totalAmount": 75,
+      "status": "Cancelled"
+    },
+    {
+      "id": "3",
+      "customerName": "Alice Brown",
+      "orderDate": "2024-12-05",
+      "totalAmount": 200,
+      "status": "Delivered"
+    }
+  ],
+  "cart": [
+    {
+      "id": "1",
+      "name": "Men's Cotton T-shirt",
+      "category": "Men's Clothing",
+      "price": 499,
+      "inventoryStatus": "INSTOCK",
+      "description": "A comfortable and breathable cotton t-shirt for men, offering a perfect balance of style and ease for everyday wear.",
+      "image": "assets/images/product.png",
+      "brand": "DopeShope",
+      "seller": "dopeshope pvt. ltd.",
+      "discount": 10,
+      "mrp": 554,
+      "quantity": 1,
+      "basePrice": 499,
+      "baseMRP": 554,
+      "isSelected": true
+    }
+  ]
+}

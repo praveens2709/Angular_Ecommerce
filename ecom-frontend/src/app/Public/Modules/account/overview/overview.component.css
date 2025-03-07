@@ -1,0 +1,58 @@
+.profile-box {
+  width: 100%;
+  background: #f3f3f3c2;
+}
+
+.profile-img {
+  width: 120px;
+  height: 120px;
+  background: #ffffff;
+  border: 1px solid #992603;
+}
+
+.edit-profile {
+  height: max-content;
+  padding: 5px 10px 3px;
+  font-size: 14px;
+  background: #992603;
+  border: 1px solid #992603;
+  color: #ffffff;
+  transition: .5s all;
+}
+
+.edit-profile:hover{
+  background: #ffffff;
+  color: #992603;
+}
+
+.email-add {
+  color: #992603;
+}
+
+.options {
+  padding-top: 6px;
+  :last-child{
+    margin-top: 6px;
+  }
+}
+
+.option {
+  width: 100%;
+  height: 250px;
+  border: 1px solid #dee2e6;
+}
+
+.option:hover {
+  background: #f3f3f3c2;
+  cursor: pointer;
+}
+
+.option img {
+  width: 40px;
+}
+
+.option span {
+  /* font-family: "Josefin sans", serif; */
+  font-size: 14px;
+  color: #747474;
+}

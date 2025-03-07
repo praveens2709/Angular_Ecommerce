@@ -1,0 +1,207 @@
+<div class="card shadow-sm border-0 rounded-3">
+  <!-- Caption Section -->
+  <div
+    class="card-header bg-light d-flex justify-content-between align-items-center"
+  >
+    <h3 class="mb-0 text-primary fs-5 fw-bold">Orders</h3>
+  </div>
+
+  <!-- Data Table -->
+  <div>
+    <p-table
+      [value]="orders"
+      [paginator]="true"
+      [rows]="5"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [scrollable]="true"
+      [scrollHeight]="'500px'"
+      [tableStyle]="{ 'min-width': '100%' }"
+      class="table-striped table-hover align-middle mb-0"
+    >
+      <!-- Header -->
+      <ng-template pTemplate="header">
+        <tr class="bg-secondary text-white">
+          <th class="py-3 px-4">Order ID</th>
+          <th class="py-3 px-4">Customer Name</th>
+          <th class="py-3 px-4">Order Date</th>
+          <th class="py-3 px-4">Total Amount</th>
+          <th class="py-3 px-4">Status</th>
+          <th class="py-3 px-4">Actions</th>
+        </tr>
+      </ng-template>
+
+      <!-- Body -->
+      <ng-template pTemplate="body" let-order>
+        <tr>
+          <td class="py-3 px-4 text-dark fw-semibold">{{ order._id }}</td>
+          <td class="py-3 px-4">{{ order.customerName }}</td>
+          <td class="py-3 px-4">{{ order.orderDate | date }}</td>
+          <td class="py-3 px-4">{{ order.totalAmount | currency }}</td>
+          <td class="py-3 px-4">
+            <p-tag
+              [value]="order.status"
+              [severity]="getSeverity(order.status)"
+            ></p-tag>
+          </td>
+          <td class="px-4 d-flex gap-2">
+            <!-- View Order Details -->
+            <button
+              class="btn btn-sm btn-outline-primary p-0 px-2 py-1"
+              (click)="viewOrderDetails(order)"
+            >
+              <i class="pi pi-eye pt-1"></i>
+            </button>
+          
+            <!-- Mark as Shipped -->
+            <button
+              class="btn btn-sm btn-outline-warning p-0 px-2 py-1"
+              [disabled]="
+                order.status === 'Shipped' ||
+                order.status === 'Delivered' ||
+                order.status === 'Cancelled'
+              "
+              (click)="openShippedDialog(order)"
+            >
+              <i class="pi pi-check pt-1"></i>
+            </button>
+          
+            <!-- Mark as Delivered -->
+            <button
+              class="btn btn-sm btn-outline-success p-0 px-2 py-1"
+              [disabled]="
+                order.status !== 'Shipped' || order.status === 'Cancelled'
+              "
+              (click)="openDeliveredDialog(order)"
+            >
+              <i class="pi pi-check-circle pt-1"></i>
+            </button>
+          
+            <!-- Cancel Order -->
+            <button
+              class="btn btn-sm btn-outline-danger p-0 px-2 py-1"
+              [disabled]="order.status === 'Delivered' || order.status === 'Cancelled'"
+              (click)="openCancelDialog(order)"
+            >
+              <i class="pi pi-times pt-1"></i>
+            </button>
+          </td>
+          
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Summary -->
+  <div class="card-footer bg-light text-secondary text-center py-3">
+    In total, there are {{ orders ? orders.length : 0 }} orders.
+  </div>
+
+  <!-- View Order Details Dialog -->
+  <p-dialog
+    [(visible)]="viewDialogVisible"
+    [modal]="true"
+    [header]="'Order Details'"
+    [style]="{ width: '600px' }"
+  >
+    <div class="container">
+      <!-- Order Information -->
+      <div class="row mb-3">
+        <div class="col-6">
+          <p class="mb-1 fw-semibold">Order ID:</p>
+          <p class="text-secondary">{{ selectedOrder?._id }}</p>
+        </div>
+        <div class="col-6">
+          <p class="mb-1 fw-semibold">Order Date:</p>
+          <p class="text-secondary">{{ selectedOrder?.orderDate | date }}</p>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-6">
+          <p class="mb-1 fw-semibold">Customer Name:</p>
+          <p class="text-secondary">{{ selectedOrder?.customerName }}</p>
+        </div>
+        <div class="col-6">
+          <p class="mb-1 fw-semibold">Total Amount:</p>
+          <p class="text-secondary">
+            {{ selectedOrder?.totalAmount | currency }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Order Status -->
+      <div class="row mb-4">
+        <div class="col">
+          <p class="mb-1 fw-semibold">Order Status:</p>
+          <p-tag
+            [value]="selectedOrder?.status"
+            [severity]="getSeverity(selectedOrder?.status)"
+          ></p-tag>
+        </div>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="row mt-3">
+        <div class="col d-flex justify-content-end gap-2">
+          <button
+            class="btn btn-outline-secondary"
+            (click)="viewDialogVisible = false"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </p-dialog>
+
+  <!-- Mark as Shipped Dialog -->
+  <p-dialog
+    [(visible)]="shippedDialogVisible"
+    [modal]="true"
+    [header]="'Mark as Shipped'"
+    [style]="{ width: '500px' }"
+  >
+    <p>Are you sure you want to mark this order as shipped?</p>
+    <div class="d-flex justify-content-end mt-3 gap-2">
+      <button class="btn btn-outline-warning" (click)="markAsShipped()">Yes</button>
+      <button class="btn btn-outline-secondary" (click)="shippedDialogVisible = false">
+        No
+      </button>
+    </div>
+  </p-dialog>
+
+  <!-- Mark as Delivered Dialog -->
+  <p-dialog
+    [(visible)]="deliveredDialogVisible"
+    [modal]="true"
+    [header]="'Mark as Delivered'"
+    [style]="{ width: '500px' }"
+  >
+    <p>Are you sure you want to mark this order as delivered?</p>
+    <div class="d-flex justify-content-end mt-3 gap-2">
+      <button class="btn btn-outline-success" (click)="markAsDelivered()">Yes</button>
+      <button
+        class="btn btn-outline-secondary"
+        (click)="deliveredDialogVisible = false"
+      >
+        No
+      </button>
+    </div>
+  </p-dialog>
+
+  <!-- Cancel Order Dialog -->
+  <p-dialog
+    [(visible)]="cancelDialogVisible"
+    [modal]="true"
+    [header]="'Cancel Order'"
+    [style]="{ width: '500px' }"
+  >
+    <p>Are you sure you want to cancel this order?</p>
+    <div class="d-flex justify-content-end mt-3 gap-2">
+      <button class="btn btn-outline-danger" (click)="cancelOrder()">Yes</button>
+      <button class="btn btn-outline-secondary" (click)="cancelDialogVisible = false">
+        No
+      </button>
+    </div>
+  </p-dialog>
+</div>

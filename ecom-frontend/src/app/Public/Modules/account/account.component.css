@@ -1,0 +1,147 @@
+.my-account {
+    padding: 2rem 10rem;
+  }
+  
+  .acc-header h6 {
+    font-size: 20px;
+    color: #992603;
+  }
+  
+  .acc-header p {
+    font-size: 16px;
+    color: #747474;
+  }
+  
+  .acc-body p {
+    font-size: 17px;
+    color: #747474;
+    cursor: pointer;
+  }
+
+  .acc-left .active {
+    color: #dc3545;
+    font-weight: bold;
+  }
+  
+  .acc-body .acc-right {
+    padding: 20px;
+  }
+  
+  .input-box {
+    margin-bottom: 20px;
+  }
+  
+  .input-box input {
+    padding: 10px;
+    width: 100%;
+    border-radius: 0;
+    border: 1px solid #ccc;
+  }
+  
+  .input-box input.has-value {
+    border-color: #07555e;
+  }
+  
+  .gender-input {
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    padding: 10px;
+    cursor: pointer;
+  }
+  
+  .profile-img img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+  }
+  
+  .edit-profile {
+    background-color: #07555e;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .edit-profile:hover {
+    background-color: #064d4a;
+  }
+  
+  .option {
+    cursor: pointer;
+  }
+  
+  .option img {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .option p {
+    font-weight: normal;
+    text-align: center;
+  }
+  
+  .profile-box {
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    padding: 20px;
+  }
+  
+  .profile-box2 {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 30px;
+  }
+  
+  .profile-box .order-status {
+    color: #07555e;
+  }
+  
+  .order-box {
+    background-color: #fff;
+    margin: 10px 0;
+    padding: 20px;
+  }
+  
+  .address-section .add-address {
+    background-color: #07555e;
+    color: white;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .address-section .add-address:hover {
+    background-color: #064d4a;
+  }
+  
+  .saved-cards {
+    text-align: center;
+  }
+  
+  .saved-cards img {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .delete-account {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .delete-account:hover {
+    background-color: #f5c6cb;
+  }
+  
+  .agree-input-box {
+    display: flex;
+    align-items: center;
+  }
+  
+  .agree-input-box input {
+    margin-right: 10px;
+  }
+  

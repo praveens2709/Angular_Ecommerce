@@ -1,0 +1,125 @@
+.payment-section {
+    h6 {
+        color: #481303;
+    }
+
+    button {
+        font-size: 15px;
+        background: rgb(183, 29, 12);
+        color: #ffffff;
+        border-radius: 2px;
+        line-height: 16px;
+        margin-top: 15px;
+        letter-spacing: 1px;
+        padding: 10px 0 8px;
+        border: none;
+        font-weight: 600;
+    }
+
+    button:hover {
+        background-color: #992603;
+    }
+
+    .bg-grey {
+        background-color: #f5f5f5;
+    }
+
+    .payment-left {
+        p {
+            font-size: 14px;
+        }
+
+        .payment-option {
+            cursor: pointer;
+
+            &.active {
+                border-left: 3px solid #992603;
+                border-right: 0 !important;
+                background-color: #fff;
+            }
+        }
+    }
+
+    .payment-right {
+        p {
+            font-size: 14px;
+        }
+
+        .red{
+            color: #992603;
+        }
+
+        .captcha-box {
+            display: flex;
+            align-items: center;
+
+            img {
+                width: 20px;
+                height: 20px;
+            }
+        }
+
+        .input-form {
+            .input-box {
+                position: relative;
+
+                input {
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    transition: none !important;
+                    box-shadow: none !important;
+                }
+
+                label {
+                    position: absolute;
+                    top: -6px;
+                    left: 12px;
+                    font-size: 12px;
+                    background: white;
+                    padding: 0 4px;
+                }
+            }
+
+            p{
+                font-size: 13px;
+                color: #707070;
+            }
+        }
+
+        .card-form {
+            .input-box {
+                position: relative;
+
+                input {
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    padding: 8px;
+                    width: 100%;
+                    transition: none !important;
+                    box-shadow: none !important;
+                }
+
+                label {
+                    position: absolute;
+                    top: -6px;
+                    left: 12px;
+                    font-size: 12px;
+                    background: white;
+                    padding: 0 4px;
+                }
+            }
+        }
+    }
+}
+
+.payment-option img {
+    width: 25px;
+    height: 25px;
+    object-fit: contain;
+}
+
+.payment-right img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}

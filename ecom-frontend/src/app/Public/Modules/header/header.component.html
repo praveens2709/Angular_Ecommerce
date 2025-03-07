@@ -1,0 +1,20 @@
+<!-- Header Section -->
+<div class="container-fluid dopeshope-navbar bg-white shadow-lg position-sticky top-0 left-0 animate one fadeInUp">
+  <div class="container">
+    <div class="text-center fs-6 pt-1 dopeshope">DopeShope</div>
+    <div class="d-flex justify-content-evenly m-auto navbar">
+      <a routerLink="/home" class="position-relative px-2">Home</a>
+      <a routerLink="/shop" routerLinkActive="active" class="position-relative px-2">Products</a>
+      <a routerLink="/account" routerLinkActive="active" class="position-relative px-2">Account</a>
+      <div class="position-relative">
+        <a routerLink="/cart" routerLinkActive="active" class="position-relative">
+          <i class="pi pi-shopping-bag"></i>
+        </a>
+        <div
+          class="cart-count rounded-circle bg-danger text-white fw-bold d-flex justify-content-center align-items-center position-absolute">
+          {{ cartCount }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,246 @@
+<div class="cards-section d-flex flex-column gap-2">
+  <!-- Saved Cards Header -->
+  <div class="mt-3 mb-1 d-flex justify-content-between align-items-center">
+    <h6 class="mb-0">Saved Cards</h6>
+    <div
+      class="add-card p-1 d-flex align-items-center gap-1"
+      (click)="openAddCardDialog()"
+    >
+      <i class="pi pi-plus"></i> ADD NEW CARD
+    </div>
+  </div>
+
+  <!-- No Cards Section -->
+  <div *ngIf="!cards || !cards.length" class="profile-box pt-4 pb-5">
+    <div
+      class="d-flex flex-column justify-content-center align-items-center saved-cards px-5"
+    >
+      <img src="assets/images/no-cards.png" alt="saved-cards" />
+      <p class="fw-semibold text-uppercase py-2 mb-0">
+        Save your credit/debit cards for faster payments
+      </p>
+      <p class="text-center mb-0">
+        Enjoy easy and faster payments with saved cards. We protect your card
+        information with 128-bit encryption.
+      </p>
+    </div>
+  </div>
+
+  <!-- Saved Cards List -->
+  <div *ngIf="cards.length">
+    <span class="fw-medium">DEFAULT CARD</span>
+    <div *ngFor="let card of cards" class="profile-box px-3 py-2 mb-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <p class="mb-0 fw-semibold">{{ card.cardHolderName }}</p>
+        <img
+          [src]="'assets/images/' + card.cardType.toLowerCase() + '.png'"
+          [alt]="card.cardType + ' logo'"
+          class="card-type-icon"
+        />
+      </div>
+      <div class="border-bottom card-details">
+        <div class="mt-2">
+          <p class="mb-0">•••• •••• •••• {{ card.cardNumber | slice : -4 }}</p>
+          <p class="mb-0">
+            Expires: {{ card.expiryMonth }}/{{ card.expiryYear }}
+          </p>
+        </div>
+      </div>
+      <div
+        class="d-flex justify-content-evenly align-items-center gap-2 edit-remove-card mt-2"
+      >
+        <button class="w-100 mt-1" (click)="openEditCardDialog(card)">
+          EDIT
+        </button>
+        <span class="fs-4 fw-lighter">|</span>
+        <button class="w-100 mt-1" (click)="openDeleteDialog(card._id)">
+          REMOVE
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card Dialog -->
+  <p-dialog
+    [(visible)]="isDialogVisible"
+    [header]="dialogTitle"
+    [closable]="true"
+    [style]="{ width: '450px' }"
+  >
+    <form [formGroup]="cardForm" (ngSubmit)="onSubmit()" class="dialog-content">
+      <!-- Cardholder Name -->
+      <div class="form-group mb-3">
+        <label for="cardHolderName">Cardholder Name *</label>
+        <input
+          id="cardHolderName"
+          type="text"
+          formControlName="cardHolderName"
+          class="form-control"
+          placeholder="Enter Cardholder Name"
+        />
+        <small
+          *ngIf="
+            cardForm.get('cardHolderName')?.invalid &&
+            cardForm.get('cardHolderName')?.touched
+          "
+          class="text-danger small-error-modal"
+        >
+          <div *ngIf="cardForm.get('cardHolderName')?.errors?.['required']">
+            Cardholder Name is required
+          </div>
+        </small>
+      </div>
+
+      <!-- Card Number -->
+      <div class="form-group mb-3">
+        <label for="cardNumber">Card Number *</label>
+        <input
+          id="cardNumber"
+          type="text"
+          formControlName="cardNumber"
+          class="form-control"
+          placeholder="Enter Card Number"
+          maxlength="16"
+          (input)="restrictToNumbers($event, 16)"
+        />
+        <small
+          *ngIf="
+            cardForm.get('cardNumber')?.invalid &&
+            cardForm.get('cardNumber')?.touched
+          "
+          class="text-danger small-error-modal"
+        >
+          <div *ngIf="cardForm.get('cardNumber')?.errors?.['required']">
+            Card Number is required
+          </div>
+          <div
+            *ngIf="cardForm.get('cardNumber')?.errors?.['minlength'] || cardForm.get('cardNumber')?.errors?.['maxlength']"
+          >
+            Enter a valid 16-digit card number
+          </div>
+        </small>
+      </div>
+
+      <!-- Expiry Date -->
+      <div class="d-flex mb-3">
+        <div class="form-group me-2 w-50">
+          <label for="expiryMonth">Expiry Month *</label>
+          <input
+            id="expiryMonth"
+            type="text"
+            formControlName="expiryMonth"
+            class="form-control"
+            placeholder="MM"
+            maxlength="2"
+            (input)="restrictToNumbers($event, 2)"
+          />
+          <small
+            *ngIf="
+              cardForm.get('expiryMonth')?.invalid &&
+              cardForm.get('expiryMonth')?.touched
+            "
+            class="text-danger small-error-modal"
+          >
+            <div *ngIf="cardForm.get('expiryMonth')?.errors?.['required']">
+              Expiry Month is required
+            </div>
+            <div *ngIf="cardForm.get('expiryMonth')?.errors?.['pattern']">
+              Enter a valid month (01-12)
+            </div>
+          </small>
+        </div>
+        <div class="form-group w-50">
+          <label for="expiryYear">Expiry Year *</label>
+          <input
+            id="expiryYear"
+            type="text"
+            formControlName="expiryYear"
+            class="form-control"
+            placeholder="YY"
+            maxlength="2"
+            (input)="restrictToNumbers($event, 2)"
+          />
+          <small
+            *ngIf="
+              cardForm.get('expiryYear')?.invalid &&
+              cardForm.get('expiryYear')?.touched
+            "
+            class="text-danger small-error-modal"
+          >
+            <div *ngIf="cardForm.get('expiryYear')?.errors?.['required']">
+              Expiry Year is required
+            </div>
+            <div *ngIf="cardForm.get('expiryYear')?.errors?.['pattern']">
+              Enter a valid year (e.g. 24)
+            </div>
+          </small>
+        </div>
+      </div>
+
+      <!-- Card Type -->
+      <div class="form-group mb-4">
+        <label>Card Type *</label>
+        <div class="d-flex align-items-center">
+          <div class="me-3">
+            <p-radioButton
+              name="cardType"
+              value="VISA"
+              formControlName="cardType"
+              inputId="visa"
+              label="Visa"
+            ></p-radioButton>
+          </div>
+          <div class="me-3">
+            <p-radioButton
+              name="cardType"
+              value="MasterCard"
+              formControlName="cardType"
+              inputId="mastercard"
+              label="MasterCard"
+            ></p-radioButton>
+          </div>
+        </div>
+        <small
+          *ngIf="
+            cardForm.get('cardType')?.invalid &&
+            cardForm.get('cardType')?.touched
+          "
+          class="text-danger small-error-modal"
+        >
+          Please select a card type
+        </small>
+      </div>
+    </form>
+
+    <!-- Dialog Footer -->
+    <div class="fixed-footer">
+      <button
+        type="button"
+        class="cancel-address-btn rounded-0 py-3 mt-0"
+        (click)="isDialogVisible = false"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        class="save-address-btn rounded-0 py-3 mt-0"
+        (click)="onSubmit()"
+        [disabled]="cardForm.invalid"
+      >
+        Save
+      </button>
+    </div>
+  </p-dialog>
+</div>
+
+<!-- Common Dialog for Card Deletion Confirmation -->
+<app-common-dialog
+  [visible]="isDeleteDialogVisible"
+  title="Remove Address"
+  message="Are you sure you want to remove this address? This action cannot be undone."
+  confirmButtonText="Remove"
+  cancelButtonText="Cancel"
+  (confirm)="confirmDeleteCard()"
+  (cancel)="isDeleteDialogVisible = false"
+  (close)="isDeleteDialogVisible = false"
+></app-common-dialog>

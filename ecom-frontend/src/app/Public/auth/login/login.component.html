@@ -1,0 +1,44 @@
+<form [formGroup]="loginForm" (ngSubmit)="formSubmit()" class="w-100">
+  <h1 class="text-center mb-3">Login</h1>
+
+  <div class="input-box position-relative">
+    <i class="pi pi-at position-absolute top-50 translate-middle-y ms-2"></i>
+    <input
+      type="email"
+      placeholder="Email"
+      class="form-control ps-4"
+      formControlName="email"
+    />
+    <small
+      *ngIf="loginForm.get('email')?.invalid && (loginForm.get('email')?.touched || loginForm.get('email')?.dirty)"
+      class="text-danger small-error"
+    >
+      <div *ngIf="loginForm.get('email')?.errors?.['required']">Email is required</div>
+      <div *ngIf="loginForm.get('email')?.errors?.['email']">Invalid email format</div>
+    </small>
+  </div>
+
+  <div class="input-box position-relative">
+    <i class="pi pi-lock position-absolute top-50 translate-middle-y ms-2"></i>
+    <input
+      type="password"
+      placeholder="Password"
+      class="form-control ps-4"
+      formControlName="password"
+    />
+    <small
+      *ngIf="loginForm.get('password')?.invalid && (loginForm.get('password')?.touched || loginForm.get('password')?.dirty)"
+      class="text-danger small-error"
+    >
+      <div *ngIf="loginForm.get('password')?.errors?.['required']">Password is required</div>
+    </small>
+  </div>
+
+  <button type="submit" [disabled]="loginForm.invalid" class="btn border-0 text-white fw-semibold rounded-2">
+    Login
+  </button>
+
+  <p class="text-center mt-3">
+    Don't have an account? <a (click)="goToRegister()" class="text-orange">Register</a>
+  </p>
+</form>

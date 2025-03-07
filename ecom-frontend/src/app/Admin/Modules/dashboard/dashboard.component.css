@@ -1,0 +1,54 @@
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .card-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+  }
+  
+  .card {
+    padding: 13px 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 2.94px .06px #041a3729;
+    transition: all .3s ease-in-out;
+    color: #ffffff;
+  }
+
+  .blue-card{
+    background: linear-gradient(45deg, #4099ff, #73b4ff);
+  }
+  .green-card{
+    background: linear-gradient(45deg, #2ed8b6, #59e0c5);
+  }
+  .yellow-card{
+    background: linear-gradient(45deg, #ffb64d, #ffcb80);
+  }
+  .red-card{
+    background: linear-gradient(45deg, #ff5370, #ff869a);
+  }
+
+  .card h3{
+    font-size: 18px;
+  }
+  
+  .chart-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  
+  .chart-card {
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .bottom-content{
+    font-size: 16px;
+  }
+  

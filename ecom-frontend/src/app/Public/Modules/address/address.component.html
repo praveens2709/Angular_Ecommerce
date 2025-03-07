@@ -1,0 +1,71 @@
+<app-cart-header></app-cart-header>
+
+<div class="address-section w-100">
+  <div class="cart-body animate three fadeInUp">
+    <app-back-button></app-back-button>
+    <div class="container-fluid">
+      <div class="row px-lg-5">
+        <div class="col-lg-8 border-end">
+          <div class="cart-left">
+            <div class="address-section d-flex flex-column gap-2">
+              <div class="mt-2 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">Select Delivery Address</h6>
+                <div class="d-flex align-items-center gap-1 add-address cursor-pointer py-1 px-2"
+                  (click)="openAddDialog()">
+                  <i class="pi pi-plus" style="font-size: 12px"></i> ADD NEW
+                  ADDRESS
+                </div>
+              </div>
+
+              <span class="fw-semibold" *ngIf="addresses.length > 0">DEFAULT ADDRESS</span>
+              <div *ngFor="let address of addresses" class="profile-box pt-2 px-2">
+                <div class="d-flex gap-2 align-items-center mb-2">
+                  <p-radioButton name="address" [(ngModel)]="selectedAddress" [value]="address.id"></p-radioButton>
+                  <p class="fw-semibold mb-0">{{ address.fullName }}</p>
+                  <span class="px-1 rounded-4 address-type">{{
+                    address.type
+                    }}</span>
+                </div>
+
+                <div class="ps-4 address-font pb-2 border-bottom">
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <p class="text-dark mb-0">{{ address.street }}</p>
+                      <p class="text-dark mb-0">
+                        {{ address.city }}, {{ address.state }} -
+                        {{ address.postalCode }}
+                      </p>
+                      <p class="text-dark my-2">Mobile: {{ address.mobile }}</p>
+                      <p class="mb-1 dark fw-semibold">
+                        Pay on Delivery available*
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-evenly">
+                  <button class="border-0 bg-transparent" (click)="openEditDialog(address)">
+                    EDIT
+                  </button>
+                  <span class="fs-4 fw-lighter mb-1">|</span>
+                  <button class="border-0 bg-transparent" (click)="removeAddress(address.id)">
+                    REMOVE
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <app-price-details [priceDetails]="priceDetails" [buttonText]="'Continue'" [buttonLink]="'/payment'"
+            [isButtonDisabled]="!selectedAddress"
+            warningMessage="Please select a valid address to continue"></app-price-details>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Address Form Dialog -->
+  <app-address-form [isDialogVisible]="isDialogVisible" [dialogTitle]="dialogTitle" [addressData]="selectedAddressData"
+    (onSave)="handleAddressSave($event)" (onClose)="handleDialogClose()"></app-address-form>
+</div>

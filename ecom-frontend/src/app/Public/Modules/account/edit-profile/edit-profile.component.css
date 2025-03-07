@@ -1,0 +1,39 @@
+.profile-box2 {
+  background-color: #f3f3f3c2;
+  width: 80%;
+  .contact-right{
+    input{
+      box-shadow: none;
+      outline: none;
+      border-color: #a1a1a1;
+    }
+  }
+}
+
+.profile-box2 .border-grey {
+  border: 1px solid #a1a1a1;
+}
+
+.change-phone button {
+  color: #992603;
+}
+
+.gender-input {
+  border: 1px solid #ced4da;
+  width: 50%;
+  padding: 7px 0;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  font-size: 18px;
+}
+
+.gender-input.active {
+  background-color: #992603;
+  color: #fff;
+}
+
+.contact-verified img {
+  width: 16px;
+  height: 16px;
+}

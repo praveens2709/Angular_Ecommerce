@@ -1,0 +1,26 @@
+<p-dialog
+  [(visible)]="visible"
+  [header]="title"
+  [closable]="true"
+  [style]="{ width: '400px' }"
+  (onHide)="closeDialog()"
+  class="common-modal"
+>
+  <p class="mb-5 mt-4">{{ message }}</p>
+  <div class="dialog-footer fixed-footer d-flex justify-content-between">
+    <button
+      type="button"
+      class="common-cancel-btn rounded-0 py-3 w-50 border-0"
+      (click)="onCancel()"
+    >
+      {{ cancelButtonText }}
+    </button>
+    <button
+      type="button"
+      class="common-confirm-btn rounded-0 py-3 w-50 border-0"
+      (click)="onConfirm()"
+    >
+      {{ confirmButtonText }}
+    </button>
+  </div>
+</p-dialog>

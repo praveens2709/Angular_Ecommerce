@@ -1,0 +1,79 @@
+<form [formGroup]="registerForm" (ngSubmit)="formSubmit()" class="w-100 form-box">
+  <h1 class="text-center mb-3">Register</h1>
+
+  <!-- First Name -->
+  <div class="input-box position-relative">
+    <i class="pi pi-user position-absolute top-50 translate-middle-y ms-2"></i>
+    <input type="text" placeholder="First Name" class="form-control ps-4" formControlName="firstName" />
+    <small *ngIf="registerForm.get('firstName')?.invalid && (registerForm.get('firstName')?.touched || registerForm.get('firstName')?.dirty)"
+      class="text-danger small-error">
+      <div *ngIf="registerForm.get('firstName')?.errors?.['required']">First name is required</div>
+      <div *ngIf="registerForm.get('firstName')?.errors?.['minlength']">Minimum 2 characters</div>
+    </small>
+  </div>
+
+  <!-- Last Name (Optional) -->
+  <div class="input-box position-relative">
+    <i class="pi pi-user position-absolute top-50 translate-middle-y ms-2"></i>
+    <input type="text" placeholder="Last Name (Optional)" class="form-control ps-4" formControlName="lastName" />
+  </div>
+
+  <!-- Email -->
+  <div class="input-box position-relative">
+    <i class="pi pi-at position-absolute top-50 translate-middle-y ms-2"></i>
+    <input type="email" placeholder="Email" class="form-control ps-4" formControlName="email" />
+    <small *ngIf="registerForm.get('email')?.invalid && (registerForm.get('email')?.touched || registerForm.get('email')?.dirty)"
+      class="text-danger small-error">
+      <div *ngIf="registerForm.get('email')?.errors?.['required']">Email is required</div>
+      <div *ngIf="registerForm.get('email')?.errors?.['email']">Invalid email format</div>
+    </small>
+  </div>
+
+  <!-- Password -->
+  <div class="input-box position-relative">
+    <i class="pi pi-lock position-absolute top-50 translate-middle-y ms-2"></i>
+    <input type="password" placeholder="Password" class="form-control ps-4" formControlName="password" />
+    <small *ngIf="registerForm.get('password')?.invalid && (registerForm.get('password')?.touched || registerForm.get('password')?.dirty)"
+      class="text-danger small-error">
+      <div *ngIf="registerForm.get('password')?.errors?.['required']">Password is required</div>
+      <div *ngIf="registerForm.get('password')?.errors?.['minlength']">Minimum 6 characters required</div>
+    </small>
+  </div>
+
+  <!-- Mobile Number -->
+  <div class="input-box position-relative">
+    <i class="pi pi-phone position-absolute top-50 translate-middle-y ms-2"></i>
+    <input type="text" placeholder="Mobile Number" class="form-control ps-4" formControlName="mobile" />
+    <small *ngIf="registerForm.get('mobile')?.invalid && (registerForm.get('mobile')?.touched || registerForm.get('mobile')?.dirty)"
+      class="text-danger small-error">
+      <div *ngIf="registerForm.get('mobile')?.errors?.['required']">Mobile number is required</div>
+      <div *ngIf="registerForm.get('mobile')?.errors?.['pattern']">Invalid mobile number</div>
+    </small>
+  </div>
+
+  <!-- Gender Selection -->
+  <div class="input-box position-relative d-flex flex-column text-start">
+    <label class="mb-2">Gender:</label>
+    <div class="d-flex">
+      <p-radioButton name="gender" value="Male" formControlName="gender" inputId="male"></p-radioButton>
+      <label for="male" class="ms-2 me-4">Male</label>
+
+      <p-radioButton name="gender" value="Female" formControlName="gender" inputId="female"></p-radioButton>
+      <label for="female" class="ms-2">Female</label>
+    </div>
+    <small *ngIf="registerForm.get('gender')?.invalid && (registerForm.get('gender')?.touched || registerForm.get('gender')?.dirty)"
+      class="text-danger small-error">
+      <div *ngIf="registerForm.get('gender')?.errors?.['required']">Gender is required</div>
+    </small>
+  </div>
+
+  <!-- Submit Button -->
+  <button type="submit" [disabled]="registerForm.invalid" class="btn border-0 text-white fw-semibold rounded-2">
+    Register
+  </button>
+
+  <!-- Toggle to Login -->
+  <p class="text-center mt-3">
+    Already have an account? <a (click)="goToLogin()" class="text-orange">Login</a>
+  </p>
+</form>

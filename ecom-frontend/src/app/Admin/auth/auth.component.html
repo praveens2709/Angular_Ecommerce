@@ -1,0 +1,68 @@
+<div class="parent d-flex justify-content-center align-items-center">
+  <div class="container position-relative bg-white">
+    <div class="form-box position-absolute end-0 bg-white d-flex align-items-center text-center">
+      <form [formGroup]="authForm" (ngSubmit)="formSubmit()" class="w-100">
+        <h1>{{ isLogin ? 'Login' : 'Register' }}</h1>
+
+        <div class="input-box position-relative" *ngIf="!isLogin">
+          <input
+            type="text"
+            placeholder="Name"
+            class="rounded-2 border-0"
+            formControlName="name"
+          />
+          <small *ngIf="authForm.get('name')?.invalid && (authForm.get('name')?.touched || authForm.get('name')?.dirty)"
+            class="text-danger small-error">
+            <div *ngIf="authForm.get('name')?.errors?.['required']">Name is required</div>
+          </small>
+          <i class="pi pi-user position-absolute" style="font-weight: 800"></i>
+        </div>
+
+        <div class="input-box position-relative">
+          <input
+            type="email"
+            placeholder="Email"
+            class="rounded-2 border-0"
+            formControlName="email"
+          />
+          <small *ngIf="authForm.get('email')?.invalid && (authForm.get('email')?.touched || authForm.get('email')?.dirty)"
+            class="text-danger small-error">
+            <div *ngIf="authForm.get('email')?.errors?.['required']">Email is required</div>
+            <div *ngIf="authForm.get('email')?.errors?.['email']">Invalid email format</div>
+          </small>
+          <i class="pi pi-at position-absolute" style="font-weight: 800"></i>
+        </div>
+
+        <div class="input-box position-relative">
+          <input
+            type="password"
+            placeholder="Password"
+            class="rounded-2 border-0"
+            formControlName="password"
+          />
+          <small *ngIf="authForm.get('password')?.invalid && (authForm.get('password')?.touched || authForm.get('password')?.dirty)"
+            class="text-danger small-error">
+            <div *ngIf="authForm.get('password')?.errors?.['required']">Password is required</div>
+          </small>
+          <i class="pi pi-lock position-absolute" style="font-weight: 800"></i>
+        </div>
+
+        <button type="submit" [disabled]="authForm.invalid" class="btn border-0 text-white fw-semibold rounded-2">
+          {{ isLogin ? 'Login' : 'Register' }}
+        </button>
+
+        <p class="toggle-text mt-3">
+          {{ isLogin ? "Don't have an account?" : "Already have an account?" }}
+          <a (click)="toggleAuth()" class="text-orange">{{ isLogin ? 'Register' : 'Login' }}</a>
+        </p>
+      </form>
+    </div>
+    <div class="left-box position-absolute w-100 h-100">
+      <div
+        class="left-panel left position-absolute h-100 text-white d-flex flex-column justify-content-center align-items-center"
+      >
+        <h1>Hello, Welcome!</h1>
+      </div>
+    </div>
+  </div>
+</div>
