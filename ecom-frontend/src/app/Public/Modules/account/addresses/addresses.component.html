@@ -1,48 +1,58 @@
 <div class="address-section d-flex flex-column gap-2">
-  <!-- Saved Addresses Header -->
-  <div class="mt-3 mb-1 d-flex justify-content-between align-items-center">
-    <h6 class="mb-0">Saved Addresses</h6>
-    <div class="add-address p-1 d-flex align-items-center gap-1" (click)="openAddDialog()">
-      <i class="pi pi-plus"></i> ADD NEW ADDRESS
-    </div>
-  </div>
-
-  <!-- No Addresses Section -->
-  <div *ngIf="!addresses || !addresses.length" class="profile-box pt-4 pb-5">
-    <div class="d-flex flex-column justify-content-center align-items-center saved-addresses px-5">
-      <img src="assets/images/no-address.png" alt="saved-addresses" />
-      <p class="fw-semibold text-uppercase pt-3 pb-2 mb-0">
-        Save your address for faster deliveries
-      </p>
-      <p class="text-center mb-0">
-        Adding addresses allows us to deliver your orders faster and more conveniently.
-      </p>
-    </div>
-  </div>
-
-  <!-- Saved Addresses List -->
-  <div *ngIf="addresses.length">
-    <span class="fw-medium">DEFAULT ADDRESS</span>
-    <div class="profile-box px-3 py-2 mb-3" *ngFor="let address of addresses">
-      <div class="d-flex justify-content-between align-items-center">
-        <p class="mb-0 fw-semibold">{{ address.fullName }}</p>
-        <span class="px-1 rounded-4 bg-dark-subtle">{{ address.type }}</span>
+  <ng-container *ngIf="userId; else notLoggedIn">
+    <!-- Saved Addresses Header (Logged-in users) -->
+    <div class="mt-3 mb-1 d-flex justify-content-between align-items-center">
+      <h6 class="mb-0">Saved Addresses</h6>
+      <div class="add-address p-1 d-flex align-items-center gap-1" (click)="openAddDialog()">
+        <i class="pi pi-plus"></i> ADD NEW ADDRESS
       </div>
-      <div class="border-bottom address">
-        <div class="mt-2">
-          <p class="mb-0">{{ address.street }}</p>
-          <p class="mb-0">{{ address.city }} - {{ address.postalCode }}</p>
-          <p class="mb-1">{{ address.state }}</p>
-          <p>Mobile: {{ address.mobile }}</p>
+    </div>
+
+    <!-- No Addresses Section -->
+    <div *ngIf="!addresses || addresses.length === 0" class="profile-box pt-4 pb-5">
+      <div class="d-flex flex-column justify-content-center align-items-center saved-addresses px-5">
+        <img src="assets/images/no-address.png" alt="saved-addresses" />
+        <p class="fw-semibold text-uppercase pt-3 pb-2 mb-0">
+          Save your address for faster deliveries
+        </p>
+        <p class="text-center mb-0">
+          Adding addresses allows us to deliver your orders faster and more conveniently.
+        </p>
+      </div>
+    </div>
+
+    <!-- Saved Addresses List -->
+    <div *ngIf="addresses.length > 0">
+      <span class="fw-medium">DEFAULT ADDRESS</span>
+      <div class="profile-box px-3 py-2 mb-3" *ngFor="let address of addresses">
+        <div class="d-flex justify-content-between align-items-center">
+          <p class="mb-0 fw-semibold">{{ address.fullName }}</p>
+          <span class="px-1 rounded-4 bg-dark-subtle">{{ address.type }}</span>
+        </div>
+        <div class="border-bottom address">
+          <div class="mt-2">
+            <p class="mb-0">{{ address.street }}</p>
+            <p class="mb-0">{{ address.city }} - {{ address.postalCode }}</p>
+            <p class="mb-1">{{ address.state }}</p>
+            <p>Mobile: {{ address.mobile }}</p>
+          </div>
+        </div>
+        <div class="d-flex justify-content-evenly align-items-center gap-2 edit-remove-address mt-2">
+          <button class="w-100 mt-1" (click)="openEditDialog(address)">EDIT</button>
+          <span class="fs-4 fw-lighter">|</span>
+          <button class="w-100 mt-1" (click)="openDeleteDialog(address._id)">REMOVE</button>
         </div>
       </div>
-      <div class="d-flex justify-content-evenly align-items-center gap-2 edit-remove-address mt-2">
-        <button class="w-100 mt-1" (click)="openEditDialog(address)">EDIT</button>
-        <span class="fs-4 fw-lighter">|</span>
-        <button class="w-100 mt-1" (click)="openDeleteDialog(address._id)">REMOVE</button>
-      </div>
     </div>
-  </div>
+  </ng-container>
+
+  <!-- Not Logged In Section -->
+  <ng-template #notLoggedIn>
+    <div class="mt-3 profile-box2 px-5 py-4 mt-2 w-100">
+      <h6 class="fw-semibold pb-2">Saved Addresses</h6>
+      <p class="text-center mt-3">Please <a routerLink="/public/auth" class="text-orange">Sign In</a> to add or manage addresses.</p>
+    </div>
+  </ng-template>
 
   <!-- Address Form Dialog -->
   <app-address-form
@@ -52,17 +62,16 @@
     (onSave)="handleAddressSave($event)"
     (onClose)="handleDialogClose()"
   ></app-address-form>
-  
-</div>
 
   <!-- Common Dialog for Address Deletion Confirmation -->
-<app-common-dialog
-  [visible]="isDeleteDialogVisible"
-  title="Remove Address"
-  message="Are you sure you want to remove this address? This action cannot be undone."
-  confirmButtonText="Remove"
-  cancelButtonText="Cancel"
-  (confirm)="confirmDeleteAddress()"
-  (cancel)="isDeleteDialogVisible = false"
-  (close)="isDeleteDialogVisible = false"
-></app-common-dialog>
+  <app-common-dialog
+    [visible]="isDeleteDialogVisible"
+    title="Remove Address"
+    message="Are you sure you want to remove this address? This action cannot be undone."
+    confirmButtonText="Remove"
+    cancelButtonText="Cancel"
+    (confirm)="confirmDeleteAddress()"
+    (cancel)="isDeleteDialogVisible = false"
+    (close)="isDeleteDialogVisible = false"
+  ></app-common-dialog>
+</div>

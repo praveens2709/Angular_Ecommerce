@@ -10,18 +10,17 @@ import { AuthService } from '../../../../Admin/auth/Services/auth-service.servic
 })
 export class UserOrdersComponent implements OnInit {
   orders: any[] = [];
+  user: any = null; 
   userId: string | null = null;
 
   constructor(private orderService: OrderService, private authService: AuthService) {}
 
   ngOnInit(): void {
-    const user = this.authService.getUserRoleAndId();
-    this.userId = user.id;
-
+    this.user = this.authService.getUserRoleAndId();  
+    this.userId = this.user?.id || null;
+  
     if (this.userId) {
       this.fetchOrders();
-    } else {
-      console.error('User ID is missing. User may not be logged in.');
     }
   }
 

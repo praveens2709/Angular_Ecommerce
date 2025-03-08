@@ -604,3 +604,16 @@ label,
   color: #ba6708 !important;
   cursor: pointer;
 }
+
+.profile-box2 {
+  background-color: #f3f3f3c2;
+  width: 80%;
+  h6{
+    color: #992603;
+    border-bottom: 1px solid #a12d099a;
+  }
+  p{
+    font-size: 17px !important;
+    color: #696969 !important;
+  }
+}
