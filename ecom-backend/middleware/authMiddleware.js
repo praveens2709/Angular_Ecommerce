@@ -1,9 +1,8 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/User"); // Ensure this is the correct User model
+const User = require("../models/User");
 
 const authMiddleware = async (req, res, next) => {
   const token = req.header("Authorization");
-  console.log("Token received:", token); // Debugging
 
   if (!token) {
     console.log("No token provided");
@@ -12,17 +11,13 @@ const authMiddleware = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token.replace("Bearer ", ""), process.env.JWT_SECRET);
-    console.log("Decoded user:", decoded); // Debugging
-
-    // 🟢 Fetch user details from the database
     const user = await User.findById(decoded.id).select("fullName email");
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    req.user = user; // Attach full user object to request
-    console.log("Authenticated User:", req.user); // Debugging
+    req.user = user;
     next();
   } catch (error) {
     console.log("Invalid token");

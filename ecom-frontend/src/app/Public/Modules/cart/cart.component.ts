@@ -12,8 +12,8 @@ export class CartComponent implements OnInit, OnDestroy {
   isChecked: boolean = false;
   isModalVisible: boolean = false;
   availableQuantities: number[] = Array.from({ length: 10 }, (_, i) => i + 1);
-  quantity: number = 1; // Default quantity
-  pricePerUnit: number = 50; // Example price per unit
+  quantity: number = 1;
+  pricePerUnit: number = 50;
   totalPrice: number = 0;
   cartItems: any[] = [];
   cartCount: number = 0;
@@ -50,9 +50,9 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.cartItemsSub) this.cartItemsSub.unsubscribe();
-    if (this.cartCountSub) this.cartCountSub.unsubscribe();
-    if (this.priceDetailsSub) this.priceDetailsSub.unsubscribe();
+    this.cartItemsSub?.unsubscribe();
+    this.cartCountSub?.unsubscribe();
+    this.priceDetailsSub?.unsubscribe();
   }
 
   get selectedItemCount(): number {
@@ -61,19 +61,17 @@ export class CartComponent implements OnInit, OnDestroy {
 
   toggleSelection(index: number): void {
     this.cartService.toggleSelection(this.cartItems[index].id);
-    // Ensure `isSelected` state is updated
     this.cartItems[index].isSelected = !this.cartItems[index].isSelected;
-    this.cartService.updatePriceDetails(this.cartItems);  // Call the service method
-    this.isChecked = this.cartItems.every(item => item.isSelected); // Update main checkbox state
+    this.cartService.updatePriceDetails(this.cartItems);
+    this.isChecked = this.cartItems.every(item => item.isSelected);
   }
-  
-  // Toggle select all products
+
   toggleSelectAll(): void {
     const allSelected = this.cartItems.every(item => item.isSelected);
-    this.isChecked = !allSelected; // Toggle main checkbox
+    this.isChecked = !allSelected;
     this.cartService.toggleSelectAll(this.isChecked);
-    this.cartItems.forEach(item => (item.isSelected = this.isChecked)); // Update UI
-    this.cartService.updatePriceDetails(this.cartItems);  // Call the service method
+    this.cartItems.forEach(item => (item.isSelected = this.isChecked));
+    this.cartService.updatePriceDetails(this.cartItems);
   }  
 
   removeFromCart(productId: string): void {
@@ -86,7 +84,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
   openQuantityModal(item: any): void {
     this.currentItem = item;
-    this.selectedQuantity = item.quantity || 1; // Pre-select current quantity
+    this.selectedQuantity = item.quantity || 1;
     this.isModalVisible = true;
   }
 

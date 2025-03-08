@@ -40,7 +40,7 @@
             <button
               type="button"
               class="btn-close position-absolute"
-              (click)="removeFromCart(item.id)"
+              (click)="removeFromCart(item._id)"
             ></button>
             <!-- Product Image -->
             <div class="col-lg-3 cl-2-img position-relative">
@@ -49,7 +49,7 @@
                 <p-checkbox
                   binary="true"
                   [(ngModel)]="item.isSelected"
-                  (onChange)="toggleSelection(i)"
+                  (click)="toggleSelection(i)"
                   class="position-absolute custom-checkbox"
                 ></p-checkbox>
               </div>

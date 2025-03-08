@@ -64,14 +64,14 @@
   ></app-address-form>
 
   <!-- Common Dialog for Address Deletion Confirmation -->
-  <app-common-dialog
-    [visible]="isDeleteDialogVisible"
-    title="Remove Address"
-    message="Are you sure you want to remove this address? This action cannot be undone."
-    confirmButtonText="Remove"
-    cancelButtonText="Cancel"
-    (confirm)="confirmDeleteAddress()"
-    (cancel)="isDeleteDialogVisible = false"
-    (close)="isDeleteDialogVisible = false"
-  ></app-common-dialog>
 </div>
+<app-common-dialog
+  [visible]="isDeleteDialogVisible"
+  title="Remove Address"
+  message="Are you sure you want to remove this address? This action cannot be undone."
+  confirmButtonText="Remove"
+  cancelButtonText="Cancel"
+  (confirm)="confirmDeleteAddress()"
+  (cancel)="isDeleteDialogVisible = false"
+  (close)="isDeleteDialogVisible = false"
+></app-common-dialog>

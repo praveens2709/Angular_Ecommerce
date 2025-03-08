@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, lastValueFrom } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -17,20 +18,22 @@ export class CartService {
     itemsCount: 0,
   });
 
-  private apiUrl = 'http://localhost:3000/cart'; // Adjust the URL based on your setup
+  private apiUrl = `${environment.apiUrl}/cart`;
 
   constructor(private http: HttpClient) {
-    this.loadCartItems(); // Load cart items when service is initialized
+    this.loadCartItems();
   }
 
-  // Load cart items from the server
   loadCartItems() {
     this.http.get<any[]>(this.apiUrl).subscribe((data) => {
-      const updatedData = data.map((item) => ({ ...item, isSelected: true })); // Mark all items as selected
+      const updatedData = data.map(item => ({
+        ...item,
+        id: item._id,
+        isSelected: item.isSelected ?? true
+      }));
       this.cartItemsSubject.next(updatedData);
       this.cartCountSubject.next(updatedData.length);
       this.updatePriceDetails(updatedData);
-      this.updateServer(updatedData); // Ensure server reflects the updated selection
     });
   }
 
@@ -46,8 +49,7 @@ export class CartService {
     return this.priceDetailsSubject.asObservable();
   }
 
-  // Update price details dynamically
-  public updatePriceDetails(cartItems: any[]): void {
+  updatePriceDetails(cartItems: any[]): void {
     let totalMRP = 0;
     let totalDiscount = 0;
     let totalAmount = 0;
@@ -62,103 +64,56 @@ export class CartService {
       }
     });
 
-    const newPriceDetails = {
+    this.priceDetailsSubject.next({
       totalMRP,
       discount: totalDiscount,
       platformFee: 'Free',
       shippingFee: 'Free',
       totalAmount,
       itemsCount: totalItemsCount,
-    };
-
-    this.priceDetailsSubject.next(newPriceDetails);
+    });
   }
 
-  // Toggle individual product selection
   toggleSelection(productId: string) {
     const updatedItems = this.cartItemsSubject.getValue().map(item =>
       item.id === productId ? { ...item, isSelected: !item.isSelected } : item
     );
     this.cartItemsSubject.next(updatedItems);
-    this.updateServer(updatedItems);  // Update the server with new selection
+    this.updatePriceDetails(updatedItems);
   }
 
-  // Select or deselect all products
   toggleSelectAll(isChecked: boolean) {
     const updatedItems = this.cartItemsSubject.getValue().map(item => ({
       ...item, isSelected: isChecked
     }));
     this.cartItemsSubject.next(updatedItems);
-    this.updateServer(updatedItems);  // Update the server with new selection
+    this.updatePriceDetails(updatedItems);
   }
 
   addToCart(product: any): void {
-    const existingProductIndex = this.cartItemsSubject.getValue().findIndex(
-      (item) => item.id === product.id
-    );
-
-    if (existingProductIndex !== -1) {
-      const existingProduct = this.cartItemsSubject.getValue()[existingProductIndex];
-      existingProduct.quantity += 1;
-      existingProduct.price = existingProduct.basePrice * existingProduct.quantity;
-      existingProduct.mrp = existingProduct.baseMRP * existingProduct.quantity;
-    } else {
-      const productWithDefaults = {
-        ...product,
-        quantity: 1,
-        basePrice: product.price,
-        baseMRP: product.mrp,
-        price: product.price,
-        mrp: product.mrp,
-        isSelected: true,
-      };
-      const updatedCartItems = [...this.cartItemsSubject.getValue(), productWithDefaults];
-      this.cartItemsSubject.next(updatedCartItems);
-      this.cartCountSubject.next(updatedCartItems.length);
-
-      this.http.post(this.apiUrl, productWithDefaults).subscribe();
-    }
-
-    this.updatePriceDetails(this.cartItemsSubject.getValue());
-    this.updateServer(this.cartItemsSubject.getValue());
+    this.http.post(this.apiUrl, product).subscribe(() => {
+      this.loadCartItems();
+    });
   }
 
   updateItem(updatedItem: any): void {
-    const updatedItems = this.cartItemsSubject.getValue().map((item) =>
-      item.id === updatedItem.id ? updatedItem : item
-    );
-    this.cartItemsSubject.next(updatedItems);
-    this.updatePriceDetails(updatedItems);
-    this.http.put(`${this.apiUrl}/${updatedItem.id}`, updatedItem).subscribe();
+    this.http.put(`${this.apiUrl}/${updatedItem.id}`, {
+      quantity: updatedItem.quantity,
+      isSelected: updatedItem.isSelected,
+    }).subscribe(() => this.loadCartItems());
   }
 
   removeFromCart(productId: string): void {
-    const updatedItems = this.cartItemsSubject.getValue().filter((item) => item.id !== productId);
-    this.cartItemsSubject.next(updatedItems);
-    this.cartCountSubject.next(updatedItems.length);
-    this.updatePriceDetails(updatedItems);
-    this.http.delete(`${this.apiUrl}/${productId}`).subscribe();
+    this.http.delete(`${this.apiUrl}/${productId}`).subscribe(() => {
+      this.loadCartItems();
+    });
   }
 
   removeAllFromCart(): void {
-    const cartItems = this.cartItemsSubject.getValue();
-    const deleteRequests = cartItems.map(item =>
-      lastValueFrom(this.http.delete(`${this.apiUrl}/${item.id}`))
-    );
-    Promise.all(deleteRequests)
-      .then(() => {
-        this.cartItemsSubject.next([]);
-        this.cartCountSubject.next(0);
-        this.updatePriceDetails([]);
-        console.log('All products removed successfully');
-      })
-      .catch(err => console.error('Failed to clear cart', err));
-  }  
-
-  private updateServer(updatedItems: any[]): void {
-    const updateRequests = updatedItems.map((item) =>
-      lastValueFrom(this.http.put(`${this.apiUrl}/${item.id}`, item))
-    );
-    Promise.all(updateRequests).catch((err) => console.error('Failed to update cart', err));
+    this.http.delete(this.apiUrl).subscribe(() => {
+      this.cartItemsSubject.next([]);
+      this.cartCountSubject.next(0);
+      this.updatePriceDetails([]);
+    });
   }
 }

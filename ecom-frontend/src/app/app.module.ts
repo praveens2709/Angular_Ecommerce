@@ -12,7 +12,7 @@ import { HomeComponent } from './Public/Modules/home/home.component';
 import { CartComponent } from './Public/Modules/cart/cart.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
@@ -61,6 +61,7 @@ import { CalendarModule } from 'primeng/calendar';
 import { AddressFormComponent } from './Public/shared/address-dialog/address-form.component';
 import { OrderDetailsComponent } from './Public/Modules/account/order-details/order-details.component';
 import { CommonDialogComponent } from './Public/shared/common-dialog/common-dialog.component';
+import { authInterceptor } from './Admin/auth/Services/auth.intercepter';
 
 @NgModule({
   declarations: [
@@ -130,7 +131,7 @@ import { CommonDialogComponent } from './Public/shared/common-dialog/common-dial
   ],
   providers: [
     MessageService,
-    provideHttpClient()
+    provideHttpClient(withInterceptors([authInterceptor]))
   ],
   bootstrap: [AppComponent]
 })
