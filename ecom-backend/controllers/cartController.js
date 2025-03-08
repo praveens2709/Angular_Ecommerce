@@ -22,14 +22,15 @@ exports.addToCart = async (req, res) => {
         if (!productId) return res.status(400).json({ message: "Product ID is required" });
         if (!mongoose.Types.ObjectId.isValid(productId)) return res.status(400).json({ message: "Invalid Product ID" });
 
-        const cartItem = await Cart.findOne({ userId, productId });
+        let cartItem = await Cart.findOne({ userId, productId });
 
         if (cartItem) {
-            cartItem.quantity++;
+            cartItem.quantity += 1; // ✅ Increment quantity
             cartItem.price = cartItem.basePrice * cartItem.quantity;
             cartItem.mrp = cartItem.baseMRP * cartItem.quantity;
+            await cartItem.save();  // ✅ Ensure it is saved
         } else {
-            await new Cart({
+            cartItem = await new Cart({
                 userId,
                 productId,
                 basePrice: basePrice ?? productData.price,
@@ -40,7 +41,7 @@ exports.addToCart = async (req, res) => {
             }).save();
         }
 
-        res.json(cartItem || { message: "Item added to cart" });
+        res.json(cartItem);
 
     } catch (error) {
         res.status(500).json({ message: "Failed to add item to cart", error: error.message });

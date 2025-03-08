@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from './Services/auth-service.service';
-import { ToastService } from '../../Services/toast-service.service';
 
 @Component({
   selector: 'app-auth',
@@ -17,8 +16,7 @@ export class AuthComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router,
-    private toastService: ToastService
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -55,13 +53,11 @@ export class AuthComponent implements OnInit {
       : this.authService.adminRegister(name, email, password);
   
     authMethod.subscribe({
-      next: (response) => {
-        this.toastService.success(`${this.isLogin ? 'Login' : 'Registration'} Successful`, 'Welcome');
+      next: () => {
         this.router.navigate(['/admin/dashboard']);    
       },
       error: (error) => {
         console.error(`${this.isLogin ? 'Login' : 'Registration'} failed:`, error.message);
-        this.toastService.error(`${this.isLogin ? 'Login' : 'Registration'} failed`, 'Invalid credentials');
       },
     });
   }     

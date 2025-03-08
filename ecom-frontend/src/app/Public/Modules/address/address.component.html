@@ -20,7 +20,7 @@
               <span class="fw-semibold" *ngIf="addresses.length > 0">DEFAULT ADDRESS</span>
               <div *ngFor="let address of addresses" class="profile-box pt-2 px-2">
                 <div class="d-flex gap-2 align-items-center mb-2">
-                  <p-radioButton name="address" [(ngModel)]="selectedAddress" [value]="address.id"></p-radioButton>
+                  <p-radioButton name="address" [(ngModel)]="selectedAddress" [value]="address._id"></p-radioButton>
                   <p class="fw-semibold mb-0">{{ address.fullName }}</p>
                   <span class="px-1 rounded-4 address-type">{{
                     address.type
@@ -48,7 +48,7 @@
                     EDIT
                   </button>
                   <span class="fs-4 fw-lighter mb-1">|</span>
-                  <button class="border-0 bg-transparent" (click)="removeAddress(address.id)">
+                  <button class="border-0 bg-transparent" (click)="openDeleteDialog(address._id)">
                     REMOVE
                   </button>
                 </div>
@@ -69,3 +69,14 @@
   <app-address-form [isDialogVisible]="isDialogVisible" [dialogTitle]="dialogTitle" [addressData]="selectedAddressData"
     (onSave)="handleAddressSave($event)" (onClose)="handleDialogClose()"></app-address-form>
 </div>
+
+<app-common-dialog
+  [visible]="isDeleteDialogVisible"
+  title="Remove Address"
+  message="Are you sure you want to remove this address? This action cannot be undone."
+  confirmButtonText="Remove"
+  cancelButtonText="Cancel"
+  (confirm)="confirmDeleteAddress()"
+  (cancel)="isDeleteDialogVisible = false"
+  (close)="isDeleteDialogVisible = false"
+></app-common-dialog>

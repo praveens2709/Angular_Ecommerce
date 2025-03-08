@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, lastValueFrom } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+import { ToastService } from '../../../Services/toast-service.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,7 @@ export class CartService {
 
   private apiUrl = `${environment.apiUrl}/cart`;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private toastService: ToastService) {
     this.loadCartItems();
   }
 
@@ -91,21 +92,35 @@ export class CartService {
   }
 
   addToCart(product: any): void {
-    this.http.post(this.apiUrl, product).subscribe(() => {
-      this.loadCartItems();
-    });
+    const cartItems = this.cartItemsSubject.getValue();
+    const existingItem = cartItems.find(item => item.id === product.id);
+
+    if (existingItem) {
+      const updatedItem = { ...existingItem, quantity: existingItem.quantity + 1 };
+      this.updateItem(updatedItem);
+      this.toastService.success('Cart Updated', `${product.name} quantity increased!`);
+    } else {
+      const newItem = { ...product, quantity: 1 };
+      this.http.post(this.apiUrl, newItem).subscribe(() => {
+        this.loadCartItems();
+        this.toastService.success('Added to Cart', `${product.name} added successfully!`);
+      });
+    }
   }
 
   updateItem(updatedItem: any): void {
     this.http.put(`${this.apiUrl}/${updatedItem.id}`, {
       quantity: updatedItem.quantity,
       isSelected: updatedItem.isSelected,
-    }).subscribe(() => this.loadCartItems());
+    }).subscribe(() => {
+      this.loadCartItems();
+    });
   }
 
   removeFromCart(productId: string): void {
     this.http.delete(`${this.apiUrl}/${productId}`).subscribe(() => {
       this.loadCartItems();
+      this.toastService.success('Removed from Cart', 'Product removed successfully.');
     });
   }
 
@@ -114,6 +129,7 @@ export class CartService {
       this.cartItemsSubject.next([]);
       this.cartCountSubject.next(0);
       this.updatePriceDetails([]);
+      this.toastService.success('Cart Cleared', 'All items removed from cart.');
     });
   }
 }

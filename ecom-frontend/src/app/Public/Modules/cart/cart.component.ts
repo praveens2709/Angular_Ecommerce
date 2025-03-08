@@ -11,6 +11,12 @@ import { Subscription } from 'rxjs';
 export class CartComponent implements OnInit, OnDestroy {
   isChecked: boolean = false;
   isModalVisible: boolean = false;
+  isDialogVisible: boolean = false; // ✅ Controls the visibility of the common dialog
+  dialogTitle: string = ''; // ✅ Dialog title
+  dialogMessage: string = ''; // ✅ Dialog message
+  deleteAction: 'single' | 'all' | null = null; // ✅ Track delete type
+  deleteItemId: string | null = null; // ✅ Track which item to delete
+
   availableQuantities: number[] = Array.from({ length: 10 }, (_, i) => i + 1);
   quantity: number = 1;
   pricePerUnit: number = 50;
@@ -74,13 +80,33 @@ export class CartComponent implements OnInit, OnDestroy {
     this.cartService.updatePriceDetails(this.cartItems);
   }  
 
-  removeFromCart(productId: string): void {
-    this.cartService.removeFromCart(productId);
+  openDeleteDialog(action: 'single' | 'all', itemId: string | null = null): void {
+    this.deleteAction = action;
+    this.deleteItemId = itemId;
+    this.dialogTitle = action === 'all' ? 'Clear Cart' : 'Remove Item';
+    this.dialogMessage =
+      action === 'all'
+        ? 'Are you sure you want to remove all items from your cart?'
+        : 'Are you sure you want to remove this item from your cart?';
+    this.isDialogVisible = true;
   }
 
-  removeAllFromCart(): void {
-    this.cartService.removeAllFromCart();
+  confirmDelete(): void {
+    if (this.deleteAction === 'all') {
+      this.cartService.removeAllFromCart();
+    } else if (this.deleteAction === 'single' && this.deleteItemId) {
+      this.cartService.removeFromCart(this.deleteItemId);
+    }
+
+    this.closeDialog();
   }
+
+  closeDialog(): void {
+    this.isDialogVisible = false;
+    this.deleteAction = null;
+    this.deleteItemId = null;
+  }
+
 
   openQuantityModal(item: any): void {
     this.currentItem = item;

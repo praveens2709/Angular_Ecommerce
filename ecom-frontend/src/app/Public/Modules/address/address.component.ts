@@ -13,11 +13,13 @@ export class AddressComponent implements OnInit {
   addresses: any[] = [];
   selectedAddress: string | null = null;
   isDialogVisible = false;
+  isDeleteDialogVisible = false;
   dialogTitle = 'Add Address';
   isEditMode = false;
   selectedAddressData: any = null;
   priceDetails: any = {};
   userId: string | null = null;
+  addressToDeleteId: string | null = null;
 
   constructor(
     private addressService: AddressesService,
@@ -48,7 +50,7 @@ export class AddressComponent implements OnInit {
           this.selectedAddress = this.addresses[0]._id;
         }
       },
-      error: (err) => console.error('Error fetching addresses:', err),
+      error: (err) => console.error('Error', err),
     });
   }
 
@@ -60,7 +62,6 @@ export class AddressComponent implements OnInit {
   }
 
   openEditDialog(address: any): void {
-    console.log('Editing Address:', address);
     this.isEditMode = true;
     this.dialogTitle = 'Edit Address';
     this.selectedAddressData = { ...address };
@@ -76,7 +77,7 @@ export class AddressComponent implements OnInit {
           this.loadAddresses();
           this.isDialogVisible = false;
         },
-        error: (err) => console.error('Error updating address:', err),
+        error: (err) => console.error('Error', err),
       });
     } else {
       this.addressService.addAddress({ ...address, userId: this.userId }).subscribe({
@@ -84,15 +85,26 @@ export class AddressComponent implements OnInit {
           this.loadAddresses();
           this.isDialogVisible = false;
         },
-        error: (err) => console.error('Error adding address:', err),
+        error: (err) => console.error('Error', err),
       });
     }
   }
 
-  removeAddress(id: string): void {
-    this.addressService.deleteAddress(id).subscribe({
-      next: () => this.loadAddresses(),
-      error: (err) => console.error('Error deleting address:', err),
+  openDeleteDialog(addressId: string): void {
+    this.addressToDeleteId = addressId;
+    this.isDeleteDialogVisible = true;
+  }
+
+  confirmDeleteAddress(): void {
+    if (!this.addressToDeleteId) return;
+
+    this.addressService.deleteAddress(this.addressToDeleteId).subscribe({
+      next: () => {
+        this.loadAddresses();
+        this.isDeleteDialogVisible = false;
+        this.addressToDeleteId = null;
+      },
+      error: (err) => console.error('Error', err),
     });
   }
 

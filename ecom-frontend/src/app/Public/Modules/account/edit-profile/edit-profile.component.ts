@@ -3,7 +3,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UsersService } from '../../../../Admin/Modules/users/users.service';
 import { AuthService } from '../../../../Admin/auth/Services/auth-service.service';
-import { ToastService } from '../../../../Services/toast-service.service';
 
 @Component({
   selector: 'app-edit-profile',
@@ -22,8 +21,7 @@ export class EditProfileComponent implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private usersService: UsersService,
-    private authService: AuthService,
-    private toastService: ToastService
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -74,7 +72,6 @@ export class EditProfileComponent implements OnInit {
   confirmSave(): void {
     if (this.profileForm.valid) {
       this.usersService.editUser(this.userId!, this.profileForm.value).subscribe(() => {
-        this.toastService.success('Profile Updated', 'Your changes have been saved successfully!');
         this.initialFormValue = { ...this.profileForm.value };
         this.isDialogVisible = false;
         this.router.navigate(['account/profile']);

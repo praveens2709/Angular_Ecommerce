@@ -23,7 +23,7 @@
             <div class="d-flex align-items-center gap-3">
               <button
                 class="h5 border-0 bg-transparent"
-                (click)="removeAllFromCart()"
+                (click)="openDeleteDialog('all')"
               >
                 REMOVE ALL
               </button>
@@ -40,7 +40,7 @@
             <button
               type="button"
               class="btn-close position-absolute"
-              (click)="removeFromCart(item._id)"
+              (click)="openDeleteDialog('single', item._id)"
             ></button>
             <!-- Product Image -->
             <div class="col-lg-3 cl-2-img position-relative">
@@ -138,3 +138,15 @@
     </div>
   </p-dialog>
 </div>
+
+<!-- Confirmation Dialog -->
+<app-common-dialog
+  [visible]="isDialogVisible"
+  [title]="dialogTitle"
+  [message]="dialogMessage"
+  confirmButtonText="Confirm"
+  cancelButtonText="Cancel"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDialog()"
+  (close)="isDialogVisible = false"
+></app-common-dialog>

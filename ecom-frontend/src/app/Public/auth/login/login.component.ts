@@ -2,7 +2,6 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../Admin/auth/Services/auth-service.service';
-import { ToastService } from '../../../Services/toast-service.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -21,8 +20,7 @@ export class LoginComponent implements OnInit {
   constructor(
     private fb: FormBuilder, 
     private authService: AuthService,
-    private router: Router,
-    private toastService: ToastService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -43,12 +41,10 @@ export class LoginComponent implements OnInit {
       this.authService.publicLogin(email, password).subscribe({
         next: (user) => {
           console.log('Login Successful:', user);
-          this.toastService.success('Login Successful', 'Welcome Back');
           this.router.navigate(['home']);
         },
         error: (error) => {
           console.error('Login failed:', error);
-          this.toastService.error('Login failed', 'User not found');
         }
       });
     } else {

@@ -2,7 +2,6 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../Admin/auth/Services/auth-service.service';
-import { ToastService } from '../../../Services/toast-service.service';
 import { CommonModule } from '@angular/common';
 import { RadioButtonModule } from 'primeng/radiobutton';
 
@@ -23,7 +22,6 @@ export class RegisterComponent implements OnInit {
     private fb: FormBuilder, 
     private authService: AuthService,
     private router: Router,
-    private toastService: ToastService
   ) { }
 
   ngOnInit(): void {
@@ -33,7 +31,7 @@ export class RegisterComponent implements OnInit {
   registerFormFunction() {
     this.registerForm = this.fb.group({
       firstName: ['', [Validators.required, Validators.minLength(2)]],
-      lastName: [''], // Optional
+      lastName: [''],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       mobile: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
@@ -50,12 +48,10 @@ export class RegisterComponent implements OnInit {
       this.authService.register(firstName, lastName, email, password, mobile, gender).subscribe({
         next: () => {
           console.log('Registration Successful for:', email);
-          this.toastService.success('Registration Successful', 'Welcome!');
           this.router.navigate(['home']);
         },
         error: (error) => {
           console.error('Registration failed:', error);
-          this.toastService.error('Registration failed', 'Please try again');
         }
       });
     } else {

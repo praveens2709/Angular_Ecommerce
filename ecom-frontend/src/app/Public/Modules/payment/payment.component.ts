@@ -20,7 +20,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
     { key: 'recommended', name: 'Recommended', icon: 'assets/images/star.png' },
     { key: 'cod', name: 'Cash on Delivery (Cash/UPI)', icon: 'assets/images/cash.png' },
     { key: 'upi', name: 'UPI (Pay via any App)', icon: 'assets/images/upi.webp' },
-    { key: 'card', name: 'Credit/Debit Card', icon: 'assets/images/card.png' }
+    { key: 'card', name: 'Credit/Debit Card', icon: 'assets/images/credit-card.png' }
   ];
 
   recommendedOptions = [

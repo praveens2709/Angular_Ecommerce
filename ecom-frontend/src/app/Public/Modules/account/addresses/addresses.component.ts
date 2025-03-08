@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AddressesService } from './addresses.service';
 import { AuthService } from '../../../../Admin/auth/Services/auth-service.service';
-import { ToastService } from '../../../../Services/toast-service.service';
 
 @Component({
   selector: 'app-addresses',
@@ -21,8 +20,7 @@ export class AddressesComponent implements OnInit {
 
   constructor(
     private addressService: AddressesService,
-    private authService: AuthService,
-    private toastService: ToastService
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -39,7 +37,7 @@ export class AddressesComponent implements OnInit {
       next: (data) => {
         this.addresses = data;
       },
-      error: () => this.toastService.error('Error', 'Failed to load addresses'),
+      error: () => console.error('Error', 'Failed to load addresses'),
     });
   }
 
@@ -63,20 +61,18 @@ export class AddressesComponent implements OnInit {
     if (this.isEditMode && this.selectedAddress?._id) {
       this.addressService.updateAddress(this.selectedAddress._id, address).subscribe({
         next: () => {
-          this.toastService.success('Success', 'Address updated successfully!');
           this.loadAddresses();
           this.isDialogVisible = false;
         },
-        error: () => this.toastService.error('Error', 'Failed to update address'),
+        error: () => console.error('Error', 'Failed to update address'),
       });
     } else {
       this.addressService.addAddress({ ...address, userId: this.userId }).subscribe({
         next: () => {
-          this.toastService.success('Success', 'Address added successfully!');
           this.loadAddresses();
           this.isDialogVisible = false;
         },
-        error: () => this.toastService.error('Error', 'Failed to add address'),
+        error: () => console.error('Error', 'Failed to add address'),
       });
     }
   }
@@ -91,12 +87,11 @@ export class AddressesComponent implements OnInit {
 
     this.addressService.deleteAddress(this.addressToDeleteId).subscribe({
       next: () => {
-        this.toastService.success('Deleted', 'Address removed successfully!');
         this.loadAddresses();
         this.isDeleteDialogVisible = false;
         this.addressToDeleteId = null;
       },
-      error: () => this.toastService.error('Error', 'Failed to delete address'),
+      error: () => console.error('Error', 'Failed to delete address'),
     });
   }
 

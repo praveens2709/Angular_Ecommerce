@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CardsService } from './cards.service';
 import { AuthService } from '../../../../Admin/auth/Services/auth-service.service';
-import { ToastService } from '../../../../Services/toast-service.service';
 
 @Component({
   selector: 'app-cards',
@@ -23,8 +22,7 @@ export class CardsComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private cardsService: CardsService,
-    private authService: AuthService,
-    private toastService: ToastService
+    private authService: AuthService
   ) {
     this.cardForm = this.fb.group({
       cardHolderName: ['', Validators.required],
@@ -70,7 +68,6 @@ export class CardsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error fetching cards:', error);
-        this.toastService.error('Error fetching cards', 'Try again later');
       },
     });
   }
@@ -82,31 +79,26 @@ export class CardsComponent implements OnInit {
       if (this.editingCardId) {
         this.cardsService.updateCard(this.editingCardId, formValue).subscribe({
           next: () => {
-            this.toastService.success('Card updated successfully', 'Success');
             this.loadCards();
             this.isDialogVisible = false;
           },
           error: (error) => {
             console.error('Error updating card:', error);
-            this.toastService.error('Error updating card', 'Try again');
           },
         });
       } else {
         this.cardsService.addCard(formValue).subscribe({
           next: () => {
-            this.toastService.success('Card added successfully', 'Success');
             this.loadCards();
             this.isDialogVisible = false;
           },
           error: (error) => {
             console.error('Error adding card:', error);
-            this.toastService.error('Error adding card', 'Try again');
           },
         });
       }
     } else {
       console.warn('Form validation failed');
-      this.toastService.error('Form is invalid', 'Check your inputs');
     }
   }
 
@@ -138,17 +130,15 @@ export class CardsComponent implements OnInit {
 
   confirmDeleteCard(): void {
     if (!this.cardToDeleteId) {
-      this.toastService.error('Invalid card ID', 'Try again');
       return;
     }
     this.cardsService.deleteCard(this.cardToDeleteId).subscribe({
       next: () => {
-        this.toastService.success('Card removed successfully', 'Success');
         this.loadCards();
         this.isDeleteDialogVisible = false;
         this.cardToDeleteId = null;
       },
-      error: () => this.toastService.error('Error deleting card', 'Try again'),
+      error: (err) => console.error('Error deleting card', err),
     });
   }
 }
