@@ -1,0 +1,162 @@
+.info-hero {
+  background: linear-gradient(135deg, #fbe4de 0%, #f7f5f4 100%);
+  padding: 56px 0 44px;
+  border-bottom: 1px solid #f1d2c9;
+}
+
+.info-hero h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #1f1f1f;
+}
+
+.info-hero p {
+  color: #7a6a65;
+  max-width: 620px;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #992603;
+  margin-bottom: 8px;
+}
+
+.contact-body {
+  padding-top: 40px;
+  padding-bottom: 70px;
+}
+
+.panel {
+  background: #ffffff;
+  border: 1px solid #eee4e1;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 10px 30px rgba(153, 38, 3, 0.05);
+}
+
+label {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: #3a3a3a;
+}
+
+.form-control,
+.form-select {
+  border-radius: 8px;
+  border-color: #dccfcb;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #992603;
+  box-shadow: 0 0 0 3px rgba(153, 38, 3, 0.12);
+}
+
+.err {
+  color: #c0392b;
+  font-size: 13px;
+}
+
+.hp {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.send-btn {
+  background: #992603;
+  color: #ffffff;
+  border: 0;
+  border-radius: 30px;
+  padding: 12px 28px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.send-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(153, 38, 3, 0.25);
+}
+
+.send-btn:disabled {
+  opacity: 0.6;
+}
+
+.done-icon {
+  font-size: 3rem;
+  color: #1e8e3e;
+}
+
+.info h5,
+.quick h5 {
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.info-row {
+  display: flex;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f3ebe8;
+}
+
+.info-row:last-child {
+  border-bottom: 0;
+}
+
+.info-row i {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #fdf4f2;
+  color: #992603;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info-row small {
+  display: block;
+  color: #8a7d78;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.info-row a {
+  color: #992603;
+  font-weight: 600;
+}
+
+.quick a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  color: #3a3a3a;
+  border-bottom: 1px solid #f3ebe8;
+}
+
+.quick a:last-child {
+  border-bottom: 0;
+}
+
+.quick a i {
+  color: #992603;
+}
+
+.quick a:hover {
+  color: #992603;
+}

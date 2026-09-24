@@ -421,7 +421,7 @@ body {
   border: 1px solid #a1a1a1;
 }
 
-.pi-calendar {
+.calendar-input-wrapper .pi-calendar {
   padding: 0 20px;
   font-size: 22px;
 }
@@ -431,8 +431,14 @@ body {
   border-radius: 0;
 }
 
-.p-calendar {
+.p-calendar,
+.custom-calendar .p-datepicker {
   display: flex;
+  width: 100%;
+}
+
+.custom-calendar .p-datepicker-input {
+  width: 100%;
 }
 
 .p-datepicker .p-datepicker-header .p-datepicker-prev,
@@ -601,7 +607,7 @@ label,
 }
 
 .text-orange{
-  color: #ba6708 !important;
+  color: #992603 !important;
   cursor: pointer;
 }
 
@@ -617,3 +623,239 @@ label,
     color: #696969 !important;
   }
 }
+/* Component-level `* { font-family: ... }` rules must not override the icon font */
+.pi {
+  font-family: 'primeicons' !important;
+}
+
+/* Scroll reveal (see RevealDirective) */
+.reveal {
+  opacity: 0;
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+  will-change: opacity, transform;
+}
+.reveal-up { transform: translateY(40px); }
+.reveal-left { transform: translateX(-50px); }
+.reveal-right { transform: translateX(50px); }
+.reveal-zoom { transform: scale(0.92); }
+.reveal.revealed {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal.revealed {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+
+/* =====================================================================
+   Theme layer: account & checkout pages
+   White rounded cards on the warm light background, brand-red accents.
+   ===================================================================== */
+:root {
+  --ds-brand: #992603;
+  --ds-brand-light: #c63543;
+  --ds-blush: #fdf4f2;
+  --ds-line: #eee4e1;
+  --ds-ink: #1f1f1f;
+  --ds-muted: #7a6a65;
+  --ds-radius: 16px;
+  --ds-shadow: 0 10px 30px rgba(153, 38, 3, 0.05);
+}
+
+.account-content .profile-box,
+.account-content .profile-box2,
+.account-content .order-box,
+.cart-body .cl-2,
+.cart-body .profile-box,
+.cart-body .payment-methods {
+  width: 100% !important;
+  background: #ffffff !important;
+  border: 1px solid var(--ds-line) !important;
+  border-radius: var(--ds-radius) !important;
+  box-shadow: var(--ds-shadow);
+}
+
+.account-content .profile-box,
+.account-content .profile-box2 {
+  padding: 24px 28px !important;
+  margin-top: 0 !important;
+}
+
+.account-content h6,
+.cart-body h6.mb-0,
+.cart-body .payment-section > h6 {
+  font-size: 1.15rem;
+  font-weight: 800 !important;
+  color: var(--ds-ink) !important;
+  border-bottom: 0 !important;
+}
+
+.account-content .profile-box2 h6 {
+  padding-bottom: 12px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--ds-line) !important;
+}
+
+.account-content .profile-box2 p {
+  font-size: 15px !important;
+  color: #4a3f3b !important;
+}
+
+.account-content .order-box {
+  padding: 14px 18px !important;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.account-content a:hover .order-box,
+.account-content .order-box:hover {
+  box-shadow: 0 14px 30px rgba(153, 38, 3, 0.1);
+}
+
+/* "Add new" actions as pills */
+.add-address,
+.add-card {
+  border-radius: 999px !important;
+  padding: 6px 14px !important;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+/* Solid red blocks → outline buttons with a filled primary */
+.account-content .profile-box2 button,
+.account-content .edit-remove-address button,
+.account-content .edit-remove-card button,
+.cart-body .edit-remove-address button {
+  background: #ffffff !important;
+  color: var(--ds-brand) !important;
+  border: 1px solid var(--ds-brand) !important;
+  border-radius: 999px !important;
+  padding: 8px 0 !important;
+  font-weight: 700;
+  transition: background 0.2s, color 0.2s;
+}
+
+.account-content .profile-box2 button:hover,
+.account-content .edit-remove-address button:hover,
+.account-content .edit-remove-card button:hover,
+.cart-body .edit-remove-address button:hover {
+  background: var(--ds-brand) !important;
+  color: #ffffff !important;
+}
+
+.account-content .edit-remove-address span,
+.account-content .edit-remove-card span {
+  display: none;
+}
+
+.account-content .cancel-order-btn,
+.account-content .delete-btn,
+.account-content .keep-btn {
+  border-radius: 999px !important;
+}
+
+/* Checkout: rounded primary buttons and card price summary */
+.cart-right {
+  background: #ffffff;
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-radius);
+  padding: 20px 22px !important;
+  box-shadow: var(--ds-shadow);
+}
+
+.cart-right > button {
+  border-radius: 999px !important;
+  padding: 12px 0 !important;
+  font-weight: 700 !important;
+  background: var(--ds-brand) !important;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.cart-right > button:hover:not(.disabled-button) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(153, 38, 3, 0.25);
+}
+
+.cart-body .border-end {
+  border-right: 0 !important;
+}
+
+.cart-body .payment-methods {
+  overflow: hidden;
+}
+
+.cart-body .payment-section button {
+  border-radius: 999px !important;
+}
+
+/* Dialog action bars used by address/card/confirm dialogs */
+.common-confirm-btn,
+.save-address-btn {
+  background: var(--ds-brand) !important;
+}
+
+/* Old rule forces white text inside these buttons; follow the button colour instead */
+.account-content .profile-box2 button span,
+.account-content .edit-remove-address button span,
+.account-content .edit-remove-card button span {
+  color: inherit !important;
+  display: inline !important;
+}
+
+.account-content .invoice-btn {
+  border-radius: 999px !important;
+}
+
+/* Text-style actions inside account cards (e.g. mobile "Change") */
+.account-content .profile-box2 button.change-link,
+.account-content .profile-box2 button.change-link:hover {
+  background: transparent !important;
+  border: 0 !important;
+  color: var(--ds-brand) !important;
+  font-weight: 700;
+  width: auto !important;
+  padding: 4px 8px !important;
+  margin: 0 !important;
+}
+
+/* Auto-width buttons in account cards keep their side padding */
+.account-content .profile-box2 button.px-3 {
+  padding: 8px 24px !important;
+}
+
+/* Loading placeholders (first visit only; later visits show remembered data) */
+.skeleton {
+  border-radius: 8px;
+  background: linear-gradient(90deg, #f3ebe8 25%, #faf6f5 50%, #f3ebe8 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.2s ease-in-out infinite;
+}
+
+.skeleton-line {
+  height: 14px;
+  margin-bottom: 10px;
+}
+
+.skeleton-card {
+  height: 120px;
+  border-radius: 16px;
+  margin-bottom: 14px;
+}
+
+@keyframes skeleton-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}
+
+/* Page body between the header and the footer: at least one screen tall, so the footer
+   never shows in the first viewport while a page is still loading its content */
+.page-fill { min-height: calc(100vh - 65px); min-height: calc(100dvh - 65px); }

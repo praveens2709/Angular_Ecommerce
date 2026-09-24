@@ -1,0 +1,35 @@
+<footer class="site-footer" *ngIf="store$ | async as store">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="footer-logo">{{ store.name }}</div>
+        <p class="mt-2 mb-3">Where style meets substance. Apparel and accessories curated to elevate your everyday look.</p>
+        <p *ngIf="store.email" class="mb-1 small"><i class="pi pi-envelope me-2"></i><a [href]="'mailto:' + store.email" class="d-inline">{{ store.email }}</a></p>
+        <p *ngIf="store.phone" class="mb-1 small"><i class="pi pi-phone me-2"></i>{{ store.phone }}</p>
+      </div>
+      <div class="col-6 col-md-4 col-lg-2 offset-lg-1">
+        <h6>Shop</h6>
+        <a routerLink="/shop">All Products</a>
+        <a *ngFor="let name of categories$ | async" [routerLink]="['/shop']" [queryParams]="{ category: name }">{{ name }}</a>
+      </div>
+      <div class="col-6 col-md-4 col-lg-2">
+        <h6>Help</h6>
+        <a routerLink="/contact">Contact Us</a>
+        <a routerLink="/shipping-policy">Shipping</a>
+        <a routerLink="/returns-policy">Returns &amp; Refunds</a>
+        <a routerLink="/account/orders">Track Order</a>
+      </div>
+      <div class="col-6 col-md-4 col-lg-3">
+        <h6>Company</h6>
+        <a routerLink="/about">About Us</a>
+        <a routerLink="/privacy-policy">Privacy Policy</a>
+        <a routerLink="/terms">Terms &amp; Conditions</a>
+        <a routerLink="/account/overview">My Account</a>
+      </div>
+    </div>
+    <div class="footer-bottom d-flex flex-column flex-md-row justify-content-between gap-2">
+      <small>&copy; {{ year }} {{ store.legalName || store.name }}. All rights reserved.</small>
+      <small>Free shipping &middot; Cash on delivery &middot; {{ store.returnWindowDays }}-day returns</small>
+    </div>
+  </div>
+</footer>

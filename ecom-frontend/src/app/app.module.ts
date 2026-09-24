@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AdminComponent } from './Admin/admin.component';
@@ -12,7 +12,7 @@ import { HomeComponent } from './Public/Modules/home/home.component';
 import { CartComponent } from './Public/Modules/cart/cart.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
@@ -61,7 +61,41 @@ import { CalendarModule } from 'primeng/calendar';
 import { AddressFormComponent } from './Public/shared/address-dialog/address-form.component';
 import { OrderDetailsComponent } from './Public/Modules/account/order-details/order-details.component';
 import { CommonDialogComponent } from './Public/shared/common-dialog/common-dialog.component';
+import { RevealDirective } from './Public/shared/directives/reveal.directive';
+import { CouponsComponent } from './Admin/Modules/coupons/coupons.component';
+import { SearchBarComponent } from './Public/shared/search-bar/search-bar.component';
+import { WishlistComponent } from './Public/Modules/account/wishlist/wishlist.component';
+import { ScrollProgressComponent } from './Public/shared/scroll-progress/scroll-progress.component';
+import { SiteFooterComponent } from './Public/shared/site-footer/site-footer.component';
+import { InfoPageComponent } from './Public/Modules/info-page/info-page.component';
+import { ContactComponent } from './Public/Modules/contact/contact.component';
+import { MessagesComponent } from './Admin/Modules/messages/messages.component';
+import { OptImgPipe } from './Public/shared/pipes/opt-img.pipe';
 import { authInterceptor } from './Admin/auth/Services/auth.intercepter';
+import { providePrimeNG } from 'primeng/config';
+import { TitleStrategy } from '@angular/router';
+import { SeoTitleStrategy } from './seo-title.strategy';
+import Lara from '@primeng/themes/lara';
+import { definePreset } from '@primeng/themes';
+
+// Lara with the DopeShope brand red (#992603) as the primary colour
+const DopeShopeTheme = definePreset(Lara, {
+  semantic: {
+    primary: {
+      50: '#fdf4f2',
+      100: '#fbe4de',
+      200: '#f5c4b8',
+      300: '#ec9a86',
+      400: '#dc6a50',
+      500: '#c2461f',
+      600: '#aa340e',
+      700: '#992603',
+      800: '#7a1f05',
+      900: '#5f1a07',
+      950: '#360c02',
+    },
+  },
+});
 
 @NgModule({
   declarations: [
@@ -98,6 +132,16 @@ import { authInterceptor } from './Admin/auth/Services/auth.intercepter';
     AddressFormComponent,
     OrderDetailsComponent,
     CommonDialogComponent,
+    RevealDirective,
+    CouponsComponent,
+    SearchBarComponent,
+    WishlistComponent,
+    ScrollProgressComponent,
+    SiteFooterComponent,
+    InfoPageComponent,
+    ContactComponent,
+    MessagesComponent,
+    OptImgPipe,
   ],
   imports: [
     BrowserModule,
@@ -131,7 +175,12 @@ import { authInterceptor } from './Admin/auth/Services/auth.intercepter';
   ],
   providers: [
     MessageService,
-    provideHttpClient(withInterceptors([authInterceptor]))
+    { provide: TitleStrategy, useClass: SeoTitleStrategy },
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
+    // PrimeNG 19 ships no CSS files; the theme is injected at runtime.
+    // Dark mode is keyed to a class we never set, so the OS theme doesn't flip components dark.
+    providePrimeNG({ theme: { preset: DopeShopeTheme, options: { darkModeSelector: '.app-dark' } } }),
+    provideClientHydration(withEventReplay())
   ],
   bootstrap: [AppComponent]
 })

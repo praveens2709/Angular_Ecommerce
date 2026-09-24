@@ -9,7 +9,8 @@
     </div>
 
     <!-- No Addresses Section -->
-    <div *ngIf="!addresses || addresses.length === 0" class="profile-box pt-4 pb-5">
+    <div *ngIf="loading" class="skeleton skeleton-card"></div>
+    <div *ngIf="!loading && (!addresses || addresses.length === 0)" class="profile-box pt-4 pb-5">
       <div class="d-flex flex-column justify-content-center align-items-center saved-addresses px-5">
         <img src="assets/images/no-address.png" alt="saved-addresses" />
         <p class="fw-semibold text-uppercase pt-3 pb-2 mb-0">

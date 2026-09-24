@@ -45,25 +45,27 @@
               [severity]="getSeverity(category.status)"
             ></p-tag>
           </td>
-          <td class="px-4 d-flex gap-2">
-            <button
-              class="btn btn-sm btn-outline-primary p-0 px-2 py-1"
-              (click)="openDialog('edit', category)"
-            >
-              <i class="pi pi-pencil pt-1"></i>
-            </button>
-            <button
-              class="btn btn-sm btn-outline-danger p-0 px-2 py-1"
-              (click)="openDeleteDialog(category)"
-            >
-              <i class="pi pi-trash pt-1"></i>
-            </button>
-            <!-- <button
-              class="btn btn-sm btn-outline-secondary p-0 px-2 py-1"
-              (click)="toggleCategoryStatus(category)"
-            >
-              <i class="pi pi-ban pt-1"></i>
-            </button> -->
+          <td class="px-4">
+            <div class="d-flex gap-2">
+              <button
+                class="btn btn-sm btn-outline-primary p-0 px-2 py-1"
+                (click)="openDialog('edit', category)"
+              >
+                <i class="pi pi-pencil pt-1"></i>
+              </button>
+              <button
+                class="btn btn-sm btn-outline-danger p-0 px-2 py-1"
+                (click)="openDeleteDialog(category)"
+              >
+                <i class="pi pi-trash pt-1"></i>
+              </button>
+              <!-- <button
+                class="btn btn-sm btn-outline-secondary p-0 px-2 py-1"
+                (click)="toggleCategoryStatus(category)"
+              >
+                <i class="pi pi-ban pt-1"></i>
+              </button> -->
+            </div>
           </td>
         </tr>
       </ng-template>

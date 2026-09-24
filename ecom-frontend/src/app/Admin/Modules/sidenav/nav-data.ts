@@ -20,6 +20,16 @@ export const navbarData = [
         icon: 'pi pi-shopping-cart'
     },
     {
+        routerLink: 'coupons',
+        label: 'Coupons',
+        icon: 'pi pi-ticket'
+    },
+    {
+        routerLink: 'messages',
+        label: 'Messages',
+        icon: 'pi pi-inbox'
+    },
+    {
         routerLink: 'users',
         label: 'Users',
         icon: 'pi pi-users'

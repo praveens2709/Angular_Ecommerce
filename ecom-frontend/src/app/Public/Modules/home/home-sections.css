@@ -1,0 +1,454 @@
+:host {
+    --brand: #992603;
+    --brand-dark: #6e1b02;
+    --brand-light: #c63543;
+    --ink: #1f1f1f;
+    --muted: #6b6b6b;
+    --paper: #f7f5f4;
+    display: block;
+    background: #ffffff;
+}
+
+.home-section {
+    padding: 90px 0 30px;
+}
+
+.eyebrow {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--brand);
+    margin-bottom: 8px;
+}
+
+.eyebrow.light {
+    color: #ffd9cf;
+}
+
+.section-head {
+    margin-bottom: 44px;
+
+    h2 {
+        font-size: 2.4rem;
+        font-weight: 800;
+        color: var(--ink);
+    }
+
+    p {
+        color: var(--muted);
+        margin: 0;
+    }
+}
+
+.section-head-row {
+    margin-bottom: 32px;
+
+    h2 {
+        font-size: 2.4rem;
+        font-weight: 800;
+        color: var(--ink);
+    }
+}
+
+/* ---------- Categories ---------- */
+.category-card {
+    border-radius: 18px;
+    background: var(--paper);
+    color: var(--ink);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+
+    &:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(153, 38, 3, 0.18);
+    }
+
+    &:hover .category-img img {
+        transform: scale(1.1) rotate(-4deg);
+    }
+
+    &:hover .arrow {
+        background: var(--brand);
+        color: #ffffff;
+        transform: rotate(-45deg);
+    }
+}
+
+.category-img {
+    height: 240px;
+    background: radial-gradient(circle at 50% 60%, #f6d3ca 0%, #f7f5f4 70%);
+
+    img {
+        max-height: 80%;
+        max-width: 80%;
+        object-fit: contain;
+        transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+}
+
+.category-info {
+    padding: 16px 18px 18px;
+
+    h5 {
+        font-weight: 700;
+    }
+
+    small {
+        color: var(--muted);
+    }
+}
+
+.arrow {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--brand);
+    color: var(--brand);
+    transition: all 0.35s ease;
+}
+
+/* ---------- New arrivals ---------- */
+.arrivals {
+    background: linear-gradient(180deg, #ffffff 0%, var(--paper) 100%);
+    padding-bottom: 80px;
+}
+
+.nav-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 1px solid var(--brand);
+    background: #ffffff;
+    color: var(--brand);
+    transition: all 0.25s ease;
+
+    &:hover {
+        background: var(--brand);
+        color: #ffffff;
+    }
+}
+
+.arrivals-track {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 6px 4px 24px;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.arrival-card {
+    width: 260px;
+    scroll-snap-align: start;
+    color: var(--ink);
+
+    &:hover .arrival-img {
+        box-shadow: 0 18px 34px rgba(0, 0, 0, 0.12);
+    }
+
+    &:hover .arrival-img img {
+        transform: scale(1.08);
+    }
+
+    &:hover .quick-view {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+
+    .brand {
+        color: var(--brand);
+        font-size: 11px;
+        letter-spacing: 1.5px;
+        font-weight: 700;
+    }
+
+    .name {
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .price {
+        color: var(--brand);
+    }
+
+    .mrp {
+        color: var(--muted);
+        text-decoration: line-through;
+        font-size: 14px;
+    }
+}
+
+.arrival-img {
+    height: 300px;
+    border-radius: 16px;
+    background: #ffffff;
+    overflow: hidden;
+    transition: box-shadow 0.35s ease;
+
+    img {
+        max-width: 78%;
+        max-height: 78%;
+        object-fit: contain;
+        transition: transform 0.5s ease;
+    }
+}
+
+.discount-badge,
+.soldout-badge {
+    top: 14px;
+    left: 14px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #ffffff;
+    background: var(--brand);
+    z-index: 1;
+}
+
+.soldout-badge {
+    left: auto;
+    right: 14px;
+    background: #444;
+}
+
+.quick-view {
+    left: 50%;
+    bottom: 16px;
+    transform: translate(-50%, 12px);
+    opacity: 0;
+    padding: 8px 16px;
+    border-radius: 24px;
+    background: var(--ink);
+    color: #ffffff;
+    font-size: 13px;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+/* ---------- Deal ---------- */
+.deal {
+    border-radius: 24px;
+    background: linear-gradient(120deg, var(--brand-light) 0%, var(--brand) 55%, var(--brand-dark) 100%);
+    color: #ffffff;
+    min-height: 440px;
+}
+
+.deal-visual {
+    flex: 1;
+    min-height: 360px;
+}
+
+.deal-logo {
+    font-family: "Homemade Apple", serif;
+    font-size: 7rem;
+    color: rgba(255, 255, 255, 0.12);
+    transform: rotate(-12deg);
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.deal-img {
+    max-width: 70%;
+    max-height: 340px;
+    object-fit: contain;
+    filter: drop-shadow(0 24px 30px rgba(0, 0, 0, 0.35));
+    animation: float 5s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-18px) rotate(2deg); }
+}
+
+.deal-content {
+    flex: 1;
+    padding: 48px 56px;
+
+    h2 {
+        font-size: 2.4rem;
+        font-weight: 800;
+    }
+
+    p {
+        color: #ffe6df;
+        max-width: 440px;
+    }
+}
+
+.deal-price {
+    font-size: 2.2rem;
+    font-weight: 800;
+}
+
+.deal-mrp {
+    text-decoration: line-through;
+    opacity: 0.7;
+    font-size: 1.1rem;
+}
+
+.deal-off {
+    background: #ffffff;
+    color: var(--brand);
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+}
+
+.time-box {
+    width: 78px;
+    padding: 10px 0;
+    text-align: center;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(4px);
+
+    span {
+        display: block;
+        font-size: 1.8rem;
+        font-weight: 800;
+        line-height: 1.1;
+        font-variant-numeric: tabular-nums;
+    }
+
+    small {
+        font-size: 11px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        opacity: 0.85;
+    }
+}
+
+.deal-btn {
+    padding: 13px 28px;
+    border-radius: 30px;
+    background: #ffffff;
+    color: var(--brand);
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+    &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+        color: var(--brand);
+    }
+}
+
+/* ---------- Features ---------- */
+.feature {
+    padding: 34px 22px;
+    border-radius: 18px;
+    background: var(--paper);
+    transition: transform 0.35s ease, background 0.35s ease, color 0.35s ease;
+
+    h5 {
+        font-weight: 700;
+    }
+
+    p {
+        color: var(--muted);
+        font-size: 14px;
+        transition: color 0.35s ease;
+    }
+
+    &:hover {
+        transform: translateY(-6px);
+        background: var(--brand);
+        color: #ffffff;
+
+        p {
+            color: #ffe6df;
+        }
+
+        .feature-icon {
+            background: #ffffff;
+            color: var(--brand);
+            transform: rotateY(180deg);
+        }
+    }
+}
+
+.feature-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--brand);
+    color: #ffffff;
+    font-size: 1.6rem;
+    transition: all 0.5s ease;
+}
+
+/* ---------- CTA ---------- */
+.cta {
+    margin-top: 90px;
+    padding: 110px 0;
+    background: url(../../../../assets/images/home-neon-light-closet-design.jpg) center / cover fixed;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(120deg, rgba(110, 27, 2, 0.88), rgba(0, 0, 0, 0.7));
+    }
+
+    h2 {
+        font-size: 2.6rem;
+        font-weight: 800;
+    }
+
+    p {
+        color: #f1d9d2;
+    }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 767px) {
+    .home-section {
+        padding-top: 60px;
+    }
+
+    .section-head h2,
+    .section-head-row h2,
+    .deal-content h2,
+    .cta h2 {
+        font-size: 1.8rem;
+    }
+
+    .category-img {
+        height: 170px;
+    }
+
+    .arrival-card {
+        width: 200px;
+    }
+
+    .arrival-img {
+        height: 230px;
+    }
+
+    .deal-content {
+        padding: 32px 24px;
+    }
+
+    .deal-logo {
+        font-size: 4rem;
+    }
+
+    .cta {
+        background-attachment: scroll;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .deal-img {
+        animation: none;
+    }
+}

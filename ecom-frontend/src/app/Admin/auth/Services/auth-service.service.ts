@@ -74,22 +74,46 @@ export class AuthService {
 
   /** ✅ Logout Admin */
   logoutAdmin(): void {
-    localStorage.removeItem('adminAuthToken');
-    this.isAdminLoggedInSubject.next(false);
+    this.clearAdminSession();
     this.toastService.success('Logged Out', 'Goodbye Admin');
+  }
+
+  clearAdminSession(): void {
+    this.removeToken('adminAuthToken');
+    this.isAdminLoggedInSubject.next(false);
   }
 
   /** ✅ Logout User */
   logoutUser(): void {
-    localStorage.removeItem('userAuthToken');
-    this.isUserLoggedInSubject.next(false);
+    this.clearUserSession();
     this.toastService.success('Logged Out', 'Goodbye User');
+  }
+
+  /** Drop the user token without a toast (used when the server rejects it) */
+  clearUserSession(): void {
+    this.removeToken('userAuthToken');
+    this.isUserLoggedInSubject.next(false);
+  }
+
+  /** Emails a reset link (the API answers the same whether or not the email exists) */
+  forgotPassword(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.authApiURL}/user/forgot-password`, { email }).pipe(
+      catchError((error) => this.handleError(error, 'Could not send reset link'))
+    );
+  }
+
+  resetPassword(token: string, password: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.authApiURL}/user/reset-password`, { token, password }).pipe(
+      tap((res) => this.toastService.success('Password updated', res.message)),
+      catchError((error) => this.handleError(error, 'Could not reset password'))
+    );
   }
 
   /** ✅ Handle Errors */
   private handleError(error: any, message: string): Observable<never> {
-    this.toastService.error(message, error.error?.message || 'An error occurred');
-    return throwError(() => new Error(error.error?.message || message));
+    const detail = error.error?.error || error.error?.message || 'An error occurred';
+    this.toastService.error(message, detail);
+    return throwError(() => new Error(detail));
   }
 
   /** ✅ Store Admin Token */
@@ -102,14 +126,43 @@ export class AuthService {
     localStorage.setItem('userAuthToken', token);
   }
 
-  /** ✅ Retrieve Admin Token */
+  /** ✅ Retrieve Admin Token (null once it has expired) */
   getAdminToken(): string | null {
-    return localStorage.getItem('adminAuthToken');
+    return this.readToken('adminAuthToken');
   }
 
-  /** ✅ Retrieve User Token */
+  /** ✅ Retrieve User Token (null once it has expired) */
   getUserToken(): string | null {
-    return localStorage.getItem('userAuthToken');
+    return this.readToken('userAuthToken');
+  }
+
+  private readToken(key: string): string | null {
+    let token: string | null = null;
+    try {
+      token = localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+    if (!token) return null;
+    try {
+      const { exp } = jwtDecode<{ exp?: number }>(token);
+      if (exp && exp * 1000 <= Date.now()) {
+        this.removeToken(key);
+        return null;
+      }
+    } catch {
+      this.removeToken(key);
+      return null;
+    }
+    return token;
+  }
+
+  private removeToken(key: string): void {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      // storage unavailable
+    }
   }
 
   /** ✅ Get Admin Role from Token */

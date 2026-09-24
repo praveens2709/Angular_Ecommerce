@@ -12,8 +12,9 @@
             <div class="d-flex align-items-center gap-2">
               <!-- Main Checkbox for Select All -->
               <p-checkbox
-                binary="true"
-                [(ngModel)]="isChecked"
+                [binary]="true"
+                [ngModel]="isChecked"
+                [disabled]="cartItems.length === 0"
                 (onChange)="toggleSelectAll()"
               ></p-checkbox>
               <h6>
@@ -23,15 +24,17 @@
             <div class="d-flex align-items-center gap-3">
               <button
                 class="h5 border-0 bg-transparent"
+                [disabled]="cartItems.length === 0"
                 (click)="openDeleteDialog('all')"
               >
                 REMOVE ALL
               </button>
-              <span></span>
-              <button class="h5 border-0 bg-transparent">
-                MOVE TO WISHLIST
-              </button>
             </div>
+          </div>
+          <div *ngIf="cartItems.length === 0" class="text-center py-5">
+            <i class="pi pi-shopping-bag fs-1 text-secondary"></i>
+            <p class="mt-3 mb-2 fw-semibold">Your bag is empty</p>
+            <a routerLink="/shop" class="text-orange fw-semibold">Continue shopping</a>
           </div>
           <div
             *ngFor="let item of cartItems; let i = index"
@@ -45,11 +48,11 @@
             <!-- Product Image -->
             <div class="col-lg-3 cl-2-img position-relative">
               <div class="product-img2">
-                <img [src]="item.image" alt="" class="w-100 h-100" />
+                <img [src]="item.image | optImg : 160" [alt]="item.name" class="w-100 h-100" loading="lazy" decoding="async" />
                 <p-checkbox
-                  binary="true"
-                  [(ngModel)]="item.isSelected"
-                  (click)="toggleSelection(i)"
+                  [binary]="true"
+                  [ngModel]="item.isSelected"
+                  (onChange)="toggleSelection(i)"
                   class="position-absolute custom-checkbox"
                 ></p-checkbox>
               </div>
@@ -58,6 +61,9 @@
             <div class="col-lg-8 cl-2-content d-flex flex-column">
               <p class="fw-bold">{{ item.brand }}</p>
               <p class="fw-medium fs-7">{{ item.name }}</p>
+              <p *ngIf="item.size" class="light-color">Size: <span class="fw-semibold text-dark">{{ item.size }}</span></p>
+              <p *ngIf="item.maxQuantity !== undefined && item.maxQuantity <= 3 && item.maxQuantity > 0" class="stock-warn">Only {{ item.maxQuantity }} left</p>
+              <p *ngIf="item.maxQuantity === 0 || item.inventoryStatus === 'OUTOFSTOCK'" class="stock-warn">Out of stock: remove it to check out</p>
               <p class="light-color d-flex gap-1">
                 Sold by:
                 <span class="light-color text-uppercase">{{
@@ -95,11 +101,12 @@
       <!-- Right Column -->
       <div class="col-lg-4">
         <app-price-details
+          [showCouponInput]="true"
           [priceDetails]="priceDetails"
           [buttonText]="'Place Order'"
           [buttonLink]="'/address'"
-          [isButtonDisabled]="priceDetails.itemsCount === 0"
-          warningMessage="Please select at least one item to continue"
+          [isButtonDisabled]="priceDetails.itemsCount === 0 || hasUnavailableSelected"
+          [warningMessage]="hasUnavailableSelected ? 'Remove or unselect out-of-stock items to continue' : 'Please select at least one item to continue'"
         ></app-price-details>
       </div>
     </div>

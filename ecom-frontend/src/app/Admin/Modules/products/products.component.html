@@ -1,167 +1,194 @@
 <div class="card shadow-sm border-0 rounded-3">
-  <!-- Caption Section -->
-  <div class="card-header bg-light d-flex justify-content-between align-items-center">
+  <div class="card-header bg-light d-flex flex-wrap gap-2 justify-content-between align-items-center">
     <h3 class="mb-0 text-primary fs-5 fw-bold">Products</h3>
-    <button class="btn btn-outline-primary btn-sm px-2 py-1 p-0" (click)="openDialog('add')">
-      <i class="pi pi-plus pt-1"></i>
-    </button>
+    <div class="d-flex gap-2 align-items-center">
+      <select class="form-select form-select-sm" [(ngModel)]="categoryFilter" (ngModelChange)="onCategoryFilter()">
+        <option [ngValue]="null">All categories</option>
+        <option *ngFor="let c of categories" [ngValue]="c.name">{{ c.name }}</option>
+      </select>
+      <input type="search" class="form-control form-control-sm search-input" placeholder="Search products"
+        [(ngModel)]="search" (ngModelChange)="onSearch()" />
+      <button class="btn btn-outline-primary btn-sm px-2 py-1" title="Add product" (click)="openDialog('add')">
+        <i class="pi pi-plus pt-1"></i>
+      </button>
+    </div>
   </div>
-  <!-- Data Table -->
+
   <div>
     <p-table
       [value]="products"
+      [lazy]="true"
+      (onLazyLoad)="onLazyLoad($event)"
+      [loading]="loading"
       [paginator]="true"
-      [rows]="5"
+      [rows]="rows"
+      [first]="first"
+      [totalRecords]="totalRecords"
       [rowsPerPageOptions]="[5, 10, 20]"
       [scrollable]="true"
-      [scrollHeight]="'500px'"
+      [scrollHeight]="'520px'"
       [tableStyle]="{ 'min-width': '100%' }"
       class="table-striped table-hover align-middle mb-0"
     >
-      <!-- Header -->
       <ng-template pTemplate="header">
         <tr class="bg-secondary text-white">
           <th class="py-3 px-4">Name</th>
           <th class="py-3 px-4">Image</th>
           <th class="py-3 px-4">Price</th>
           <th class="py-3 px-4">Category</th>
+          <th class="py-3 px-4">Stock</th>
           <th class="py-3 px-4">Status</th>
           <th class="py-3 px-4">Actions</th>
         </tr>
       </ng-template>
-      <!-- Body -->
       <ng-template pTemplate="body" let-product>
         <tr>
-          <td class="py-3 px-4 text-dark fw-semibold">{{ product.name }}</td>
+          <td class="py-3 px-4 text-dark fw-semibold">
+            {{ product.name }}
+            <small *ngIf="product.color" class="d-block text-muted fw-normal">{{ product.color }}</small>
+          </td>
           <td class="py-3 px-4">
-            <img
-              [src]="product.image || 'assets/images/placeholder.png'"
-              [alt]="product.name"
-              class="rounded shadow-sm product-img"
-            />
+            <img [src]="product.image || 'assets/images/placeholder.png'" [alt]="product.name" class="rounded shadow-sm product-img" />
           </td>
-          <td class="py-3 px-4 text-success fw-bold">
-            {{ product.price | currency : "INR" }}
-          </td>
+          <td class="py-3 px-4 text-success fw-bold">{{ product.price | currency : "INR" }}</td>
           <td class="py-3 px-4 text-muted">{{ product.category || 'No Category' }}</td>
+          <td class="py-3 px-4">
+            <ng-container *ngIf="isStockTracked(product); else untracked">
+              <span class="fw-semibold">{{ totalStock(product) }}</span>
+              <small class="d-block text-muted">
+                <ng-container *ngFor="let s of sizes; let last = last">{{ s }} {{ product.stock?.[s] ?? 0 }}{{ last ? '' : ' · ' }}</ng-container>
+              </small>
+            </ng-container>
+            <ng-template #untracked><small class="text-muted">Not tracked</small></ng-template>
+          </td>
           <td class="py-3 px-4">
             <p-tag [value]="product.inventoryStatus" [severity]="getSeverity(product.inventoryStatus)"></p-tag>
           </td>
-          <td class="pb-0 px-4 d-flex gap-2" style="padding-top: 2rem">
-            <button class="btn btn-sm btn-outline-primary p-0 px-2 py-1" (click)="openDialog('edit', product)">
-              <i class="pi pi-pencil pt-1"></i>
-            </button>
-            <button class="btn btn-sm btn-outline-danger p-0 px-2 py-1" (click)="openDeleteDialog(product)">
-              <i class="pi pi-trash pt-1"></i>
-            </button>
+          <td class="px-4">
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-primary p-0 px-2 py-1" title="Edit" (click)="openDialog('edit', product)">
+                <i class="pi pi-pencil pt-1"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger p-0 px-2 py-1" title="Delete" (click)="openDeleteDialog(product)">
+                <i class="pi pi-trash pt-1"></i>
+              </button>
+            </div>
           </td>
         </tr>
       </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="7" class="text-center py-4">No products found.</td></tr>
+      </ng-template>
     </p-table>
   </div>
-  <!-- Summary -->
+
   <div class="card-footer bg-light text-secondary text-center py-3">
-    In total, there are {{ products ? products.length : 0 }} products.
+    {{ totalRecords }} {{ totalRecords === 1 ? 'product' : 'products' }}
   </div>
+
   <!-- Add/Edit Dialog -->
-  <p-dialog [(visible)]="dialogVisible" [modal]="true" [closable]="true" [header]="dialogMode === 'edit' ? 'Edit Product' : 'Add Product'" [style]="{ width: '700px' }">
+  <p-dialog [(visible)]="dialogVisible" [modal]="true" [closable]="true" [header]="dialogMode === 'edit' ? 'Edit Product' : 'Add Product'" [style]="{ width: '760px' }">
     <form [formGroup]="productForm" (ngSubmit)="saveProduct()" class="d-flex flex-column gap-3">
-      <!-- Name and Category Fields -->
       <div class="d-flex gap-3">
-        <div class="form-group">
+        <div class="form-group flex-fill">
           <label for="name">Name</label>
-          <input
-            id="name"
-            type="text"
-            class="form-control"
-            formControlName="name"
-            required
-          />
+          <input id="name" type="text" class="form-control" formControlName="name" />
         </div>
-        <div class="form-group">
+        <div class="form-group flex-fill">
           <label for="category">Category</label>
-          <select
-            id="category"
-            class="form-control"
-            formControlName="category"
-            required
-          >
-            <option *ngFor="let category of categories" [value]="category.name">
-              {{ category.name }}
-            </option>
+          <select id="category" class="form-control" formControlName="category">
+            <option value="" disabled>Select a category</option>
+            <option *ngFor="let category of categories" [value]="category.name">{{ category.name }}</option>
           </select>
         </div>
       </div>
-      <!-- Price and Status Fields -->
       <div class="d-flex gap-3">
-        <div class="form-group">
-          <label for="price">Price</label>
-          <input
-            id="price"
-            type="number"
-            class="form-control"
-            formControlName="price"
-            required
-            min="0"
-          />
+        <div class="form-group flex-fill">
+          <label for="price">Price (₹)</label>
+          <input id="price" type="number" class="form-control" formControlName="price" min="1" />
+          <small class="text-muted">Discount and MRP are set automatically from the price.</small>
         </div>
-        <div class="form-group">
-          <label for="status">Status</label>
-          <select
-            id="status"
-            class="form-control"
-            formControlName="inventoryStatus"
-            required
-          >
-            <option value="INSTOCK">In Stock</option>
-            <option value="LOWSTOCK">Low Stock</option>
-            <option value="OUTOFSTOCK">Out of Stock</option>
-          </select>
+        <div class="form-group flex-fill">
+          <label for="color">Colour</label>
+          <input id="color" type="text" class="form-control" formControlName="color" placeholder="e.g. Black" />
+          <small class="text-muted">Products with the same name show as colour options.</small>
+        </div>
+      </div>
+      <div class="d-flex gap-3">
+        <div class="form-group flex-fill">
+          <label for="brand">Brand</label>
+          <input id="brand" type="text" class="form-control" formControlName="brand" />
+        </div>
+        <div class="form-group flex-fill">
+          <label for="seller">Seller</label>
+          <input id="seller" type="text" class="form-control" formControlName="seller" />
         </div>
       </div>
       <div class="form-group">
         <label for="description">Description</label>
-        <textarea id="description" class="form-control" rows="3" formControlName="description" required></textarea>
+        <textarea id="description" class="form-control" rows="3" formControlName="description"></textarea>
+        <small *ngIf="productForm.get('description')?.invalid && productForm.get('description')?.touched" class="text-danger">
+          Description must be 10–500 characters.
+        </small>
       </div>
-      <!-- Image Input and Preview -->
-      <div class="d-flex gap-3 align-items-center">
+
+      <!-- Stock -->
+      <div class="stock-box p-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <label class="fw-semibold mb-0 d-flex align-items-center gap-2">
+            <input type="checkbox" [checked]="trackStock" (change)="trackStock = !trackStock" />
+            Track stock per size
+          </label>
+          <p-tag *ngIf="trackStock" [value]="derivedStatus" [severity]="getSeverity(derivedStatus)"></p-tag>
+        </div>
+        <div *ngIf="trackStock; else manualStatus" formGroupName="stock" class="d-flex gap-2">
+          <div *ngFor="let s of sizes" class="flex-fill">
+            <label class="small text-muted" [for]="'stock-' + s">{{ s }}</label>
+            <input [id]="'stock-' + s" type="number" min="0" class="form-control form-control-sm" [formControlName]="s" />
+          </div>
+        </div>
+        <ng-template #manualStatus>
+          <select class="form-control" formControlName="inventoryStatus">
+            <option value="INSTOCK">In Stock</option>
+            <option value="LOWSTOCK">Low Stock</option>
+            <option value="OUTOFSTOCK">Out of Stock</option>
+          </select>
+          <small class="text-muted">Without stock tracking, set the status by hand and sizes aren't limited.</small>
+        </ng-template>
+      </div>
+
+      <!-- Images -->
+      <div class="d-flex gap-3 align-items-start">
         <div class="form-group">
-          <label for="image">Image</label>
-          <input
-            id="image"
-            type="file"
-            class="form-control"
-            (change)="onImageUpload($event)"
-            accept="image/*"
-          />
+          <label for="image">Main image</label>
+          <input id="image" type="file" class="form-control" (change)="onImageUpload($event)" accept="image/png,image/jpeg,image/webp,image/gif" [disabled]="uploading" />
+          <label class="mt-2" for="gallery">Gallery ({{ gallery.length }}/7)</label>
+          <input id="gallery" type="file" class="form-control" multiple (change)="onGalleryUpload($event)"
+            accept="image/png,image/jpeg,image/webp,image/gif" [disabled]="uploading || gallery.length >= 7" />
+          <small class="text-muted">Up to 5 MB each; large photos are resized automatically.</small>
+          <small *ngIf="uploading" class="d-block text-primary">Uploading…</small>
         </div>
         <div class="image-preview d-flex justify-content-center align-items-center">
-          <img
-            *ngIf="productForm.value.image"
-            [src]="productForm.value.image"
-            alt="Product Image"
-            class="w-100 h-100"
-          />
-          <img
-            *ngIf="!productForm.value.image"
-            src="assets/images/placeholder.png"
-            alt="No Image"
-            class="w-100 h-100"
-          />
+          <img [src]="productForm.value.image || 'assets/images/placeholder.png'" alt="Main image" class="w-100 h-100" />
         </div>
       </div>
-      <!-- Action Buttons -->
+      <div *ngIf="gallery.length" class="d-flex gap-2 flex-wrap">
+        <div *ngFor="let url of gallery; let i = index" class="gallery-thumb position-relative">
+          <img [src]="url" alt="" class="w-100 h-100" />
+          <button type="button" class="remove-thumb" (click)="removeGalleryImage(i)" aria-label="Remove image"><i class="pi pi-times"></i></button>
+        </div>
+      </div>
+
       <div class="d-flex justify-content-end gap-3">
-        <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid">
-          Save Product
-        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid || uploading || isSaving">Save Product</button>
         <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
       </div>
-    </form>    
+    </form>
   </p-dialog>
+
   <!-- Delete Confirmation Dialog -->
   <p-dialog [(visible)]="deleteDialogVisible" [modal]="true" [closable]="false" header="Confirm Deletion" [style]="{ width: '500px' }">
-    <p>Are you sure you want to delete <strong>{{ currentProduct.name }}</strong>?</p>
+    <p>Are you sure you want to delete <strong>{{ currentProduct.name }}</strong>? Its reviews will be removed too.</p>
     <div class="d-flex justify-content-end mt-3 gap-2">
       <button class="btn btn-danger" (click)="deleteProduct()">Delete</button>
       <button class="btn btn-secondary" (click)="deleteDialogVisible = false">Cancel</button>

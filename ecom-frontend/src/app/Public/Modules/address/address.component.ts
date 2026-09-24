@@ -43,11 +43,12 @@ export class AddressComponent implements OnInit {
   loadAddresses(): void {
     if (!this.userId) return;
 
-    this.addressService.getAddresses(this.userId).subscribe({
+    this.addressService.getAddresses().subscribe({
       next: (data) => {
         this.addresses = data;
-        if (this.addresses.length > 0) {
-          this.selectedAddress = this.addresses[0]._id;
+        // Keep the current choice if it still exists, else default to the first address
+        if (!this.addresses.some((a) => a._id === this.selectedAddress)) {
+          this.selectedAddress = this.addresses[0]?._id ?? null;
         }
       },
       error: (err) => console.error('Error', err),
@@ -80,7 +81,7 @@ export class AddressComponent implements OnInit {
         error: (err) => console.error('Error', err),
       });
     } else {
-      this.addressService.addAddress({ ...address, userId: this.userId }).subscribe({
+      this.addressService.addAddress(address).subscribe({
         next: () => {
           this.loadAddresses();
           this.isDialogVisible = false;
@@ -106,6 +107,10 @@ export class AddressComponent implements OnInit {
       },
       error: (err) => console.error('Error', err),
     });
+  }
+
+  saveCheckoutAddress(): void {
+    this.cartService.checkoutAddress = this.addresses.find((a) => a._id === this.selectedAddress) ?? null;
   }
 
   handleDialogClose(): void {

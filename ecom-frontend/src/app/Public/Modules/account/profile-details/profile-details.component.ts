@@ -11,14 +11,17 @@ import { AuthService } from '../../../../Admin/auth/Services/auth-service.servic
 })
 export class ProfileDetailsComponent implements OnInit {
   user: any = null;
+  userId: string | null = null;
   
   constructor(private usersService: UsersService, private authService: AuthService) {}
 
   ngOnInit(): void {
     const userData = this.authService.getUserRoleAndId();
     const userId = userData.id;
+    this.userId = userId;
 
     if (userId) {
+      this.user = this.usersService.profiles.peek(userId) ?? null;
       this.usersService.getUserById(userId).subscribe((user) => {
         this.user = user;
       });

@@ -30,23 +30,26 @@
                                 </div>
                                 <img [src]="option.icon" [alt]="option.name" class="rounded-circle p-1 border" />
                             </div>
-                            <button *ngIf="selectedRecommendedOption" pButton label="PAY NOW"
+                            <button *ngIf="selectedRecommendedOption" pButton
+                                [label]="selectedRecommendedOption === 'cod' ? 'PLACE ORDER' : 'PAY NOW'"
+                                [disabled]="isPlacingOrder" (click)="payRecommended()"
                                 class="w-100 mt-3 mb-2"></button>
                         </div>
                         <div *ngIf="selectedPaymentMethod === 'cod'" class="payment-right d-flex flex-column p-3">
                             <p class="red mb-3 fw-semibold">Cash on Delivery (Cash/UPI)</p>
                             <div class="captcha-box d-flex align-items-center gap-2">
-                                <div class="border rounded-1 pt-1 pb-2 px-5">2 7 0 9 3</div>
-                                <img src="assets/images/reload.png" alt="reload" class="border-0" />
+                                <div class="border rounded-1 pt-1 pb-2 px-5 user-select-none">{{ captchaCode.split('').join(' ') }}</div>
+                                <img src="assets/images/reload.png" alt="reload" class="border-0 cursor-pointer" (click)="refreshCaptcha()" />
                             </div>
                             <div class="input-form my-3">
                                 <div class="input-box position-relative">
-                                    <input pInputText required />
+                                    <input pInputText required [(ngModel)]="captchaInput" name="captcha" maxlength="9" />
                                     <label>Enter code shown in above image*</label>
                                 </div>
                                 <p class="mt-1 mb-0">You can pay via Cash/UPI on delivery</p>
                             </div>
-                            <button pButton label="PLACE ORDER" class="w-100"></button>
+                            <button pButton label="PLACE ORDER" class="w-100"
+                                [disabled]="!isCaptchaValid || isPlacingOrder" (click)="placeCodOrder()"></button>
                         </div>
                         <div *ngIf="selectedPaymentMethod === 'upi'" class="payment-right d-flex flex-column p-3">
                             <p class="red mb-2 fw-semibold">Pay using UPI</p>
@@ -59,31 +62,17 @@
                                 </div>
                                 <img [src]="option.icon" [alt]="option.name" class="rounded-circle p-1 border" />
                             </div>
-                            <button *ngIf="selectedUPIOption" pButton label="PAY NOW" class="w-100 mt-3 mb-2"></button>
+                            <button *ngIf="selectedUPIOption" pButton label="PAY NOW" class="w-100 mt-3 mb-2"
+                                [disabled]="isPlacingOrder" (click)="processPayment('UPI')"></button>
                         </div>
                         <div *ngIf="selectedPaymentMethod === 'card'" class="payment-right d-flex flex-column p-3">
                             <p class="red mb-4 fw-semibold">Pay using Credit/Debit Card</p>
-                            <form class="card-form">
-                                <div class="input-box position-relative mb-3">
-                                    <input pInputText required placeholder=" " />
-                                    <label>Card Number*</label>
-                                </div>
-                                <div class="input-box position-relative mb-3">
-                                    <input pInputText required placeholder=" " />
-                                    <label>Name on Card*</label>
-                                </div>
-                                <div class="d-flex gap-2">
-                                    <div class="input-box position-relative mb-3 flex-grow-1">
-                                        <input pInputText required placeholder=" " />
-                                        <label>Expiry (MM/YY)*</label>
-                                    </div>
-                                    <div class="input-box position-relative mb-3 flex-grow-1">
-                                        <input pInputText required placeholder=" " />
-                                        <label>CVV*</label>
-                                    </div>
-                                </div>
-                            </form>
-                            <button pButton label="PAY NOW" class="w-100"></button>
+                            <p class="mb-0">
+                                You'll enter your card details on Razorpay's secure checkout.
+                                We never store your CVV.
+                            </p>
+                            <button pButton label="PAY NOW" class="w-100"
+                                [disabled]="isPlacingOrder" (click)="processPayment('CARD')"></button>
                         </div>                        
                     </div>
                 </div>

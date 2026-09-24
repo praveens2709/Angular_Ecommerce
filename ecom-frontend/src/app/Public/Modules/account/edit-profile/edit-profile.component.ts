@@ -16,6 +16,7 @@ export class EditProfileComponent implements OnInit {
   initialFormValue: any = {};
   userId: string | null = null;
   isDialogVisible: boolean = false;
+  editingMobile = false;
 
   constructor(
     private fb: FormBuilder,
@@ -48,13 +49,21 @@ export class EditProfileComponent implements OnInit {
   }
 
   loadUserData(): void {
+    const cached = this.usersService.profiles.peek(this.userId);
+    if (cached) this.applyUser(cached);
     this.usersService.getUserById(this.userId!).subscribe((user) => {
-      if (user) {
-        this.user = user;
-        this.profileForm.patchValue(user);
-        this.initialFormValue = { ...this.profileForm.value };
-      }
+      // Don't overwrite what the shopper has already started editing
+      if (user && (!cached || !this.hasFormChanged())) this.applyUser(user);
     });
+  }
+
+  private applyUser(user: any): void {
+    this.user = user;
+    this.profileForm.patchValue({
+      ...user,
+      birthday: user.dateOfBirth ? new Date(user.dateOfBirth) : null,
+    });
+    this.initialFormValue = { ...this.profileForm.value };
   }
 
   hasFormChanged(): boolean {
@@ -71,7 +80,8 @@ export class EditProfileComponent implements OnInit {
 
   confirmSave(): void {
     if (this.profileForm.valid) {
-      this.usersService.editUser(this.userId!, this.profileForm.value).subscribe(() => {
+      const { birthday, ...rest } = this.profileForm.value;
+      this.usersService.editUser(this.userId!, { ...rest, dateOfBirth: birthday || null }).subscribe(() => {
         this.initialFormValue = { ...this.profileForm.value };
         this.isDialogVisible = false;
         this.router.navigate(['account/profile']);

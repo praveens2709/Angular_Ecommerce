@@ -18,9 +18,6 @@ export class CartComponent implements OnInit, OnDestroy {
   deleteItemId: string | null = null; // ✅ Track which item to delete
 
   availableQuantities: number[] = Array.from({ length: 10 }, (_, i) => i + 1);
-  quantity: number = 1;
-  pricePerUnit: number = 50;
-  totalPrice: number = 0;
   cartItems: any[] = [];
   cartCount: number = 0;
   currentItem: any = null;
@@ -43,7 +40,7 @@ export class CartComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.cartItemsSub = this.cartService.getCartItems().subscribe((data) => {
       this.cartItems = data;
-      this.isChecked = this.cartItems.every((item) => item.isSelected);
+      this.isChecked = this.cartItems.length > 0 && this.cartItems.every((item) => item.isSelected);
     });
 
     this.cartCountSub = this.cartService.getCartCount().subscribe((count) => {
@@ -61,24 +58,24 @@ export class CartComponent implements OnInit, OnDestroy {
     this.priceDetailsSub?.unsubscribe();
   }
 
+  /** Selected items that can't be ordered right now */
+  get hasUnavailableSelected(): boolean {
+    return this.cartItems.some((item) => item.isSelected && (item.maxQuantity === 0 || item.inventoryStatus === 'OUTOFSTOCK'));
+  }
+
   get selectedItemCount(): number {
     return this.cartItems.filter(item => item.isSelected).length;
   }
 
+  // The service emits a fresh items array, which the subscription picks up
   toggleSelection(index: number): void {
     this.cartService.toggleSelection(this.cartItems[index].id);
-    this.cartItems[index].isSelected = !this.cartItems[index].isSelected;
-    this.cartService.updatePriceDetails(this.cartItems);
-    this.isChecked = this.cartItems.every(item => item.isSelected);
   }
 
   toggleSelectAll(): void {
-    const allSelected = this.cartItems.every(item => item.isSelected);
-    this.isChecked = !allSelected;
-    this.cartService.toggleSelectAll(this.isChecked);
-    this.cartItems.forEach(item => (item.isSelected = this.isChecked));
-    this.cartService.updatePriceDetails(this.cartItems);
-  }  
+    const allSelected = this.cartItems.length > 0 && this.cartItems.every(item => item.isSelected);
+    this.cartService.toggleSelectAll(!allSelected);
+  }
 
   openDeleteDialog(action: 'single' | 'all', itemId: string | null = null): void {
     this.deleteAction = action;
@@ -109,6 +106,9 @@ export class CartComponent implements OnInit, OnDestroy {
 
 
   openQuantityModal(item: any): void {
+    // Only offer quantities that are actually in stock
+    const max = Math.max(1, Math.min(10, item.maxQuantity ?? 10));
+    this.availableQuantities = Array.from({ length: max }, (_, i) => i + 1);
     this.currentItem = item;
     this.selectedQuantity = item.quantity || 1;
     this.isModalVisible = true;
@@ -118,19 +118,14 @@ export class CartComponent implements OnInit, OnDestroy {
     this.selectedQuantity = qty;
   }
 
+  // Runs from both "Done" and the dialog's onHide, so only save once and only on change
   closeQuantityModal(): void {
-    if (this.currentItem) {
-      this.currentItem.quantity = this.selectedQuantity;
-      this.currentItem.price = this.currentItem.basePrice * this.selectedQuantity;
-      this.currentItem.mrp = this.currentItem.baseMRP * this.selectedQuantity;
-
-      this.cartService.updateItem(this.currentItem);
-    }
+    const item = this.currentItem;
+    this.currentItem = null;
     this.isModalVisible = false;
-  }
-
-  updateTotalPrice(): void {
-    this.totalPrice = this.quantity * this.pricePerUnit;
+    if (item && item.quantity !== this.selectedQuantity) {
+      this.cartService.updateItem({ ...item, quantity: this.selectedQuantity });
+    }
   }
 
 }

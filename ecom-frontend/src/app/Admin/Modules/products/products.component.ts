@@ -1,9 +1,14 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ProductService } from './product.service';
 import { Subject } from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
-import { CategoriesService } from '../categories/categories.service';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { TableLazyLoadEvent } from 'primeng/table';
+import { ProductService, SIZES, isStockTracked } from './product.service';
+import { CategoriesService } from '../categories/categories.service';
+import { ToastService } from '../../../Services/toast-service.service';
+import { UploadService } from '../../../Services/upload.service';
+
+const MAX_IMAGE_MB = 5;
 
 @Component({
   selector: 'app-products',
@@ -14,48 +19,86 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 export class ProductsComponent implements OnInit, OnDestroy {
   products: any[] = [];
   categories: any[] = [];
+  totalRecords = 0;
+  rows = 5;
+  first = 0;
+  loading = true;
+  search = '';
+  categoryFilter: string | null = null;
+
   dialogVisible = false;
   deleteDialogVisible = false;
   dialogMode: 'add' | 'edit' = 'add';
   currentProduct: any = {};
   productForm: FormGroup;
+  trackStock = true;
+  gallery: string[] = [];
+  uploading = false;
+  isSaving = false;
+
+  readonly sizes = SIZES;
+  readonly isStockTracked = isStockTracked;
   private destroy$ = new Subject<void>();
+  private search$ = new Subject<void>();
 
   constructor(
     private productService: ProductService,
     private categoriesService: CategoriesService,
+    private uploadService: UploadService,
+    private toastService: ToastService,
     private fb: FormBuilder
   ) {
     this.productForm = this.fb.group({
       name: ['', Validators.required],
       category: ['', Validators.required],
-      price: [0, [Validators.required, Validators.min(0)]],
+      price: [0, [Validators.required, Validators.min(1)]],
       inventoryStatus: ['INSTOCK', Validators.required],
-      description: ['', [Validators.minLength(10), Validators.maxLength(200)]],
+      description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
       image: ['', Validators.required],
+      color: [''],
       brand: ['', Validators.required],
-      seller: ['', Validators.required]
+      seller: ['', Validators.required],
+      stock: this.fb.group(Object.fromEntries(SIZES.map((s) => [s, [0, [Validators.min(0)]]]))),
+    });
+    this.search$.pipe(debounceTime(350), takeUntil(this.destroy$)).subscribe(() => {
+      this.first = 0;
+      this.loadProducts();
     });
   }
 
   ngOnInit(): void {
-    this.loadProducts();
     this.loadCategories();
   }
 
+  onLazyLoad(event: TableLazyLoadEvent): void {
+    this.first = event.first ?? 0;
+    this.rows = event.rows ?? this.rows;
+    this.loadProducts();
+  }
+
   loadProducts(): void {
+    this.loading = true;
+    const page = Math.floor(this.first / this.rows) + 1;
     this.productService
-      .getProducts()
-      .pipe(
-        tap((products) => {
-          this.products = products.map((product) => ({
-            ...product,
-            finalPrice: product.mrp - (product.mrp * product.discount) / 100
-          }));
-        }),
-        takeUntil(this.destroy$)
-      )
-      .subscribe();
+      .getProductsPage({ q: this.search, category: this.categoryFilter ? [this.categoryFilter] : [] }, page, this.rows)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.products = res.items;
+          this.totalRecords = res.total;
+          this.loading = false;
+        },
+        error: () => (this.loading = false),
+      });
+  }
+
+  onSearch(): void {
+    this.search$.next();
+  }
+
+  onCategoryFilter(): void {
+    this.first = 0;
+    this.loadProducts();
   }
 
   loadCategories(): void {
@@ -67,12 +110,16 @@ export class ProductsComponent implements OnInit, OnDestroy {
       });
   }
 
-  getSeverity(status: string): 'success' | 'info' | 'warning' | 'danger' {
+  totalStock(product: any): number {
+    return SIZES.reduce((sum, size) => sum + (Number(product.stock?.[size]) || 0), 0);
+  }
+
+  getSeverity(status: string): 'success' | 'info' | 'warn' | 'danger' {
     switch (status) {
       case 'INSTOCK':
         return 'success';
       case 'LOWSTOCK':
-        return 'warning';
+        return 'warn';
       case 'OUTOFSTOCK':
         return 'danger';
       default:
@@ -82,16 +129,24 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   openDialog(mode: 'add' | 'edit', product?: any): void {
     if (this.categories.length === 0) {
-      alert('Please add categories first!');
+      this.toastService.error('No categories', 'Please add an active category first.');
       return;
     }
     this.dialogMode = mode;
 
     if (mode === 'edit' && product) {
       this.currentProduct = { ...product };
-      this.productForm.patchValue(this.currentProduct);
+      this.trackStock = isStockTracked(product);
+      this.gallery = [...(product.images || [])];
+      this.productForm.reset({
+        ...product,
+        color: product.color || '',
+        stock: Object.fromEntries(SIZES.map((s) => [s, Number(product.stock?.[s]) || 0])),
+      });
     } else {
       this.currentProduct = {};
+      this.trackStock = true;
+      this.gallery = [];
       this.productForm.reset({
         name: '',
         category: '',
@@ -99,44 +154,53 @@ export class ProductsComponent implements OnInit, OnDestroy {
         inventoryStatus: 'INSTOCK',
         description: '',
         image: '',
+        color: '',
         brand: 'DopeShope',
-        seller: 'dopeshope pvt. ltd.'
+        seller: 'dopeshope pvt. ltd.',
+        stock: Object.fromEntries(SIZES.map((s) => [s, 0])),
       });
     }
 
     this.dialogVisible = true;
   }
 
+  /** Status shown in the form: derived from stock when tracked */
+  get derivedStatus(): string {
+    const stock = this.productForm.get('stock')?.value || {};
+    const total = SIZES.reduce((sum, s) => sum + (Number(stock[s]) || 0), 0);
+    if (total === 0) return 'OUTOFSTOCK';
+    return total <= 10 ? 'LOWSTOCK' : 'INSTOCK';
+  }
+
   saveProduct(): void {
-    if (this.productForm.invalid) {
+    if (this.productForm.invalid || this.isSaving) {
+      this.productForm.markAllAsTouched();
       return;
     }
 
-    const productData = { ...this.productForm.value, _id: this.currentProduct._id };
+    const { stock, ...fields } = this.productForm.value;
+    const productData: any = {
+      ...fields,
+      images: this.gallery,
+      // Empty object means "not tracked" to the API
+      stock: this.trackStock ? stock : {},
+    };
+    if (this.currentProduct._id) productData._id = this.currentProduct._id;
 
-    if (this.dialogMode === 'edit') {
-      this.productService
-        .editProduct(productData)
-        .pipe(
-          tap(() => this.loadProducts()),
-          takeUntil(this.destroy$)
-        )
-        .subscribe(() => {
-          this.dialogVisible = false;
-          console.log('Product updated successfully');
-        });
-    } else {
-      this.productService
-        .addProduct(productData)
-        .pipe(
-          tap(() => this.loadProducts()),
-          takeUntil(this.destroy$)
-        )
-        .subscribe(() => {
-          this.dialogVisible = false;
-          console.log('Product added successfully');
-        });
-    }
+    const request = this.dialogMode === 'edit' ? this.productService.editProduct(productData) : this.productService.addProduct(productData);
+    this.isSaving = true;
+    request.pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.isSaving = false;
+        this.dialogVisible = false;
+        this.toastService.success('Saved', this.dialogMode === 'edit' ? 'Product updated successfully' : 'Product added successfully');
+        this.loadProducts();
+      },
+      error: (error) => {
+        this.isSaving = false;
+        this.toastService.error('Could not save', error.error?.message || 'Please check the form and try again');
+      },
+    });
   }
 
   openDeleteDialog(product: any): void {
@@ -145,29 +209,61 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   deleteProduct(): void {
-    this.productService.deleteProduct(this.currentProduct._id).pipe(
-      tap(() => this.loadProducts()),
-      takeUntil(this.destroy$)
-    ).subscribe({
+    this.productService.deleteProduct(this.currentProduct._id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.deleteDialogVisible = false;
-        console.log('Product deleted successfully');
+        this.toastService.success('Deleted', 'Product deleted successfully');
+        this.loadProducts();
       },
-      error: (err) => console.error('Error deleting product:', err)
+      error: (err) => this.toastService.error('Could not delete', err.error?.message || 'Please try again'),
     });
   }
 
-  onImageUpload(event: Event): void {
+  private pickImages(event: Event): File[] {
     const input = event.target as HTMLInputElement;
-    const file = input?.files?.[0];
-    if (file) {
-      const fileName = file.name;
-      this.productForm.patchValue({ image: `assets/images/${fileName}` });
+    const files = Array.from(input.files || []);
+    input.value = '';
+    const tooBig = files.find((f) => f.size > MAX_IMAGE_MB * 1024 * 1024);
+    if (tooBig) {
+      this.toastService.error('Image too large', `${tooBig.name} is over ${MAX_IMAGE_MB} MB.`);
+      return [];
     }
+    return files;
+  }
+
+  /** Main image: uploaded to the API, which returns its URL */
+  onImageUpload(event: Event): void {
+    const files = this.pickImages(event).slice(0, 1);
+    if (!files.length) return;
+    this.upload(files, (urls) => this.productForm.patchValue({ image: urls[0] }));
+  }
+
+  onGalleryUpload(event: Event): void {
+    const room = 7 - this.gallery.length;
+    const files = this.pickImages(event).slice(0, room);
+    if (!files.length) return;
+    this.upload(files, (urls) => (this.gallery = [...this.gallery, ...urls]));
+  }
+
+  removeGalleryImage(index: number): void {
+    this.gallery = this.gallery.filter((_, i) => i !== index);
+  }
+
+  private upload(files: File[], done: (urls: string[]) => void): void {
+    this.uploading = true;
+    this.uploadService.uploadImages(files).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (urls) => {
+        this.uploading = false;
+        done(urls);
+      },
+      error: (err) => {
+        this.uploading = false;
+        this.toastService.error('Upload failed', err.error?.message || 'Please try another image');
+      },
+    });
   }
 
   cancel(): void {
-    this.productForm.reset();
     this.dialogVisible = false;
   }
 

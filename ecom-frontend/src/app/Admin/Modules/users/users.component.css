@@ -30,3 +30,6 @@
   .p-datatable[_ngcontent-ng-c2439279038] th[_ngcontent-ng-c2439279038]{
     padding: 0.75rem 0.5rem;
   }
+.search-input {
+  width: 260px;
+}

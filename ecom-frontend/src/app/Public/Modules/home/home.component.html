@@ -1,21 +1,30 @@
 <div class="container-fluid about-banner banner position-relative">
   <div class="container">
-    <div class="text-center pt-2 fs-4 dopeshope position-relative animate one fadeInUp">
-      DopeShope
-    </div>
-    <div class="u-hover d-flex justify-content-evenly m-auto navbar animate two fadeInUp">
-      <a routerLink="/home" routerLinkActive="active" class="px-2 text-white position-relative">Home</a>
-      <a routerLink="/shop" class="px-2 text-white position-relative">Products</a>
-      <!-- <a routerLink="/about" class="px-2 text-white position-relative">About</a>
-      <a routerLink="/contact" class="px-2 text-white position-relative">Contact</a> -->
-      <a routerLink="/account" class="px-2 text-white position-relative">Account</a>
-      <a routerLink="/cart" class="position-relative text-white">
-        <i class="pi pi-shopping-bag"></i>
-        <div class="cart-count text-black rounded-circle fw-bold d-flex justify-content-center align-items-center bg-white position-absolute">
-          {{ cartCount }}
+    <!-- Fixed: transparent over the hero, white once the page scrolls -->
+    <header class="home-nav" [class.scrolled]="navScrolled">
+      <div class="container">
+        <div class="text-center pt-2 fs-4 dopeshope position-relative animate one fadeInUp">
+          DopeShope
         </div>
-      </a>
-    </div>
+        <nav class="u-hover d-flex justify-content-evenly m-auto navbar animate two fadeInUp">
+          <a routerLink="/home" routerLinkActive="active" class="px-2 position-relative">Home</a>
+          <a routerLink="/shop" class="px-2 position-relative">Products</a>
+          <a routerLink="/account" class="px-2 position-relative">Account</a>
+          <div class="d-flex align-items-center gap-4">
+            <app-search-bar [light]="!navScrolled"></app-search-bar>
+            <a routerLink="/account/wishlist" class="position-relative icon-link" aria-label="Wishlist">
+              <i class="pi pi-heart"></i>
+            </a>
+            <a routerLink="/cart" class="position-relative icon-link" aria-label="Bag">
+              <i class="pi pi-shopping-bag"></i>
+              <div class="cart-count rounded-circle fw-bold d-flex justify-content-center align-items-center position-absolute">
+                {{ cartCount }}
+              </div>
+            </a>
+          </div>
+        </nav>
+      </div>
+    </header>
     <div class="row content-row">
       <div class="col-lg-8 col-xs-12 col-sm-10 content">
         <h5 class="animate three fadeInUp">Let's Dope Shope</h5>
@@ -34,4 +43,132 @@
       </div>
     </div>
   </div>
+  <button type="button" class="scroll-hint position-absolute d-flex align-items-center justify-content-center text-white border-0 bg-transparent"
+    aria-label="Scroll down" (click)="scrollToContent()">
+    <i class="pi pi-angle-down"></i>
+  </button>
 </div>
+
+<!-- Scroll target for the hero arrow -->
+<div id="home-content"></div>
+
+<!-- Shop by category -->
+<section class="home-section container" *ngIf="categoryCards.length > 0">
+  <div class="section-head text-center" appReveal="up">
+    <span class="eyebrow">Explore</span>
+    <h2>Shop by Category</h2>
+    <p>Find your fit across our curated collections.</p>
+  </div>
+  <div class="row g-4 justify-content-center">
+    <div class="col-6 col-md-4 col-lg-3" *ngFor="let cat of categoryCards; let i = index" appReveal="up" [revealDelay]="i * 90">
+      <a [routerLink]="['/shop']" [queryParams]="{ category: cat.name }" class="category-card d-block position-relative overflow-hidden">
+        <div class="category-img d-flex align-items-center justify-content-center">
+          <img [src]="cat.image | optImg : 280" [alt]="cat.name" loading="lazy" decoding="async" />
+        </div>
+        <div class="category-info d-flex align-items-end justify-content-between">
+          <div>
+            <h5 class="mb-0">{{ cat.name }}</h5>
+            <small>{{ cat.count }} {{ cat.count === 1 ? 'item' : 'items' }}</small>
+          </div>
+          <span class="arrow d-flex align-items-center justify-content-center"><i class="pi pi-arrow-right"></i></span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- New arrivals -->
+<section class="home-section arrivals" *ngIf="newArrivals.length > 0">
+  <div class="container">
+    <div class="d-flex align-items-end justify-content-between section-head-row" appReveal="up">
+      <div>
+        <span class="eyebrow">Just Dropped</span>
+        <h2 class="mb-0">New Arrivals</h2>
+      </div>
+      <div class="d-flex gap-2" *ngIf="canScrollArrivals">
+        <button type="button" class="nav-btn" (click)="scrollArrivals(-1)" aria-label="Previous"><i class="pi pi-angle-left"></i></button>
+        <button type="button" class="nav-btn" (click)="scrollArrivals(1)" aria-label="Next"><i class="pi pi-angle-right"></i></button>
+      </div>
+    </div>
+    <div #arrivalsTrack class="arrivals-track d-flex gap-4">
+      <a
+        *ngFor="let product of newArrivals; let i = index"
+        [routerLink]="['/product-detail', product._id]"
+        class="arrival-card flex-shrink-0"
+        appReveal="left"
+        [revealDelay]="i * 70"
+      >
+        <div class="arrival-img position-relative d-flex align-items-center justify-content-center">
+          <span *ngIf="product.discount" class="discount-badge position-absolute">-{{ product.discount }}%</span>
+          <span *ngIf="product.inventoryStatus === 'OUTOFSTOCK'" class="soldout-badge position-absolute">Sold out</span>
+          <img [src]="product.image | optImg : 260" [alt]="product.name" loading="lazy" decoding="async" />
+          <span class="quick-view position-absolute">View product <i class="pi pi-arrow-right ms-1"></i></span>
+        </div>
+        <div class="pt-3">
+          <small class="text-uppercase brand">{{ product.brand }}</small>
+          <h6 class="mb-1 name">{{ product.name }}</h6>
+          <div class="d-flex gap-2 align-items-baseline">
+            <span class="price fw-semibold">{{ product.price | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
+            <span class="mrp">{{ product.mrp | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Deal of the day -->
+<section class="home-section container" *ngIf="deal">
+  <div class="deal d-flex flex-column flex-lg-row overflow-hidden" appReveal="zoom">
+    <div class="deal-visual position-relative d-flex align-items-center justify-content-center">
+      <h3 class="deal-logo position-absolute mb-0" aria-hidden="true">DopeShope</h3>
+      <img [src]="deal.image | optImg : 420" [alt]="deal.name" class="deal-img position-relative" loading="lazy" decoding="async" />
+    </div>
+    <div class="deal-content d-flex flex-column justify-content-center">
+      <span class="eyebrow light">Deal of the Day</span>
+      <h2 class="mb-2">{{ deal.name }}</h2>
+      <p class="mb-3">{{ deal.description }}</p>
+      <div class="d-flex align-items-baseline gap-3 mb-4">
+        <span class="deal-price">{{ deal.price | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
+        <span class="deal-mrp">{{ deal.mrp | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
+        <span class="deal-off" *ngIf="deal.discount">{{ deal.discount }}% OFF</span>
+      </div>
+      <div class="countdown d-flex gap-3 mb-4" aria-label="Time left for this deal">
+        <div class="time-box"><span>{{ countdown.hours }}</span><small>Hours</small></div>
+        <div class="time-box"><span>{{ countdown.minutes }}</span><small>Mins</small></div>
+        <div class="time-box"><span>{{ countdown.seconds }}</span><small>Secs</small></div>
+      </div>
+      <a [routerLink]="['/product-detail', deal._id]" class="deal-btn align-self-start">
+        Grab the deal <i class="pi pi-arrow-right ms-2"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Why DopeShope -->
+<section class="home-section container">
+  <div class="section-head text-center" appReveal="up">
+    <span class="eyebrow">Why DopeShope</span>
+    <h2>Shopping, the way it should be</h2>
+  </div>
+  <div class="row g-4">
+    <div class="col-6 col-lg-3" *ngFor="let f of features; let i = index" appReveal="up" [revealDelay]="i * 120">
+      <div class="feature h-100 text-center">
+        <span class="feature-icon d-inline-flex align-items-center justify-content-center"><i class="pi" [ngClass]="f.icon"></i></span>
+        <h5 class="mt-3 mb-2">{{ f.title }}</h5>
+        <p class="mb-0">{{ f.text }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta text-center text-white position-relative">
+  <div class="container position-relative" appReveal="up">
+    <h2>Ready to level up your wardrobe?</h2>
+    <p class="mb-4">Fresh fits, fair prices, delivered fast.</p>
+    <a routerLink="/shop" (click)="scrollUp()" class="shop-now-btn d-inline-block">SHOP THE COLLECTION</a>
+  </div>
+</section>
+
+<app-site-footer></app-site-footer>

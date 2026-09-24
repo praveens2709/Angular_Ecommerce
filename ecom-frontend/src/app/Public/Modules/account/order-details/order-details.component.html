@@ -1,4 +1,8 @@
-<p class="dark my-2">Order Details</p>
+<h6 class="mb-3">Order details</h6>
+
+<p *ngIf="notFound" class="text-center mt-4">
+  We couldn't find this order. <a routerLink="/account/orders" class="text-orange">Back to orders</a>
+</p>
 
 <div *ngIf="order">
   <div class="order-box p-3">
@@ -13,7 +17,7 @@
           <div class="d-flex align-items-center gap-3 pt-2">
             <div class="order-img bg-white">
               <img
-                [src]="product.image || 'assets/images/default.png'"
+                [src]="product.image || 'assets/images/placeholder.png'"
                 alt="product-img"
                 class="w-100 h-100"
               />
@@ -21,31 +25,62 @@
             <div class="order-details d-flex flex-column">
               <p class="fw-medium mb-0">{{ product.storeName }}</p>
               <span>{{ product.productName }}</span>
-              <span>Size: {{ product.size }}</span>
+              <span>Qty: {{ product.quantity }}</span>
+              <span *ngIf="product.size">Size: {{ product.size }}</span>
             </div>
           </div>
           <i class="pi pi-angle-right text-black"></i>
         </div>
       </a>
     </div>
-    <p
-      class="order-status mt-3 d-flex align-items-center gap-2 fw-semibold"
-      [ngClass]="getStatusClass(order.status)"
-    >
-      {{ order.status }}
-      <img [src]="getStatusIcon(order.status)" alt="{{ order.status }}" />
-    </p>
+
+    <!-- Tracking timeline -->
+    <div class="timeline d-flex mt-4 mb-3">
+      <div
+        *ngFor="let step of timeline; let i = index; let last = last"
+        class="timeline-step flex-fill text-center position-relative"
+        [class.done]="step.done"
+        [class.current]="step.current"
+        [ngClass]="step.tone ? 'tone-' + step.tone : ''"
+      >
+        <span class="dot d-inline-flex align-items-center justify-content-center"><i class="pi" [ngClass]="step.icon"></i></span>
+        <!-- The line to the next step fills once that step is reached -->
+        <span *ngIf="!last" class="line" [class.filled]="timeline[i + 1].done"></span>
+        <p class="mb-0 mt-2 fw-semibold small">{{ step.label }}</p>
+        <small class="text-secondary">{{ step.at ? (step.at | date : 'MMM d, h:mm a') : '—' }}</small>
+      </div>
+    </div>
+
+    <div *ngIf="order.returnRequest" class="return-note p-2 mb-3">
+      <strong>{{ order.returnRequest.type }} request:</strong> {{ order.returnRequest.reason }}
+      <span *ngIf="order.returnRequest.exchangeSize"> · New size: {{ order.returnRequest.exchangeSize }}</span>
+    </div>
+
     <p><strong>Order ID:</strong> {{ order._id }}</p>
-    <p><strong>Customer Name:</strong> {{ order.customerName }}</p>
-    <p><strong>Order Date:</strong> {{ order.orderDate | date }}</p>
-    <p><strong>Total Amount:</strong> ${{ order.totalAmount }}</p>
-    <button
-      class="cancel-order-btn w-100"
-      (click)="showCancelDialog()"
-      *ngIf="order.status !== 'Cancelled' && order.status !== 'Delivered'"
-    >
+    <p><strong>Order Date:</strong> {{ order.orderDate | date : 'medium' }}</p>
+    <p *ngIf="order.paymentMethod"><strong>Payment:</strong> {{ order.paymentMethod }}</p>
+    <p *ngIf="order.couponCode">
+      <strong>Coupon:</strong> {{ order.couponCode }} (−{{ order.discount | currency : "INR" }})
+    </p>
+    <p><strong>Total Amount:</strong> {{ order.totalAmount | currency : "INR" }}</p>
+    <p *ngIf="order.shippingAddress?.street">
+      <strong>Deliver to:</strong> {{ order.shippingAddress?.fullName }}, {{ order.shippingAddress?.street }},
+      {{ order.shippingAddress?.city }}, {{ order.shippingAddress?.state }} - {{ order.shippingAddress?.postalCode }}
+    </p>
+
+    <button *ngIf="canDownloadInvoice" type="button" class="invoice-btn w-100 mb-2" (click)="downloadInvoice()" [disabled]="downloadingInvoice">
+      <i class="pi" [ngClass]="downloadingInvoice ? 'pi-spin pi-spinner' : 'pi-file-pdf'"></i>
+      {{ downloadingInvoice ? 'Preparing invoice…' : 'Download invoice' }}
+    </button>
+    <button class="cancel-order-btn w-100" (click)="showCancelDialog()" *ngIf="canCancel">
       Cancel Order
     </button>
+    <ng-container *ngIf="canReturn">
+      <button class="cancel-order-btn w-100" (click)="openReturnDialog()">Return or Exchange</button>
+      <small class="d-block text-center text-secondary mt-1">
+        Available until {{ returnDeadline | date : 'MMM d' }}
+      </small>
+    </ng-container>
   </div>
 </div>
 
@@ -60,3 +95,49 @@
   (cancel)="closeDialog()"
   (close)="isDialogVisible = false"
 ></app-common-dialog>
+
+<!-- Return / exchange -->
+<p-dialog
+  [(visible)]="isReturnDialogVisible"
+  header="Return or exchange"
+  [modal]="true"
+  [draggable]="false"
+  [style]="{ width: '440px' }"
+>
+  <div class="d-flex gap-3 mb-3">
+    <div class="d-flex align-items-center gap-2">
+      <p-radioButton name="returnType" value="Return" [(ngModel)]="returnType" inputId="rt-return"></p-radioButton>
+      <label for="rt-return">Return for refund</label>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <p-radioButton name="returnType" value="Exchange" [(ngModel)]="returnType" inputId="rt-exchange"></p-radioButton>
+      <label for="rt-exchange">Exchange size</label>
+    </div>
+  </div>
+
+  <div *ngIf="returnType === 'Exchange'" class="mb-3">
+    <label class="d-block mb-1 fw-semibold">New size</label>
+    <div class="d-flex gap-2 flex-wrap">
+      <button
+        *ngFor="let size of sizes"
+        type="button"
+        class="size-pill"
+        [class.active]="exchangeSize === size"
+        [disabled]="size === order?.products?.[0]?.size"
+        (click)="exchangeSize = size"
+      >{{ size }}</button>
+    </div>
+  </div>
+
+  <label class="d-block mb-1 fw-semibold">Reason</label>
+  <div class="d-flex flex-wrap gap-2 mb-2">
+    <button *ngFor="let r of returnReasons" type="button" class="reason-pill" [class.active]="returnReason === r" (click)="returnReason = r">
+      {{ r }}
+    </button>
+  </div>
+  <textarea class="form-control" rows="2" placeholder="Or tell us more" [(ngModel)]="returnReason" maxlength="500"></textarea>
+
+  <button type="button" class="submit-return w-100 mt-3" [disabled]="!canSubmitReturn || isSubmitting" (click)="submitReturn()">
+    Submit request
+  </button>
+</p-dialog>

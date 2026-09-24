@@ -9,11 +9,14 @@ import { UsersComponent } from './Modules/users/users.component';
 import { AuthGuard } from './auth/Services/auth.guard';
 import { OrdersComponent } from './Modules/orders/orders.component';
 import { RedirectGuard } from './auth/Services/redirect.guard';
+import { CouponsComponent } from './Modules/coupons/coupons.component';
+import { MessagesComponent } from './Modules/messages/messages.component';
 
 const routes: Routes = [
   {
     path: 'auth',
     component: AuthComponent, // ✅ Route for authentication
+    title: 'Admin login',
   },
   {
     path: '',
@@ -26,11 +29,13 @@ const routes: Routes = [
     component: AdminComponent,
     canActivate: [AuthGuard], // ✅ Protect admin routes
     children: [
-      { path: 'dashboard', component: DashboardComponent },
-      { path: 'products', component: ProductsComponent },
-      { path: 'categories', component: CategoriesComponent },
-      { path: 'orders', component: OrdersComponent },
-      { path: 'users', component: UsersComponent },
+      { path: 'dashboard', component: DashboardComponent, title: 'Admin · Dashboard' },
+      { path: 'products', component: ProductsComponent, title: 'Admin · Products' },
+      { path: 'categories', component: CategoriesComponent, title: 'Admin · Categories' },
+      { path: 'orders', component: OrdersComponent, title: 'Admin · Orders' },
+      { path: 'users', component: UsersComponent, title: 'Admin · Users' },
+      { path: 'coupons', component: CouponsComponent, title: 'Admin · Coupons' },
+      { path: 'messages', component: MessagesComponent, title: 'Admin · Messages' },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, // ✅ Ensure `/admin` redirects to `/admin/dashboard`
     ],
   },

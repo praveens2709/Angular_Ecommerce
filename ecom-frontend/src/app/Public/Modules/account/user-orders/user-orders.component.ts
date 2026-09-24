@@ -10,6 +10,8 @@ import { AuthService } from '../../../../Admin/auth/Services/auth-service.servic
 })
 export class UserOrdersComponent implements OnInit {
   orders: any[] = [];
+  /** True only until the first response when nothing is remembered yet */
+  loading = false;
   user: any = null; 
   userId: string | null = null;
 
@@ -26,33 +28,41 @@ export class UserOrdersComponent implements OnInit {
 
   fetchOrders() {
     if (!this.userId) return;
-    this.orderService.getOrdersByUserId(this.userId).subscribe(
-      (data) => {
+    const cached = this.orderService.myOrders.peek(this.userId);
+    if (cached) this.orders = cached;
+    this.loading = !cached;
+    this.orderService.getMyOrders(this.userId).subscribe({
+      next: (data) => {
         this.orders = data;
+        this.loading = false;
       },
-      (error) => {
-        console.error('Error fetching orders:', error);
-      }
-    );
+      error: () => (this.loading = false),
+    });
   }
 
   getStatusIcon(status: string): string {
     switch (status) {
-      case 'Delivered': return 'assets/images/check.png';
-      case 'Cancelled': return 'assets/images/remove.png';
-      case 'Pending': return 'assets/images/pending.png';
+      case 'Delivered':
+      case 'Returned':
+        return 'assets/images/check.png';
+      case 'Cancelled':
+      case 'Return Rejected':
+        return 'assets/images/remove.png';
       case 'Shipped': return 'assets/images/shipped.png';
-      default: return 'assets/images/default.png';
+      default: return 'assets/images/pending.png';
     }
   }
 
   getStatusClass(status: string): string {
     switch (status) {
-      case 'Delivered': return 'status-delivered';
-      case 'Cancelled': return 'status-cancelled';
-      case 'Pending': return 'status-pending';
+      case 'Delivered':
+      case 'Returned':
+        return 'status-delivered';
+      case 'Cancelled':
+      case 'Return Rejected':
+        return 'status-cancelled';
       case 'Shipped': return 'status-shipped';
-      default: return '';
+      default: return 'status-pending';
     }
   }
 }

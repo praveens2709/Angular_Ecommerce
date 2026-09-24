@@ -1,24 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const authMiddleware = require("../middleware/authMiddleware");
+const { requireUser, requireAdmin } = require("../middleware/authMiddleware");
 const orderController = require('../controllers/orderController');
 
-// Get all orders (Admin)
-router.get('/', orderController.getAllOrders);
+// Admin
+router.get('/', requireAdmin, orderController.getAllOrders);
+router.put('/:id', requireAdmin, orderController.updateOrderStatus);
+router.delete('/:id', requireAdmin, orderController.deleteOrder);
 
-// Get a single order by orderId
+// Shopper
+router.get('/my', requireUser, orderController.getMyOrders);
+router.post('/', requireUser, orderController.createOrder);
+router.patch('/:id/cancel', requireUser, orderController.cancelMyOrder);
+router.post('/:id/return', requireUser, orderController.requestReturn);
+
+// Owner or admin (checked in the controller)
 router.get('/order/:id', orderController.getOrderById);
-
-// Get orders for a specific user (Public)
-router.get('/:userId', orderController.getOrdersByUserId);
-
-// Create a new order
-router.post('/',authMiddleware, orderController.createOrder);
-
-// Update order status
-router.put('/:id', orderController.updateOrderStatus);
-
-// Delete an order
-router.delete('/:id', orderController.deleteOrder);
+router.get('/:id/invoice', orderController.getInvoice);
 
 module.exports = router;

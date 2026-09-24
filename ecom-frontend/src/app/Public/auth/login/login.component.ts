@@ -14,6 +14,7 @@ import { CommonModule } from '@angular/common';
 })
 export class LoginComponent implements OnInit {
   @Output() switchToRegister = new EventEmitter<void>()
+  @Output() forgotPassword = new EventEmitter<void>();
 
   loginForm!: FormGroup;
 

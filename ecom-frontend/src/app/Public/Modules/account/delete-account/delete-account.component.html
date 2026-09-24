@@ -27,14 +27,25 @@
     </li>
   </ul>
   <div class="agree-input-box d-flex align-items-center">
-    <p-checkbox [(ngModel)]="isAgreed" inputId="terms"></p-checkbox>
-    <p class="ps-2 mb-0">I agree to all the terms and conditions*</p>
+    <p-checkbox [(ngModel)]="isAgreed" [binary]="true" inputId="terms"></p-checkbox>
+    <label for="terms" class="ps-2 mb-0">I agree to all the terms and conditions*</label>
   </div>
   <div class="delete-account mt-2 d-flex align-items-center justify-content-between gap-2 w-100">
-    <button [disabled]="!isAgreed" class="delete-btn w-100">DELETE ACCOUNT</button>
+    <button [disabled]="!isAgreed || !isLoggedIn" class="delete-btn w-100" (click)="isDialogVisible = true">DELETE ACCOUNT</button>
     <span class="fs-3 pt-2 fw-lighter">|</span>
     <button routerLink="/" (click)="scrollUp()" class="keep-btn w-100">
       KEEP ACCOUNT
     </button>
   </div>
 </div>
+
+<app-common-dialog
+  [visible]="isDialogVisible"
+  title="Delete Account"
+  message="This will permanently delete your account. Continue?"
+  confirmButtonText="Delete"
+  cancelButtonText="Cancel"
+  (confirm)="confirmDelete()"
+  (cancel)="isDialogVisible = false"
+  (close)="isDialogVisible = false"
+></app-common-dialog>

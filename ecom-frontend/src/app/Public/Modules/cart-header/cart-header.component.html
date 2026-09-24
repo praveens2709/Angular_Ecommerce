@@ -1,32 +1,30 @@
-<div class="cart-header animate one fadeInUp">
-    <div class="container">
-      <div class="d-flex justify-content-between align-items-center">
-        <a routerLink="/">
-          <div>
-            <h5>DopeShope</h5>
-          </div>
+<header class="cart-header animate one fadeInUp">
+  <div class="container d-flex justify-content-between align-items-center gap-3">
+    <a routerLink="/" class="logo" aria-label="DopeShope home">DopeShope</a>
+
+    <ol class="steps d-flex align-items-center mb-0" aria-label="Checkout steps">
+      <li
+        *ngFor="let step of steps; let i = index; let last = last"
+        class="step d-flex align-items-center"
+        [class.done]="i < currentIndex"
+        [class.current]="i === currentIndex"
+      >
+        <!-- Earlier steps are links back; later steps aren't reachable yet -->
+        <a *ngIf="i < currentIndex; else plain" [routerLink]="step.path" class="d-flex align-items-center gap-2">
+          <span class="num"><i class="pi pi-check"></i></span><span class="label">{{ step.label }}</span>
         </a>
-        <div class="cart-pages d-flex align-items-center">
-          <h6 [class.active]="isActive('/cart')">
-            <a *ngIf="!isActive('/cart')">BAG</a>
-            <span *ngIf="isActive('/cart')">BAG</span>
-          </h6>
-          <span>-----------</span>
-          <h6 [class.active]="isActive('/address')">
-            <a *ngIf="!isActive('/address')">ADDRESS</a>
-            <span *ngIf="isActive('/address')">ADDRESS</span>
-          </h6>
-          <span>-----------</span>
-          <h6 [class.active]="isActive('/payment')">
-            <a *ngIf="!isActive('/payment')">PAYMENT</a>
-            <span *ngIf="isActive('/payment')">PAYMENT</span>
-          </h6>
-        </div>
-        <div class="d-flex gap-2 align-items-center">
-          <img src="assets/images/secure.png" alt="secure" />
-          <h6 class="fw-medium">100% SECURE</h6>
-        </div>
-      </div>
+        <ng-template #plain>
+          <span class="d-flex align-items-center gap-2" [attr.aria-current]="i === currentIndex ? 'step' : null">
+            <span class="num">{{ i + 1 }}</span><span class="label">{{ step.label }}</span>
+          </span>
+        </ng-template>
+        <span *ngIf="!last" class="bar" [class.filled]="i < currentIndex"></span>
+      </li>
+    </ol>
+
+    <div class="secure d-flex gap-2 align-items-center">
+      <i class="pi pi-lock"></i>
+      <span>100% Secure</span>
     </div>
   </div>
-  
+</header>

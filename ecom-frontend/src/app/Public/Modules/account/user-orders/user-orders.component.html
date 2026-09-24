@@ -1,9 +1,12 @@
 <div class="mt-2">
   <ng-container *ngIf="userId; else notLoggedIn">
     <!-- Logged-in User Orders Section -->
-    <h6 class="pb-2 fw-semibold">All Orders</h6>
+    <h6 class="mb-3">Your orders</h6>
 
-    <div *ngIf="orders.length > 0; else noOrders">
+    <ng-container *ngIf="loading">
+      <div *ngFor="let _ of [1, 2]" class="skeleton skeleton-card"></div>
+    </ng-container>
+    <div *ngIf="!loading && orders.length > 0; else noOrders">
       <div *ngFor="let order of orders" class="mb-3">
         <div class="p-2 order-box">
           <p
@@ -19,7 +22,7 @@
               <div class="d-flex align-items-center gap-3 pt-2">
                 <div class="order-img bg-white">
                   <img
-                    [src]="order.products[0]?.image || 'assets/images/default.png'"
+                    [src]="order.products[0]?.image || 'assets/images/placeholder.png'"
                     alt="product-img"
                     class="w-100 h-100"
                   />
@@ -27,7 +30,8 @@
                 <div class="order-details d-flex flex-column">
                   <p class="fw-medium mb-0">{{ order.products[0]?.storeName }}</p>
                   <span>{{ order.products[0]?.productName }}</span>
-                  <span>Size: {{ order.products[0]?.size }}</span>
+                  <span>Qty: {{ order.products[0]?.quantity }} · {{ order.totalAmount | currency : 'INR' }}</span>
+                  <span *ngIf="order.products[0]?.size">Size: {{ order.products[0]?.size }}</span>
                 </div>
               </div>
               <i class="pi pi-angle-right text-black"></i>
@@ -38,7 +42,7 @@
     </div>
 
     <ng-template #noOrders>
-      <p class="text-center mt-3">You haven’t placed any orders yet.</p>
+      <p *ngIf="!loading" class="text-center mt-3">You haven’t placed any orders yet.</p>
     </ng-template>
   </ng-container>
 

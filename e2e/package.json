@@ -1,0 +1,16 @@
+{
+  "name": "dopeshope-e2e",
+  "private": true,
+  "description": "Browser walkthroughs of the storefront and admin against a throwaway local stack",
+  "scripts": {
+    "test": "node run.js",
+    "test:shop": "node run.js shop",
+    "test:admin": "node run.js admin"
+  },
+  "engines": { "node": ">=20.19" },
+  "dependencies": {
+    "mongodb": "^6.10.0",
+    "mongodb-memory-server": "^10.4.3",
+    "puppeteer-core": "^23.11.1"
+  }
+}

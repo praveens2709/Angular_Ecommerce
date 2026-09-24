@@ -1,4 +1,44 @@
 <div class="cart-right">
+  <!-- Coupons -->
+  <div *ngIf="showCouponInput" class="coupon-box mb-3">
+    <h6 class="mb-2 fw-bold d-flex align-items-center gap-2"><i class="pi pi-ticket"></i> COUPONS</h6>
+
+    <div *ngIf="priceDetails.couponCode; else couponForm" class="applied-coupon d-flex align-items-center justify-content-between">
+      <div>
+        <span class="fw-bold">{{ priceDetails.couponCode }}</span>
+        <small class="d-block" *ngIf="!priceDetails.couponMessage">You save {{ priceDetails.couponDiscount | currency : "INR" }}</small>
+        <small class="d-block text-danger" *ngIf="priceDetails.couponMessage">{{ priceDetails.couponMessage }}</small>
+      </div>
+      <button type="button" class="link-btn" (click)="removeCoupon()">Remove</button>
+    </div>
+
+    <ng-template #couponForm>
+      <form class="d-flex gap-2" (ngSubmit)="applyCoupon()">
+        <input
+          type="text"
+          name="couponCode"
+          class="coupon-input flex-grow-1"
+          placeholder="Enter coupon code"
+          [(ngModel)]="couponCode"
+          (ngModelChange)="couponError = ''"
+          autocomplete="off"
+        />
+        <button type="submit" class="apply-btn" [disabled]="!couponCode.trim() || isApplying">APPLY</button>
+      </form>
+      <small *ngIf="couponError" class="d-block text-danger mt-1">{{ couponError }}</small>
+      <div *ngIf="suggestions.length" class="mt-2 d-flex flex-column gap-1">
+        <button
+          *ngFor="let c of suggestions"
+          type="button"
+          class="suggestion text-start"
+          (click)="applyCoupon(c.code)"
+        >
+          <span class="fw-bold">{{ c.code }}</span> · <small>{{ describe(c) }}</small>
+        </button>
+      </div>
+    </ng-template>
+  </div>
+
   <div class="d-flex align-items-center gap-2">
     <h6 class="mb-3 fw-bold">PRICE DETAILS</h6>
     <h6 class="pt-0 fw-semibold">({{ priceDetails.itemsCount }} Items)</h6>
@@ -12,6 +52,10 @@
     <span class="span red"
       >- {{ priceDetails.discount | currency : "INR" }}</span
     >
+  </div>
+  <div *ngIf="priceDetails.couponCode" class="d-flex align-items-center justify-content-between mt-2">
+    <span class="fw-medium">Coupon ({{ priceDetails.couponCode }})</span>
+    <span class="span red">- {{ priceDetails.couponDiscount | currency : "INR" }}</span>
   </div>
   <div class="d-flex align-items-center justify-content-between mt-2">
     <span class="fw-medium">Platform Fee</span>

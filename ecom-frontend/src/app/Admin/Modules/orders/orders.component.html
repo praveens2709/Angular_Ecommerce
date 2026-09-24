@@ -1,207 +1,210 @@
 <div class="card shadow-sm border-0 rounded-3">
-  <!-- Caption Section -->
-  <div
-    class="card-header bg-light d-flex justify-content-between align-items-center"
-  >
+  <div class="card-header bg-light d-flex flex-wrap gap-2 justify-content-between align-items-center">
     <h3 class="mb-0 text-primary fs-5 fw-bold">Orders</h3>
+    <input
+      type="search"
+      class="form-control form-control-sm search-input"
+      placeholder="Search customer or order ID"
+      [(ngModel)]="search"
+      (ngModelChange)="onSearch()"
+    />
   </div>
 
-  <!-- Data Table -->
+  <div class="px-3 pt-3 d-flex flex-wrap gap-2">
+    <button
+      *ngFor="let s of statusFilters"
+      type="button"
+      class="btn btn-sm filter-chip"
+      [class.active]="statusFilter === s"
+      (click)="setStatusFilter(s)"
+    >
+      {{ s || 'All' }}
+    </button>
+  </div>
+
   <div>
     <p-table
       [value]="orders"
+      [lazy]="true"
+      (onLazyLoad)="onLazyLoad($event)"
+      [loading]="loading"
       [paginator]="true"
-      [rows]="5"
-      [rowsPerPageOptions]="[5, 10, 20]"
+      [rows]="rows"
+      [first]="first"
+      [totalRecords]="totalRecords"
+      [rowsPerPageOptions]="[10, 25, 50]"
       [scrollable]="true"
-      [scrollHeight]="'500px'"
+      [scrollHeight]="'520px'"
       [tableStyle]="{ 'min-width': '100%' }"
       class="table-striped table-hover align-middle mb-0"
     >
-      <!-- Header -->
       <ng-template pTemplate="header">
         <tr class="bg-secondary text-white">
-          <th class="py-3 px-4">Order ID</th>
-          <th class="py-3 px-4">Customer Name</th>
-          <th class="py-3 px-4">Order Date</th>
-          <th class="py-3 px-4">Total Amount</th>
+          <th class="py-3 px-4">Order</th>
+          <th class="py-3 px-4">Customer</th>
+          <th class="py-3 px-4">Date</th>
+          <th class="py-3 px-4">Total</th>
           <th class="py-3 px-4">Status</th>
           <th class="py-3 px-4">Actions</th>
         </tr>
       </ng-template>
 
-      <!-- Body -->
       <ng-template pTemplate="body" let-order>
         <tr>
-          <td class="py-3 px-4 text-dark fw-semibold">{{ order._id }}</td>
+          <td class="py-3 px-4">
+            <div class="d-flex align-items-center gap-2">
+              <img [src]="order.products[0]?.image || 'assets/images/placeholder.png'" alt="" class="thumb rounded" />
+              <div>
+                <div class="fw-semibold">{{ order.products[0]?.productName }}</div>
+                <small class="text-muted">
+                  {{ order.products[0]?.size ? 'Size ' + order.products[0]?.size + ' · ' : '' }}Qty {{ order.products[0]?.quantity }}
+                </small>
+              </div>
+            </div>
+          </td>
           <td class="py-3 px-4">{{ order.customerName }}</td>
           <td class="py-3 px-4">{{ order.orderDate | date }}</td>
-          <td class="py-3 px-4">{{ order.totalAmount | currency }}</td>
+          <td class="py-3 px-4">{{ order.totalAmount | currency : 'INR' }}</td>
           <td class="py-3 px-4">
-            <p-tag
-              [value]="order.status"
-              [severity]="getSeverity(order.status)"
-            ></p-tag>
+            <p-tag [value]="order.status" [severity]="getSeverity(order.status)"></p-tag>
           </td>
-          <td class="px-4 d-flex gap-2">
-            <!-- View Order Details -->
-            <button
-              class="btn btn-sm btn-outline-primary p-0 px-2 py-1"
-              (click)="viewOrderDetails(order)"
-            >
-              <i class="pi pi-eye pt-1"></i>
-            </button>
-          
-            <!-- Mark as Shipped -->
-            <button
-              class="btn btn-sm btn-outline-warning p-0 px-2 py-1"
-              [disabled]="
-                order.status === 'Shipped' ||
-                order.status === 'Delivered' ||
-                order.status === 'Cancelled'
-              "
-              (click)="openShippedDialog(order)"
-            >
-              <i class="pi pi-check pt-1"></i>
-            </button>
-          
-            <!-- Mark as Delivered -->
-            <button
-              class="btn btn-sm btn-outline-success p-0 px-2 py-1"
-              [disabled]="
-                order.status !== 'Shipped' || order.status === 'Cancelled'
-              "
-              (click)="openDeliveredDialog(order)"
-            >
-              <i class="pi pi-check-circle pt-1"></i>
-            </button>
-          
-            <!-- Cancel Order -->
-            <button
-              class="btn btn-sm btn-outline-danger p-0 px-2 py-1"
-              [disabled]="order.status === 'Delivered' || order.status === 'Cancelled'"
-              (click)="openCancelDialog(order)"
-            >
-              <i class="pi pi-times pt-1"></i>
-            </button>
+          <td class="px-4">
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-primary p-0 px-2 py-1" title="View details" (click)="viewOrderDetails(order)">
+                <i class="pi pi-eye pt-1"></i>
+              </button>
+              <button
+                *ngFor="let action of actionsFor(order)"
+                class="btn btn-sm p-0 px-2 py-1"
+                [ngClass]="action.className"
+                [title]="action.label"
+                (click)="askAction(order, action)"
+              >
+                <i class="pi pt-1" [ngClass]="action.icon"></i>
+              </button>
+            </div>
           </td>
-          
         </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="6" class="text-center py-4">No orders found.</td></tr>
       </ng-template>
     </p-table>
   </div>
 
-  <!-- Summary -->
   <div class="card-footer bg-light text-secondary text-center py-3">
-    In total, there are {{ orders ? orders.length : 0 }} orders.
+    {{ totalRecords }} {{ totalRecords === 1 ? 'order' : 'orders' }}{{ statusFilter ? ' · ' + statusFilter : '' }}
   </div>
 
   <!-- View Order Details Dialog -->
-  <p-dialog
-    [(visible)]="viewDialogVisible"
-    [modal]="true"
-    [header]="'Order Details'"
-    [style]="{ width: '600px' }"
-  >
-    <div class="container">
-      <!-- Order Information -->
+  <p-dialog [(visible)]="viewDialogVisible" [modal]="true" header="Order Details" [style]="{ width: '640px' }">
+    <div class="container" *ngIf="selectedOrder">
       <div class="row mb-3">
         <div class="col-6">
-          <p class="mb-1 fw-semibold">Order ID:</p>
-          <p class="text-secondary">{{ selectedOrder?._id }}</p>
+          <p class="mb-1 fw-semibold">Order ID</p>
+          <p class="text-secondary">{{ selectedOrder._id }}</p>
         </div>
         <div class="col-6">
-          <p class="mb-1 fw-semibold">Order Date:</p>
-          <p class="text-secondary">{{ selectedOrder?.orderDate | date }}</p>
+          <p class="mb-1 fw-semibold">Order Date</p>
+          <p class="text-secondary">{{ selectedOrder.orderDate | date : 'medium' }}</p>
         </div>
       </div>
 
       <div class="row mb-3">
         <div class="col-6">
-          <p class="mb-1 fw-semibold">Customer Name:</p>
-          <p class="text-secondary">{{ selectedOrder?.customerName }}</p>
+          <p class="mb-1 fw-semibold">Customer</p>
+          <p class="text-secondary mb-0">{{ selectedOrder.customerName }}</p>
+          <small class="text-secondary">{{ selectedOrder.userId?.email }}</small>
         </div>
         <div class="col-6">
-          <p class="mb-1 fw-semibold">Total Amount:</p>
-          <p class="text-secondary">
-            {{ selectedOrder?.totalAmount | currency }}
+          <p class="mb-1 fw-semibold">Amount</p>
+          <p class="text-secondary mb-0">{{ selectedOrder.totalAmount | currency : 'INR' }} · {{ selectedOrder.paymentMethod }}</p>
+          <small class="text-secondary" *ngIf="selectedOrder.couponCode">
+            Coupon {{ selectedOrder.couponCode }} (−{{ selectedOrder.discount | currency : 'INR' }})
+          </small>
+        </div>
+      </div>
+
+      <div class="row mb-3" *ngFor="let product of selectedOrder.products">
+        <div class="col-2">
+          <img [src]="product.image || 'assets/images/placeholder.png'" alt="" class="w-100 rounded" />
+        </div>
+        <div class="col-10">
+          <p class="mb-0 fw-semibold">{{ product.productName }}</p>
+          <p class="mb-0 text-secondary">
+            {{ product.size ? 'Size ' + product.size + ' · ' : '' }}{{ product.quantity }} × {{ product.price | currency : 'INR' }}
           </p>
         </div>
       </div>
 
-      <!-- Order Status -->
-      <div class="row mb-4">
+      <div class="row mb-3" *ngIf="selectedOrder.shippingAddress?.street">
         <div class="col">
-          <p class="mb-1 fw-semibold">Order Status:</p>
-          <p-tag
-            [value]="selectedOrder?.status"
-            [severity]="getSeverity(selectedOrder?.status)"
-          ></p-tag>
+          <p class="mb-1 fw-semibold">Ship To</p>
+          <p class="text-secondary mb-0">
+            {{ selectedOrder.shippingAddress?.fullName }}, {{ selectedOrder.shippingAddress?.street }},
+            {{ selectedOrder.shippingAddress?.city }}, {{ selectedOrder.shippingAddress?.state }} -
+            {{ selectedOrder.shippingAddress?.postalCode }} ({{ selectedOrder.shippingAddress?.mobile }})
+          </p>
         </div>
       </div>
 
-      <!-- Footer Buttons -->
-      <div class="row mt-3">
-        <div class="col d-flex justify-content-end gap-2">
-          <button
-            class="btn btn-outline-secondary"
-            (click)="viewDialogVisible = false"
-          >
-            Close
-          </button>
+      <div class="row mb-3" *ngIf="selectedOrder.returnRequest">
+        <div class="col">
+          <div class="return-box p-2">
+            <p class="mb-1 fw-semibold">{{ selectedOrder.returnRequest.type }} request</p>
+            <p class="mb-0 text-secondary">
+              {{ selectedOrder.returnRequest.reason }}
+              <span *ngIf="selectedOrder.returnRequest.exchangeSize">· Wants size {{ selectedOrder.returnRequest.exchangeSize }}</span>
+            </p>
+          </div>
         </div>
+      </div>
+
+      <div class="mb-3">
+        <p class="mb-2 fw-semibold">History</p>
+        <ul class="history list-unstyled mb-0">
+          <li *ngFor="let h of selectedOrder.statusHistory" class="d-flex gap-2">
+            <p-tag [value]="h.status" [severity]="getSeverity(h.status)"></p-tag>
+            <span class="text-secondary">{{ h.at | date : 'medium' }}</span>
+            <span *ngIf="h.note" class="text-secondary">· {{ h.note }}</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="d-flex justify-content-end flex-wrap gap-2">
+        <button
+          *ngFor="let action of actionsFor(selectedOrder)"
+          class="btn btn-sm"
+          [ngClass]="action.className"
+          (click)="askAction(selectedOrder, action)"
+        >
+          <i class="pi me-1" [ngClass]="action.icon"></i>{{ action.label }}
+        </button>
+        <button
+          *ngIf="selectedOrder.status !== 'Cancelled' && (selectedOrder.totalAmount ?? 0) > 0"
+          class="btn btn-sm btn-outline-primary"
+          (click)="downloadInvoice(selectedOrder)"
+        >
+          <i class="pi pi-file-pdf me-1"></i>Invoice
+        </button>
+        <button class="btn btn-sm btn-outline-secondary" (click)="viewDialogVisible = false">Close</button>
       </div>
     </div>
   </p-dialog>
 
-  <!-- Mark as Shipped Dialog -->
+  <!-- Confirm status change -->
   <p-dialog
-    [(visible)]="shippedDialogVisible"
+    [visible]="!!pendingAction"
+    (visibleChange)="!$event && (pendingAction = null)"
     [modal]="true"
-    [header]="'Mark as Shipped'"
-    [style]="{ width: '500px' }"
+    [header]="pendingAction?.label || ''"
+    [style]="{ width: '460px' }"
   >
-    <p>Are you sure you want to mark this order as shipped?</p>
+    <p>{{ pendingAction?.confirm }}</p>
     <div class="d-flex justify-content-end mt-3 gap-2">
-      <button class="btn btn-outline-warning" (click)="markAsShipped()">Yes</button>
-      <button class="btn btn-outline-secondary" (click)="shippedDialogVisible = false">
-        No
-      </button>
-    </div>
-  </p-dialog>
-
-  <!-- Mark as Delivered Dialog -->
-  <p-dialog
-    [(visible)]="deliveredDialogVisible"
-    [modal]="true"
-    [header]="'Mark as Delivered'"
-    [style]="{ width: '500px' }"
-  >
-    <p>Are you sure you want to mark this order as delivered?</p>
-    <div class="d-flex justify-content-end mt-3 gap-2">
-      <button class="btn btn-outline-success" (click)="markAsDelivered()">Yes</button>
-      <button
-        class="btn btn-outline-secondary"
-        (click)="deliveredDialogVisible = false"
-      >
-        No
-      </button>
-    </div>
-  </p-dialog>
-
-  <!-- Cancel Order Dialog -->
-  <p-dialog
-    [(visible)]="cancelDialogVisible"
-    [modal]="true"
-    [header]="'Cancel Order'"
-    [style]="{ width: '500px' }"
-  >
-    <p>Are you sure you want to cancel this order?</p>
-    <div class="d-flex justify-content-end mt-3 gap-2">
-      <button class="btn btn-outline-danger" (click)="cancelOrder()">Yes</button>
-      <button class="btn btn-outline-secondary" (click)="cancelDialogVisible = false">
-        No
-      </button>
+      <button class="btn" [ngClass]="pendingAction?.className || ''" (click)="confirmAction()">Yes</button>
+      <button class="btn btn-outline-secondary" (click)="pendingAction = null">No</button>
     </div>
   </p-dialog>
 </div>

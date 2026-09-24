@@ -1,0 +1,47 @@
+.site-footer {
+  background: #f7f1ef;
+  color: #5a4a45;
+  padding: 56px 0 24px;
+}
+
+.footer-logo {
+  font-family: 'La Belle Aurore', cursive;
+  font-size: 2rem;
+  color: #992603;
+}
+
+h6 {
+  color: #1f1f1f;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+a {
+  display: block;
+  color: #5a4a45;
+  margin-bottom: 8px;
+  transition: color 0.2s, transform 0.2s;
+}
+
+a:hover {
+  color: #992603;
+  transform: translateX(4px);
+}
+
+a.d-inline:hover {
+  transform: none;
+}
+
+i {
+  color: #992603;
+}
+
+.footer-bottom {
+  margin-top: 36px;
+  padding-top: 18px;
+  border-top: 1px solid #e8d6d0;
+  color: #7a6a65;
+}

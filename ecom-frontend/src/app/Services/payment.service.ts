@@ -1,60 +1,52 @@
-import { Injectable } from '@angular/core';
-import { OrderService } from '../Admin/Modules/orders/order.service';
+import { Injectable, NgZone } from '@angular/core';
 
 declare var Razorpay: any;
+
+export interface RazorpayPrefill {
+  name?: string;
+  email?: string;
+  contact?: string;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class PaymentService {
-  constructor(private orderService: OrderService) {}
+  constructor(private zone: NgZone) {}
 
-  /** Method to initiate payment */
+  /** Open Razorpay checkout; resolves callbacks back inside Angular's zone */
   payWithRazorpay(
     amount: number,
     currency: string,
-    orderDetails: any,
-    callback: Function
+    prefill: RazorpayPrefill,
+    onSuccess: (paymentId: string) => void,
+    onFailure: (reason: string) => void
   ) {
+    if (typeof Razorpay === 'undefined') {
+      onFailure('Payment gateway failed to load. Check your connection and try again.');
+      return;
+    }
+
     const options = {
-      key: 'rzp_test_2ZWOz5sEOhPm6M', // Replace with Razorpay Key ID
-      amount: amount * 100, // Convert amount to paise
+      key: 'rzp_test_2ZWOz5sEOhPm6M', // Razorpay test Key ID
+      amount: Math.round(amount * 100), // Convert amount to paise
       currency: currency,
       name: 'DopeShope',
       description: 'Order Payment',
-      handler: (response: any) => {
-        console.log('Payment Success:', response);
-
-        // Once payment is successful, create an order
-        const newOrder = {
-          userId: orderDetails.userId,
-          customerName: orderDetails.customerName,
-          totalAmount: orderDetails.totalAmount,
-          products: orderDetails.products,
-          status: 'Pending', // Default order status
-        };
-
-        this.orderService.createOrder(newOrder).subscribe(
-          (order) => {
-            console.log('Order Created:', order);
-            callback(order); // Call callback with order details
-          },
-          (error) => {
-            console.error('Order Creation Failed:', error);
-          }
-        );
+      handler: (response: any) => this.zone.run(() => onSuccess(response.razorpay_payment_id)),
+      modal: {
+        ondismiss: () => this.zone.run(() => onFailure('Payment cancelled')),
       },
-      prefill: {
-        name: 'Praveen Sharma',
-        email: 'soulmortal1084@gmail.com',
-        contact: '9116577183',
-      },
+      prefill,
       theme: {
-        color: '#3399cc',
+        color: '#992603',
       },
     };
 
     const rzp = new Razorpay(options);
+    rzp.on('payment.failed', (response: any) =>
+      this.zone.run(() => onFailure(response.error?.description || 'Payment failed'))
+    );
     rzp.open();
   }
 }

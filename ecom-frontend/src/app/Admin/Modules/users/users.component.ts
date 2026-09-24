@@ -1,5 +1,7 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { Table } from 'primeng/table';
+import { Component } from '@angular/core';
+import { Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
+import { TableLazyLoadEvent } from 'primeng/table';
 import { UsersService } from './users.service';
 
 @Component({
@@ -9,31 +11,61 @@ import { UsersService } from './users.service';
   styleUrl: './users.component.css'
 })
 
-export class UsersComponent implements OnInit {
-  @ViewChild('dt') dt!: Table;
-
+export class UsersComponent {
   users: any[] = [];
+  totalRecords = 0;
+  rows = 10;
+  first = 0;
+  loading: boolean = true;
+
+  search = '';
+  gender: string | null = null;
   genders = [
     { label: 'Male', value: 'Male' },
     { label: 'Female', value: 'Female' }
   ];
-  loading: boolean = true;
+  private search$ = new Subject<void>();
 
-  constructor(private usersService: UsersService) {}
+  constructor(private usersService: UsersService) {
+    this.search$.pipe(debounceTime(350)).subscribe(() => {
+      this.first = 0;
+      this.loadUsers();
+    });
+  }
 
-  ngOnInit() {
+  onLazyLoad(event: TableLazyLoadEvent): void {
+    this.first = event.first ?? 0;
+    this.rows = event.rows ?? this.rows;
     this.loadUsers();
   }
 
   loadUsers(): void {
-    this.usersService.getUsers().subscribe((data) => {
-      this.users = data;
-      this.loading = false;
+    this.loading = true;
+    const page = Math.floor(this.first / this.rows) + 1;
+    this.usersService.getUsers(page, this.rows, { q: this.search.trim(), gender: this.gender || undefined }).subscribe({
+      next: (res) => {
+        this.users = res.items;
+        this.totalRecords = res.total;
+        this.loading = false;
+      },
+      error: () => (this.loading = false),
     });
   }
 
-  onGlobalFilter(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.dt.filterGlobal(input.value, 'contains');
+  onSearch(): void {
+    this.search$.next();
+  }
+
+  onGenderChange(): void {
+    this.first = 0;
+    this.loadUsers();
+  }
+
+  /** Disabled users can't log in or place orders */
+  toggleActive(user: any): void {
+    const next = user.active === false;
+    this.usersService.editUser(user._id, { active: next }).subscribe({
+      next: () => (user.active = next),
+    });
   }
 }

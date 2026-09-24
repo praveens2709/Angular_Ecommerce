@@ -3,21 +3,21 @@
   <div class="contact-right position-relative">
     <form [formGroup]="profileForm">
       <!-- Mobile Number -->
-      <div
-        class="input-box border-grey p-2 my-3 d-flex justify-content-between align-items-center"
-      >
-        <div class="d-flex flex-column edit-profile">
-          <p class="mb-0 fw-medium">Mobile Number*</p>
-          <p class="mb-0 d-flex gap-1 align-items-center contact-verified">
-            {{ user.mobile }}
-            <img src="assets/images/check.png" alt="done" />
+      <div class="mobile-row p-2 my-3 d-flex justify-content-between align-items-center gap-3">
+        <div class="d-flex flex-column edit-profile flex-grow-1">
+          <label for="mobile" class="mb-1 fw-medium">Mobile Number*</label>
+          <p *ngIf="!editingMobile" class="mb-0 d-flex gap-1 align-items-center contact-verified">
+            {{ profileForm.value.mobile || user.mobile }}
+            <i class="pi pi-check-circle text-success"></i>
           </p>
+          <ng-container *ngIf="editingMobile">
+            <input id="mobile" type="tel" inputmode="numeric" maxlength="10" formControlName="mobile" class="form-control" placeholder="10-digit mobile number" />
+            <small *ngIf="profileForm.get('mobile')?.invalid" class="text-danger">Enter a valid 10-digit mobile number</small>
+          </ng-container>
         </div>
-        <div class="d-flex align-items-center change-phone">
-          <button type="button" class="bg-transparent border-0 mt-0">
-            Change
-          </button>
-        </div>
+        <button type="button" class="change-link" (click)="editingMobile = !editingMobile">
+          {{ editingMobile ? 'Done' : 'Change' }}
+        </button>
       </div>
 
       <!-- Full Name -->

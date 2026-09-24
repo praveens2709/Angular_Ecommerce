@@ -1,64 +1,64 @@
 <app-header></app-header>
+<!-- Fills the screen so the footer stays below the fold while content loads -->
+<div class="page-fill">
 
-<div class="my-account">
-  <div class="acc-header animate three fadeInUp">
-    <h6 class="fw-bold mb-0">Account</h6>
-    <p class="fw-normal pb-2 mb-0 border-bottom">
-      <ng-container *ngIf="userName; else signInSignUp">
-        {{ userName }}
+<!-- Rendered only in the browser: a server render would show the signed-out version first -->
+<ng-container *ngIf="isBrowser">
+<section class="acc-hero">
+  <div class="container d-flex align-items-center gap-3">
+    <span class="avatar" aria-hidden="true">{{ initials }}</span>
+    <div>
+      <ng-container *ngIf="userName; else (isLoggedIn ? loadingName : guest)">
+        <p class="hello mb-0">Hello,</p>
+        <h1 class="mb-0">{{ userName }}</h1>
+        <small *ngIf="userEmail">{{ userEmail }}</small>
       </ng-container>
-      <ng-template #signInSignUp>
-        <p class="fw-normal pb-2 mb-0 d-flex gap-1">Guest | <a routerLink="/public/auth" class="text-orange">Sign In</a></p>
+      <ng-template #loadingName>
+        <div class="skeleton skeleton-line" style="width: 60px"></div>
+        <div class="skeleton skeleton-line" style="width: 220px; height: 26px"></div>
       </ng-template>
-    </p>
+      <ng-template #guest>
+        <h1 class="mb-1">Your Account</h1>
+        <small>You're browsing as a guest. <a routerLink="/public/auth" class="sign-in">Sign in</a> to see your orders and saved details.</small>
+      </ng-template>
+    </div>
   </div>
+</section>
 
-  <div class="row animate four fadeInUp">
-    <div class="col-lg-3 acc-body border-end">
-      <div class="acc-left me-2">
-        <p
-          class="py-3 border-bottom"
-          [class.active]="'/account/overview' === currentRoute"
-          routerLink="/account/overview">
-          Overview
-        </p>
-        <div class="py-2 dark">Orders</div>
-        <p
-          class="pb-3 border-bottom"
-          [class.active]="'/account/orders' === currentRoute"
-          routerLink="/account/orders">
-          Orders & Returns
-        </p>
-        <div class="py-2 dark">Account</div>
-        <p
-          class="pb-1"
-          [class.active]="'/account/profile' === currentRoute"
-          routerLink="/account/profile">
-          Profile
-        </p>
-        <p
-          class="pb-1"
-          [class.active]="'/account/addresses' === currentRoute"
-          routerLink="/account/addresses">
-          Addresses
-        </p>
-        <p
-          class="pb-1"
-          [class.active]="'/account/cards' === currentRoute"
-          routerLink="/account/cards">
-          Saved Cards
-        </p>
-        <p
-          class="pb-3 border-bottom"
-          [class.active]="'/account/delete' === currentRoute"
-          routerLink="/account/delete">
-          Delete Account
-        </p>
-      </div>
-    </div>
+<div class="container acc-layout">
+  <div class="row g-4">
+    <aside class="col-lg-3">
+      <nav class="acc-nav" aria-label="Account menu">
+        <ng-container *ngFor="let group of menu">
+          <p class="group">{{ group.heading }}</p>
+          <a *ngFor="let item of group.items" [routerLink]="item.path" [class.active]="isActive(item.path)">
+            <i class="pi" [ngClass]="item.icon"></i>{{ item.label }}
+          </a>
+        </ng-container>
+        <button *ngIf="isLoggedIn" type="button" class="logout" (click)="isLogoutDialogVisible = true">
+          <i class="pi pi-sign-out"></i>Logout
+        </button>
+      </nav>
+    </aside>
 
-    <div class="col-lg-9 acc-body">
+    <main class="col-lg-9 account-content">
       <router-outlet></router-outlet>
-    </div>
+    </main>
   </div>
 </div>
+
+</ng-container>
+
+<app-common-dialog
+  [visible]="isLogoutDialogVisible"
+  title="Logout"
+  message="Are you sure you want to log out?"
+  confirmButtonText="Logout"
+  cancelButtonText="Cancel"
+  (confirm)="logout()"
+  (cancel)="isLogoutDialogVisible = false"
+  (close)="isLogoutDialogVisible = false"
+></app-common-dialog>
+</div>
+
+<app-site-footer></app-site-footer>

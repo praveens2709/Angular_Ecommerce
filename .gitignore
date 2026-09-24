@@ -1,3 +1,19 @@
 # Environment variables
 .env
 .env.*
+!.env.example
+
+# Dependencies and build output
+node_modules/
+dist/
+.angular/
+
+# OS files
+.DS_Store
+
+# Uploaded product images
+ecom-backend/uploads/*
+!ecom-backend/uploads/.gitkeep
+
+# e2e run artefacts
+e2e/screenshots/

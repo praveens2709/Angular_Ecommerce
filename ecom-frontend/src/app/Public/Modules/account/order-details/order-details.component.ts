@@ -1,6 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { OrderService } from '../../../../Admin/Modules/orders/order.service';
+import { ActivatedRoute } from '@angular/router';
+import { Order, OrderService, OrderStatus, RETURN_WINDOW_DAYS } from '../../../../Admin/Modules/orders/order.service';
+import { SIZES } from '../../../../Admin/Modules/products/product.service';
+import { ToastService } from '../../../../Services/toast-service.service';
+
+interface TimelineStep {
+  label: string;
+  icon: string;
+  at?: string;
+  done: boolean;
+  current: boolean;
+  tone?: 'danger' | 'warn';
+}
 
 @Component({
   selector: 'app-order-details',
@@ -11,33 +22,109 @@ import { OrderService } from '../../../../Admin/Modules/orders/order.service';
 })
 
 export class OrderDetailsComponent implements OnInit {
-  order: any;
+  order: Order | null = null;
   orderId: string = '';
+  notFound = false;
   isDialogVisible: boolean = false;
+
+  isReturnDialogVisible = false;
+  returnType: 'Return' | 'Exchange' = 'Return';
+  returnReason = '';
+  exchangeSize = '';
+  isSubmitting = false;
+  downloadingInvoice = false;
+  readonly sizes = SIZES;
+  readonly returnReasons = ['Size too small', 'Size too large', 'Quality not as expected', 'Received wrong item', 'Changed my mind'];
 
   constructor(
     private route: ActivatedRoute,
-    private orderService: OrderService
+    private orderService: OrderService,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
     this.orderId = this.route.snapshot.paramMap.get('id') || '';
-    console.log('Order ID:', this.orderId);
     if (this.orderId) {
       this.fetchOrderDetails();
     }
   }
 
   fetchOrderDetails() {
-    this.orderService.getOrderById(this.orderId).subscribe(
-      (order) => {
-        this.order = order;
-        console.log('Fetched Order:', this.order);
+    this.orderService.getOrderById(this.orderId).subscribe({
+      next: (order) => (this.order = order),
+      error: () => (this.notFound = true),
+    });
+  }
+
+  /** Invoices exist for everything except cancelled or free replacement orders */
+  get canDownloadInvoice(): boolean {
+    return !!this.order && this.order.status !== 'Cancelled' && (this.order.totalAmount ?? 0) > 0;
+  }
+
+  downloadInvoice(): void {
+    if (this.downloadingInvoice) return;
+    this.downloadingInvoice = true;
+    this.orderService.downloadInvoice(this.orderId).subscribe({
+      next: () => (this.downloadingInvoice = false),
+      error: () => {
+        this.downloadingInvoice = false;
+        this.toastService.error('Invoice unavailable', 'Please try again in a moment.');
       },
-      (error) => {
-        console.error('Error fetching order:', error);
+    });
+  }
+
+  get canCancel(): boolean {
+    return this.order?.status === 'Pending';
+  }
+
+  /** Delivered and still inside the return window */
+  get canReturn(): boolean {
+    if (this.order?.status !== 'Delivered') return false;
+    return !!this.returnDeadline && this.returnDeadline > new Date();
+  }
+
+  get returnDeadline(): Date | null {
+    const base = this.order?.deliveredAt || this.order?.orderDate;
+    if (!base) return null;
+    return new Date(new Date(base).getTime() + RETURN_WINDOW_DAYS * 24 * 60 * 60 * 1000);
+  }
+
+  /** Pending → Shipped → Delivered, with cancel/return branches */
+  get timeline(): TimelineStep[] {
+    if (!this.order) return [];
+    const history = this.order.statusHistory || [];
+    const at = (status: OrderStatus) => history.find((h) => h.status === status)?.at;
+    const status = this.order.status!;
+
+    if (status === 'Cancelled') {
+      return [
+        { label: 'Ordered', icon: 'pi-shopping-bag', at: at('Pending') || this.order.orderDate, done: true, current: false },
+        { label: 'Cancelled', icon: 'pi-times', at: at('Cancelled'), done: true, current: true, tone: 'danger' },
+      ];
+    }
+
+    const steps: TimelineStep[] = [
+      { label: 'Ordered', icon: 'pi-shopping-bag', at: at('Pending') || this.order.orderDate, done: true, current: status === 'Pending' },
+      { label: 'Shipped', icon: 'pi-truck', at: at('Shipped'), done: status !== 'Pending', current: status === 'Shipped' },
+      {
+        label: 'Delivered',
+        icon: 'pi-check',
+        at: at('Delivered') || this.order.deliveredAt,
+        done: !['Pending', 'Shipped'].includes(status),
+        current: status === 'Delivered',
+      },
+    ];
+    if (['Return Requested', 'Returned', 'Return Rejected'].includes(status)) {
+      const type = this.order.returnRequest?.type || 'Return';
+      steps.push({ label: `${type} requested`, icon: 'pi-replay', at: at('Return Requested'), done: true, current: status === 'Return Requested', tone: 'warn' });
+      if (status === 'Returned') {
+        steps.push({ label: type === 'Exchange' ? 'Exchange approved' : 'Returned', icon: 'pi-check-circle', at: at('Returned'), done: true, current: true });
       }
-    );
+      if (status === 'Return Rejected') {
+        steps.push({ label: 'Request declined', icon: 'pi-ban', at: at('Return Rejected'), done: true, current: true, tone: 'danger' });
+      }
+    }
+    return steps;
   }
 
   showCancelDialog() {
@@ -51,34 +138,77 @@ export class OrderDetailsComponent implements OnInit {
   confirmCancelOrder() {
     if (!this.orderId) return;
 
-    this.orderService.updateOrder(this.orderId, 'Cancelled').subscribe(
-      (updatedOrder) => {
-        this.order.status = updatedOrder.status;
+    this.orderService.cancelMyOrder(this.orderId).subscribe({
+      next: (updatedOrder) => {
+        this.order = updatedOrder;
         this.closeDialog();
+        this.toastService.success('Order cancelled', 'Your order has been cancelled.');
       },
-      (error) => {
-        console.error('Error cancelling order:', error);
-      }
-    );
+      error: (error) => {
+        this.closeDialog();
+        this.toastService.error('Could not cancel', error.error?.message || 'Please try again');
+      },
+    });
   }
 
-  getStatusIcon(status: string): string {
+  openReturnDialog(): void {
+    this.returnType = 'Return';
+    this.returnReason = '';
+    this.exchangeSize = '';
+    this.isReturnDialogVisible = true;
+  }
+
+  get canSubmitReturn(): boolean {
+    if (!this.returnReason.trim()) return false;
+    return this.returnType === 'Return' || (!!this.exchangeSize && this.exchangeSize !== this.order?.products[0]?.size);
+  }
+
+  submitReturn(): void {
+    if (!this.canSubmitReturn || this.isSubmitting) return;
+    this.isSubmitting = true;
+    this.orderService
+      .requestReturn(this.orderId, {
+        type: this.returnType,
+        reason: this.returnReason.trim(),
+        exchangeSize: this.returnType === 'Exchange' ? this.exchangeSize : undefined,
+      })
+      .subscribe({
+        next: (order) => {
+          this.isSubmitting = false;
+          this.order = order;
+          this.isReturnDialogVisible = false;
+          this.toastService.success('Request sent', `We've received your ${this.returnType.toLowerCase()} request.`);
+        },
+        error: (error) => {
+          this.isSubmitting = false;
+          this.toastService.error('Could not submit', error.error?.message || 'Please try again');
+        },
+      });
+  }
+
+  getStatusIcon(status?: string): string {
     switch (status) {
-      case 'Delivered': return 'assets/images/check.png';
-      case 'Cancelled': return 'assets/images/remove.png';
-      case 'Pending': return 'assets/images/pending.png';
+      case 'Delivered':
+      case 'Returned':
+        return 'assets/images/check.png';
+      case 'Cancelled':
+      case 'Return Rejected':
+        return 'assets/images/remove.png';
       case 'Shipped': return 'assets/images/shipped.png';
-      default: return 'assets/images/default.png';
+      default: return 'assets/images/pending.png';
     }
   }
 
-  getStatusClass(status: string): string {
+  getStatusClass(status?: string): string {
     switch (status) {
-      case 'Delivered': return 'status-delivered';
-      case 'Cancelled': return 'status-cancelled';
-      case 'Pending': return 'status-pending';
+      case 'Delivered':
+      case 'Returned':
+        return 'status-delivered';
+      case 'Cancelled':
+      case 'Return Rejected':
+        return 'status-cancelled';
       case 'Shipped': return 'status-shipped';
-      default: return '';
+      default: return 'status-pending';
     }
   }
 }

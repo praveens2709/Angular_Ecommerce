@@ -6,6 +6,12 @@
       <a routerLink="/home" class="position-relative px-2">Home</a>
       <a routerLink="/shop" routerLinkActive="active" class="position-relative px-2">Products</a>
       <a routerLink="/account" routerLinkActive="active" class="position-relative px-2">Account</a>
+      <div class="d-flex align-items-center gap-4">
+      <app-search-bar></app-search-bar>
+      <a routerLink="/account/wishlist" class="position-relative icon-link" aria-label="Wishlist">
+        <i class="pi pi-heart"></i>
+        <span *ngIf="wishlistCount > 0" class="wish-count position-absolute">{{ wishlistCount }}</span>
+      </a>
       <div class="position-relative">
         <a routerLink="/cart" routerLinkActive="active" class="position-relative">
           <i class="pi pi-shopping-bag"></i>
@@ -14,6 +20,7 @@
           class="cart-count rounded-circle bg-danger text-white fw-bold d-flex justify-content-center align-items-center position-absolute">
           {{ cartCount }}
         </div>
+      </div>
       </div>
     </div>
   </div>

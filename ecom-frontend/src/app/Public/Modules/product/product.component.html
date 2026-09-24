@@ -1,4 +1,6 @@
 <app-header></app-header>
+<!-- Fills the screen so the footer stays below the fold while content loads -->
+<div class="page-fill">
 <app-common-banner></app-common-banner>
 
 <div class="container mt-5 mb-2 animate five fadeInUp">
@@ -20,7 +22,7 @@
       </div>
       <!-- Categories Filter -->
       <p-accordion>
-        <p-accordionTab header="Categories">
+        <p-accordionTab header="Categories" [selected]="selectedCategories.length > 0">
           <ul class="list-unstyled mb-0">
             <li *ngFor="let category of categories" class="pb-2 d-flex align-items-center gap-2">
               <p-checkbox binary="true" [ngModel]="isCategorySelected(category.name)"
@@ -49,13 +51,18 @@
       <div class="product-topbar d-flex justify-content-between align-items-center">
         <p class="mb-0">{{ getDisplayedRange() }}</p>
         <div class="d-flex justify-content-between align-items-center">
-          <p class="mb-0">Sort by Price:</p>
+          <p class="mb-0">Sort by:</p>
           &nbsp;
-          <p-dropdown [options]="sortOptions" [(ngModel)]="selectedSort" placeholder="Low to High"
+          <p-dropdown [options]="sortOptions" [(ngModel)]="selectedSort" optionLabel="label" optionValue="value"
             (onChange)="applyFilters()"></p-dropdown>
         </div>
       </div>
-      <div class="row">
+      <div *ngIf="!loading && paginatedProducts.length === 0" class="text-center py-5">
+        <i class="pi pi-search fs-2 text-secondary"></i>
+        <p class="mt-3 mb-1 fw-semibold">No products match your filters</p>
+        <button type="button" class="btn btn-link text-orange p-0" (click)="clearFilters()">Clear all filters</button>
+      </div>
+      <div class="row" [class.opacity-50]="loading">
         <div class="col-lg-3 d-flex justify-content-center animated mt-3" *ngFor="let product of paginatedProducts">
           <a [routerLink]="['/product-detail', product._id]" class="product position-relative">
             <div class="product-img p-2 w-100 position-relative">
@@ -68,11 +75,15 @@
                 }">
                 {{ product.inventoryStatus }}
               </span>
-              <img [src]="product.image" alt="product image" class="w-100 h-100" />
+              <img [src]="product.image | optImg : 300" [alt]="product.name" class="w-100 h-100" loading="lazy" decoding="async" />
             </div>                        
             <div class="product-content d-flex justify-content-between align-items-center mt-2">
               <div class="flex-column w-100">
                 <h6 class="product-name">{{ product.name }}</h6>
+                <div *ngIf="product.ratingCount" class="rating-line d-flex align-items-center gap-1">
+                  <span class="rating-pill">{{ product.ratingAvg | number : '1.1-1' }} <i class="pi pi-star-fill"></i></span>
+                  <small class="text-muted">({{ product.ratingCount }})</small>
+                </div>
                 <h5 class="d-flex gap-2 price mb-0">
                   {{ product.price | currency: 'INR' }}
                   <p class="mb-0 mrp text-decoration-line-through">
@@ -80,17 +91,26 @@
                   </p>
                 </h5>                
               </div>
-              <div class="shopping-bag-icon position-absolute" style="bottom: 45px; right: 5px">
-                <p-button icon="pi pi-shopping-bag" (click)="addToCart($event, product)"></p-button>
-              </div>
+              <button
+                type="button"
+                class="wish-btn position-absolute d-flex align-items-center justify-content-center"
+                [class.active]="isWishlisted(product)"
+                [attr.aria-label]="isWishlisted(product) ? 'Remove from wishlist' : 'Save to wishlist'"
+                (click)="toggleWishlist($event, product)"
+              >
+                <i class="pi" [ngClass]="isWishlisted(product) ? 'pi-heart-fill' : 'pi-heart'"></i>
+              </button>
             </div>
           </a>
         </div>
       </div>
       <!-- Pagination -->
       <div class="divider3"></div>
-      <p-paginator [rows]="rowsPerPage" [totalRecords]="totalProducts" (onPageChange)="onPageChange($event)">
+      <p-paginator [rows]="rowsPerPage" [first]="currentPage * rowsPerPage" [totalRecords]="totalProducts" (onPageChange)="onPageChange($event)">
       </p-paginator>
     </div>
   </div>
 </div>
+</div>
+
+<app-site-footer></app-site-footer>

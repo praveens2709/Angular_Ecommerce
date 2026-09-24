@@ -1,0 +1,109 @@
+<div class="card shadow-sm border-0 rounded-3">
+  <div class="card-header bg-light d-flex justify-content-between align-items-center">
+    <h3 class="mb-0 text-primary fs-5 fw-bold">Coupons</h3>
+    <button class="btn btn-outline-primary btn-sm px-2 py-1" title="Add coupon" (click)="openDialog()">
+      <i class="pi pi-plus pt-1"></i>
+    </button>
+  </div>
+
+  <p-table [value]="coupons" [loading]="loading" [paginator]="coupons.length > 10" [rows]="10" class="align-middle">
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="py-3 px-4">Code</th>
+        <th class="py-3 px-4">Offer</th>
+        <th class="py-3 px-4">Expires</th>
+        <th class="py-3 px-4">Status</th>
+        <th class="py-3 px-4">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-coupon>
+      <tr>
+        <td class="py-3 px-4"><span class="code-chip">{{ coupon.code }}</span></td>
+        <td class="py-3 px-4">{{ describe(coupon) }}</td>
+        <td class="py-3 px-4">{{ coupon.expiresAt ? (coupon.expiresAt | date) : 'Never' }}</td>
+        <td class="py-3 px-4">
+          <p-tag *ngIf="isExpired(coupon); else liveTag" value="Expired" severity="secondary"></p-tag>
+          <ng-template #liveTag>
+            <p-tag [value]="coupon.active ? 'Active' : 'Paused'" [severity]="coupon.active ? 'success' : 'warn'"></p-tag>
+          </ng-template>
+        </td>
+        <td class="px-4">
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-primary p-0 px-2 py-1" title="Edit" (click)="openDialog(coupon)">
+              <i class="pi pi-pencil pt-1"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-secondary p-0 px-2 py-1" [title]="coupon.active ? 'Pause' : 'Activate'" (click)="toggleActive(coupon)">
+              <i class="pi pt-1" [ngClass]="coupon.active ? 'pi-pause' : 'pi-play'"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger p-0 px-2 py-1" title="Delete" (click)="deleteTarget = coupon">
+              <i class="pi pi-trash pt-1"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="5" class="text-center py-4">No coupons yet. Create one to offer discounts at checkout.</td></tr>
+    </ng-template>
+  </p-table>
+
+  <p-dialog [(visible)]="dialogVisible" [modal]="true" [header]="editingId ? 'Edit Coupon' : 'Add Coupon'" [style]="{ width: '560px' }">
+    <form [formGroup]="form" (ngSubmit)="save()" class="d-flex flex-column gap-3">
+      <div class="d-flex gap-3">
+        <div class="form-group flex-fill">
+          <label for="code">Code</label>
+          <input id="code" class="form-control text-uppercase" formControlName="code" placeholder="SAVE10" />
+          <small *ngIf="form.get('code')?.invalid && form.get('code')?.touched" class="text-danger">3–20 letters, numbers, - or _</small>
+        </div>
+        <div class="form-group flex-fill">
+          <label for="type">Type</label>
+          <select id="type" class="form-control" formControlName="type">
+            <option value="PERCENT">Percentage off</option>
+            <option value="FLAT">Flat ₹ off</option>
+          </select>
+        </div>
+      </div>
+      <div class="d-flex gap-3">
+        <div class="form-group flex-fill">
+          <label for="value">{{ form.value.type === 'PERCENT' ? 'Percent (%)' : 'Amount (₹)' }}</label>
+          <input id="value" type="number" min="1" class="form-control" formControlName="value" />
+        </div>
+        <div class="form-group flex-fill">
+          <label for="minOrder">Minimum order (₹)</label>
+          <input id="minOrder" type="number" min="0" class="form-control" formControlName="minOrder" />
+        </div>
+        <div class="form-group flex-fill" *ngIf="form.value.type === 'PERCENT'">
+          <label for="maxDiscount">Max discount (₹, 0 = none)</label>
+          <input id="maxDiscount" type="number" min="0" class="form-control" formControlName="maxDiscount" />
+        </div>
+      </div>
+      <div class="d-flex gap-3">
+        <div class="form-group flex-fill">
+          <label for="expiresAt">Expires on (optional)</label>
+          <input id="expiresAt" type="date" class="form-control" formControlName="expiresAt" />
+        </div>
+        <div class="form-group flex-fill d-flex align-items-end">
+          <label class="d-flex align-items-center gap-2 mb-2">
+            <input type="checkbox" formControlName="active" /> Active
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="description">Description shown to shoppers (optional)</label>
+        <input id="description" class="form-control" formControlName="description" placeholder="Auto-generated if left empty" />
+      </div>
+      <div class="d-flex justify-content-end gap-2">
+        <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Save</button>
+        <button type="button" class="btn btn-secondary" (click)="dialogVisible = false">Cancel</button>
+      </div>
+    </form>
+  </p-dialog>
+
+  <p-dialog [visible]="!!deleteTarget" (visibleChange)="!$event && (deleteTarget = null)" [modal]="true" header="Delete coupon" [style]="{ width: '440px' }">
+    <p>Delete coupon <strong>{{ deleteTarget?.code }}</strong>? Past orders keep their discount.</p>
+    <div class="d-flex justify-content-end gap-2">
+      <button class="btn btn-danger" (click)="confirmDelete()">Delete</button>
+      <button class="btn btn-secondary" (click)="deleteTarget = null">Cancel</button>
+    </div>
+  </p-dialog>
+</div>

@@ -40,30 +40,45 @@
             ],
             "styles": [
               "src/styles.css",
-              "node_modules/primeng/resources/themes/saga-blue/theme.css",
-              "node_modules/primeng/resources/primeng.min.css",
               "node_modules/primeicons/primeicons.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css"
             ],
             "scripts": [
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
-            ]
+            ],
+            "server": "src/main.server.ts",
+            "security": {
+              "allowedHosts": [
+                "localhost",
+                "127.0.0.1"
+              ]
+            },
+            "prerender": false,
+            "ssr": {
+              "entry": "src/server.ts"
+            }
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "2.5MB",
+                  "maximumError": "3MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "8kB",
+                  "maximumError": "16kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ]
             },
             "development": {
               "optimization": false,

@@ -98,3 +98,8 @@
     background-color: rgb(183, 29, 12);
     color: #fff;
 }
+.stock-warn {
+  color: #c2461f;
+  font-weight: 600;
+  font-size: 13px;
+}

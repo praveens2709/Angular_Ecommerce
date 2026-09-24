@@ -1,51 +1,356 @@
-<div class="page-container d-flex flex-column h-100">
+<div class="page-container d-flex flex-column">
   <app-header></app-header>
-  <div class="container-fluid w-100 product-details-div d-flex animate three fadeInUp flex-grow-1 position-relative">
+
+  <div *ngIf="isLoading" class="state-box d-flex flex-column justify-content-center align-items-center flex-grow-1">
+    <p-progressSpinner strokeWidth="4" styleClass="spinner"></p-progressSpinner>
+  </div>
+
+  <div *ngIf="!isLoading && notFound" class="state-box d-flex flex-column justify-content-center align-items-center flex-grow-1 gap-2">
+    <i class="pi pi-exclamation-circle fs-1 price"></i>
+    <h5 class="mb-0">Product not found</h5>
+    <p class="text-secondary mb-2">It may have been removed or the link is incorrect.</p>
+    <a routerLink="/shop" class="text-orange fw-semibold">Continue shopping</a>
+  </div>
+
+  <div *ngIf="!isLoading && product" class="product-page d-flex animate three fadeInUp flex-grow-1 position-relative">
     <app-back-button></app-back-button>
-    <!-- Main Image Container -->
-    <div class="product-image-container w-100">
-      <div class="product-bg position-relative d-flex justify-content-center align-items-center">
-        <h1 class="position-absolute dope-text">
+
+    <!-- Left: brand panel with vertical logo, thumbnails and main image -->
+    <div class="left-product position-relative">
+      <div class="product-bg position-relative h-100">
+        <h1 class="dope-text position-absolute mb-0 user-select-none" aria-hidden="true">
           <span class="first-letter">D</span>opeShop<span class="last-letter">e</span>
-      </h1>      
-        <img [src]="product?.image" alt="{{ product?.name }}" class="position-absolute w-100" />
+        </h1>
+
+        <!-- Own photos when there are several, otherwise colour options -->
+        <div class="left-images d-flex flex-column gap-3 position-absolute" *ngIf="gallery.length > 1; else variantThumbs">
+          <button
+            *ngFor="let image of gallery; let i = index"
+            type="button"
+            class="more-imgs p-1"
+            [class.active]="image === activeImage"
+            [attr.aria-label]="'Photo ' + (i + 1)"
+            (click)="activeImage = image"
+          >
+            <img [src]="image | optImg : 110" [alt]="product.name + ' photo ' + (i + 1)" class="w-100 h-100" decoding="async" />
+          </button>
+        </div>
+        <ng-template #variantThumbs>
+          <div class="left-images d-flex flex-column gap-3 position-absolute" *ngIf="variants.length > 1">
+            <button
+              *ngFor="let variant of variants"
+              type="button"
+              class="more-imgs p-1"
+              [class.active]="variant._id === product._id"
+              [attr.aria-label]="'View ' + (variant.color || variant.name)"
+              (click)="selectVariant(variant)"
+            >
+              <img [src]="variant.image | optImg : 110" [alt]="variant.name" class="w-100 h-100" decoding="async" />
+            </button>
+          </div>
+        </ng-template>
+
+        <img [src]="(activeImage || product.image) | optImg : 560" [alt]="product.name" class="main-img position-absolute" fetchpriority="high" />
       </div>
     </div>
-    <!-- Right Product Details -->
-    <div class="product-details w-100">
-      <h3 class="dopeshope fs-6 mb-2">DopeShope</h3>
-      <h6 class="fw-normal fs-3 pb-1 border-bottom">{{ product?.name }}</h6>
-      <p class="discount-percentage bg-danger text-white px-1 mb-0">-{{ product?.discount }}%</p>
-      <div class="d-flex flex-column">
-        <h5 class="d-flex gap-3 price fw-semibold mt-1 mb-0">{{ product?.price | currency : "INR" }}<p class="fw-lighter mb-0 mrp text-decoration-line-through">{{ product?.mrp | currency : "INR" }}</p></h5>
-        <h6 class="price-info fw-semibold mb-2">Inclusive of all taxes</h6>
-      </div>
-      <!-- Stock Status -->
-      <div class="stock-status d-flex align-items-center mb-3">
-        <span 
-          class="stock-label text-white"
-          [ngClass]="{
-            'bg-green': product?.inventoryStatus === 'INSTOCK',
-            'bg-yellow': product?.inventoryStatus === 'LOWSTOCK',
-            'bg-red': product?.inventoryStatus === 'OUTOFSTOCK'
-          }">
-          {{ getReadableStatus(product?.inventoryStatus) }}
-        </span>
-      </div>
-      <!-- Product Details -->
-      <div class="d-flex flex-column">
-        <p class="d-flex align-items-center gap-2 fw-semibold mt-1 mb-1">
-          Product Details
-          <i class="pi pi-tag description-icon fw-semibold"></i>
-        </p>
-        <h6 class="description fw-semibold mb-3 pb-2 border-bottom">{{ product?.description }}</h6>
-      </div>
-      <div (click)="addToCart(product)" class="add-to-cart d-flex align-items-center justify-content-around gap-2">
-        <button class="icon-btn border-0">
-          <i class="pi pi-shopping-bag"></i>
+
+    <!-- Right: details -->
+    <div class="right-product d-flex flex-column">
+      <h3 class="dopeshope fs-4 mb-0">{{ product.brand || 'DopeShope' }}</h3>
+      <div class="d-flex justify-content-between align-items-start gap-3">
+        <h6 class="product-name fw-normal fs-4 mb-2">{{ product.name }}<span *ngIf="product.color" class="color-name"> · {{ product.color }}</span></h6>
+        <button type="button" class="wish-toggle" [class.active]="isWishlisted" (click)="toggleWishlist()"
+          [attr.aria-label]="isWishlisted ? 'Remove from wishlist' : 'Save to wishlist'">
+          <i class="pi" [ngClass]="isWishlisted ? 'pi-heart-fill' : 'pi-heart'"></i>
         </button>
-        <span class="cart-text fw-medium">Add to Cart</span>
+      </div>
+      <a *ngIf="product.ratingCount" href="#reviews" (click)="$event.preventDefault(); scrollToReviews()" class="rating-link d-flex align-items-center gap-2 mb-2">
+        <span class="rating-pill">{{ product.ratingAvg | number : '1.1-1' }} <i class="pi pi-star-fill"></i></span>
+        <span class="text-secondary">{{ product.ratingCount }} {{ product.ratingCount === 1 ? 'rating' : 'ratings' }}</span>
+      </a>
+
+      <div class="prices d-flex align-items-center gap-2 pt-2 border-top-brand">
+        <h5 class="price fw-semibold my-1 pe-1">{{ product.price | currency : 'INR' : 'symbol' : '1.0-0' }}</h5>
+        <h6 class="my-1 fw-light">MRP</h6>
+        <h6 class="mrp my-1 fw-light">{{ product.mrp | currency : 'INR' : 'symbol' : '1.0-0' }}</h6>
+        <span *ngIf="product.discount" class="discount fw-semibold">({{ product.discount }}% OFF)</span>
+      </div>
+      <p class="price-info fw-semibold mb-2">Inclusive of all taxes</p>
+
+      <span
+        class="stock-label text-white align-self-start mb-3"
+        [ngClass]="{
+          'bg-green': product.inventoryStatus === 'INSTOCK',
+          'bg-yellow': product.inventoryStatus === 'LOWSTOCK',
+          'bg-red': product.inventoryStatus === 'OUTOFSTOCK'
+        }"
+      >{{ getReadableStatus(product.inventoryStatus) }}</span>
+
+      <!-- Colours -->
+      <div class="color-options mb-3" *ngIf="variants.length > 1">
+        <p class="section-title mb-2">More Colors<span *ngIf="product.color" class="fw-normal text-secondary">: {{ product.color }}</span></p>
+        <div class="d-flex gap-2 flex-wrap">
+          <button
+            *ngFor="let variant of variants"
+            type="button"
+            class="color-imgs p-1"
+            [class.active]="variant._id === product._id"
+            [attr.aria-label]="'Colour option for ' + variant.name"
+            (click)="selectVariant(variant)"
+          >
+            <img [src]="variant.image | optImg : 110" [alt]="variant.name" class="w-100 h-100" decoding="async" />
+          </button>
+        </div>
+      </div>
+
+      <!-- Sizes -->
+      <div class="sizes">
+        <div class="d-flex align-items-center gap-5">
+          <p class="section-title mb-0">Select Size</p>
+          <button type="button" class="size-chart d-flex align-items-center gap-1" (click)="isSizeChartVisible = true">
+            SIZE CHART <i class="pi pi-angle-right"></i>
+          </button>
+        </div>
+        <div class="d-flex align-items-center gap-2 mt-2 flex-wrap">
+          <button
+            *ngFor="let row of sizeChart"
+            type="button"
+            class="size-box d-flex justify-content-center align-items-center rounded-circle fw-bold position-relative"
+            [class.active]="selectedSize === row.size"
+            [class.sold-out]="isSizeSoldOut(row.size)"
+            [disabled]="isOutOfStock || isSizeSoldOut(row.size)"
+            [attr.title]="isSizeSoldOut(row.size) ? 'Sold out' : null"
+            (click)="selectSize(row.size)"
+          >
+            {{ row.size }}
+            <span *ngIf="!isSizeSoldOut(row.size) && stockLeft(row.size) !== null && stockLeft(row.size)! <= 3" class="few-left">{{ stockLeft(row.size) }} left</span>
+          </button>
+        </div>
+        <small *ngIf="showSizeError" class="text-danger d-block mt-1">Please select a size</small>
+        <small *ngIf="lowStockMessage" class="low-stock d-block mt-2"><i class="pi pi-bolt"></i> {{ lowStockMessage }}</small>
+      </div>
+
+      <!-- Actions -->
+      <div class="d-flex gap-2 mt-3 actions">
+        <button
+          type="button"
+          class="bag-btn d-flex justify-content-center align-items-center gap-2"
+          [disabled]="isOutOfStock"
+          (click)="isInBag ? goToBag() : addToBag()"
+        >
+          <i class="pi" [ngClass]="isInBag ? 'pi-arrow-right' : 'pi-shopping-bag'"></i>
+          <span class="fw-semibold">{{ isOutOfStock ? 'OUT OF STOCK' : isInBag ? 'GO TO BAG' : 'ADD TO BAG' }}</span>
+        </button>
+        <button
+          type="button"
+          class="bag-btn outline d-flex justify-content-center align-items-center gap-2"
+          [disabled]="isOutOfStock"
+          (click)="addToBag(true)"
+        >
+          <i class="pi pi-bolt"></i>
+          <span class="fw-semibold">BUY NOW</span>
+        </button>
+      </div>
+
+      <!-- Delivery -->
+      <div class="delivery-options pb-3 mt-4">
+        <p class="section-title mb-2">Delivery <i class="pi pi-truck ms-1 price"></i></p>
+        <div
+          class="pincode-check rounded-1 d-flex align-items-center justify-content-between cursor-pointer"
+          (click)="openPincodeDialog()"
+        >
+          <div class="d-flex gap-2 align-items-center">
+            <ng-container *ngIf="pincode; else noPincode">
+              <p class="mb-0 fw-semibold">{{ pincode }}</p>
+              <span *ngIf="delivery?.city" class="place text-secondary">{{ delivery?.city }}, {{ delivery?.state }}</span>
+              <i class="pi" [ngClass]="delivery?.deliverable ? 'pi-check-circle text-success' : 'pi-times-circle text-danger'"></i>
+            </ng-container>
+            <ng-template #noPincode>
+              <p class="mb-0 text-secondary">Enter pincode</p>
+            </ng-template>
+          </div>
+          <button class="change-btn border-0 bg-transparent fw-semibold" type="button">
+            {{ pincode ? 'Change' : 'Check' }}
+          </button>
+        </div>
+        <div class="delivery-line d-flex align-items-center gap-3 mt-3">
+          <i class="pi pi-calendar"></i>
+          <p class="mb-0" *ngIf="pincode && delivery?.deliverable; else askPincode">
+            Get it by <span class="fw-semibold">{{ estimatedDelivery | date : 'EEE, MMM d' }}</span>
+          </p>
+          <ng-template #askPincode>
+            <p class="mb-0" [class.text-danger]="pincode && !delivery?.deliverable">
+              {{ pincode && delivery && !delivery.deliverable ? (delivery.message || "We don't deliver to this pincode yet") : 'Enter a pincode to see the delivery date' }}
+            </p>
+          </ng-template>
+        </div>
+        <div class="delivery-line d-flex align-items-center gap-3 mt-2">
+          <i class="pi pi-wallet"></i>
+          <p class="mb-0">Pay on delivery available</p>
+        </div>
+        <div class="delivery-line d-flex align-items-center gap-3 mt-2">
+          <i class="pi pi-replay"></i>
+          <p class="mb-0">7 days return &amp; exchange available</p>
+        </div>
+      </div>
+
+      <!-- Details -->
+      <div class="mt-3">
+        <p class="section-title mb-1">Product Details <i class="pi pi-tag ms-1 price"></i></p>
+        <p class="description mb-2">{{ product.description }}</p>
+        <p class="description mb-0 text-secondary">
+          Category: <span class="text-dark">{{ product.category }}</span>
+          <span class="mx-2">|</span>
+          Sold by: <span class="text-dark text-uppercase">{{ product.seller }}</span>
+        </p>
       </div>
     </div>
   </div>
+  <!-- Reviews -->
+  <section *ngIf="!isLoading && product" id="reviews" class="reviews container py-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+      <h4 class="mb-0 fw-bold">Ratings &amp; Reviews</h4>
+      <button type="button" class="bag-btn outline review-btn" (click)="openReviewForm()">
+        <i class="pi pi-pencil me-2"></i>{{ myReview ? 'Edit your review' : 'Write a review' }}
+      </button>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="summary p-4 text-center">
+          <div class="avg">{{ (product.ratingAvg || 0) | number : '1.1-1' }}<i class="pi pi-star-fill"></i></div>
+          <p class="text-secondary mb-3">{{ product.ratingCount || 0 }} {{ product.ratingCount === 1 ? 'rating' : 'ratings' }}</p>
+          <div *ngFor="let row of ratingBreakdown" class="bar-row d-flex align-items-center gap-2">
+            <span class="small">{{ row.stars }}<i class="pi pi-star-fill ms-1"></i></span>
+            <div class="bar flex-grow-1"><span [style.width.%]="row.percent"></span></div>
+            <span class="small text-secondary count">{{ row.count }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-8">
+        <form *ngIf="showReviewForm" class="review-form p-3 mb-4" (ngSubmit)="submitReview()">
+          <p class="fw-semibold mb-2">Your rating</p>
+          <p-rating [(ngModel)]="reviewRating" name="rating" [stars]="5"></p-rating>
+          <textarea class="form-control mt-3" rows="3" name="comment" maxlength="1000" placeholder="What did you like or dislike? How was the fit?"
+            [(ngModel)]="reviewComment"></textarea>
+          <div class="d-flex gap-2 mt-3">
+            <button type="submit" class="bag-btn px-4" [disabled]="reviewRating < 1 || isSavingReview">Post review</button>
+            <button type="button" class="bag-btn outline px-4" (click)="showReviewForm = false">Cancel</button>
+          </div>
+        </form>
+
+        <p *ngIf="reviews.length === 0 && !showReviewForm" class="text-secondary">No reviews yet. Be the first to share your thoughts.</p>
+
+        <div *ngFor="let review of reviews" class="review py-3">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="rating-pill">{{ review.rating }} <i class="pi pi-star-fill"></i></span>
+            <span class="fw-semibold">{{ review.userName }}</span>
+            <span *ngIf="review.verifiedPurchase" class="verified"><i class="pi pi-verified"></i> Verified buyer</span>
+            <small class="text-secondary ms-auto">{{ review.createdAt | date : 'mediumDate' }}</small>
+          </div>
+          <p *ngIf="review.comment" class="mb-1 description">{{ review.comment }}</p>
+          <button *ngIf="myReview?._id === review._id" type="button" class="link-btn" (click)="deleteReview()">Delete my review</button>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
+
+<!-- Size chart -->
+<p-dialog
+  [(visible)]="isSizeChartVisible"
+  header="Size Chart"
+  [modal]="true"
+  [dismissableMask]="true"
+  [draggable]="false"
+  [style]="{ width: '440px' }"
+  styleClass="pd-dialog"
+>
+  <table class="size-table w-100 text-center">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Size</th>
+        <th>Chest (in)</th>
+        <th>Waist (in)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        *ngFor="let row of sizeChart"
+        class="cursor-pointer"
+        [class.active]="selectedSize === row.size"
+        [class.sold-out]="isSizeSoldOut(row.size)"
+        (click)="selectSize(row.size)"
+      >
+        <td>
+          <p-radioButton name="chartSize" [value]="row.size" [ngModel]="selectedSize" (onClick)="selectSize(row.size)"></p-radioButton>
+        </td>
+        <td class="fw-semibold">{{ row.size }}</td>
+        <td>{{ row.chest }}</td>
+        <td>{{ row.waist }}<small *ngIf="isSizeSoldOut(row.size)" class="d-block text-danger">Sold out</small></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="d-flex gap-2 mt-3">
+    <button type="button" class="bag-btn w-100 d-flex justify-content-center align-items-center gap-2"
+      [disabled]="isOutOfStock" (click)="addToBag()">
+      <i class="pi pi-shopping-bag"></i><span class="fw-semibold">ADD TO BAG</span>
+    </button>
+  </div>
+</p-dialog>
+
+<!-- Pincode -->
+<p-dialog
+  [(visible)]="isPincodeDialogVisible"
+  header="Check delivery info"
+  [modal]="true"
+  [dismissableMask]="true"
+  [draggable]="false"
+  [style]="{ width: '440px' }"
+  styleClass="pd-dialog"
+>
+  <form (ngSubmit)="checkPincode()" class="pincode-form border rounded-1 d-flex justify-content-between align-items-center px-2">
+    <input
+      type="text"
+      inputmode="numeric"
+      name="pincode"
+      class="pincode-input border-0 flex-grow-1 py-2"
+      placeholder="Enter a pincode"
+      [value]="pincodeInput"
+      (input)="onPincodeInput($event)"
+      autocomplete="postal-code"
+    />
+    <button type="submit" class="border-0 bg-transparent fw-semibold price" [disabled]="checkingPincode">
+      {{ checkingPincode ? 'Checking…' : 'Check' }}
+    </button>
+  </form>
+  <small *ngIf="pincodeError" class="text-danger d-block mt-1">{{ pincodeError }}</small>
+
+  <ng-container *ngIf="savedAddresses.length > 0">
+    <div class="or-divider d-flex align-items-center gap-2 my-3">
+      <span class="flex-grow-1 border-bottom"></span>
+      <span class="text-secondary small">OR</span>
+      <span class="flex-grow-1 border-bottom"></span>
+    </div>
+    <p class="fw-semibold price mb-2">Select a saved address</p>
+    <div
+      *ngFor="let address of savedAddresses"
+      class="choose-add d-flex align-items-center justify-content-between p-2 mb-2 rounded-1 cursor-pointer"
+      [class.active]="address.postalCode === pincode"
+      (click)="selectAddress(address)"
+    >
+      <div>
+        <p class="d-flex fw-semibold gap-2 mb-1 align-items-center">
+          {{ address.fullName }}, {{ address.postalCode }}
+          <span class="address-type rounded-4 px-2">{{ address.type }}</span>
+        </p>
+        <p class="mb-0 small text-secondary">{{ address.street }}, {{ address.city }}</p>
+      </div>
+      <i *ngIf="address.postalCode === pincode" class="pi pi-check-circle text-success"></i>
+    </div>
+  </ng-container>
+</p-dialog>
+
+<app-site-footer></app-site-footer>

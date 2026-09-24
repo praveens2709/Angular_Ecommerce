@@ -1,21 +1,21 @@
-<div class="profile-box d-flex justify-content-between p-4 mt-2">
-  <div class="d-flex align-items-center gap-4">
-    <div class="profile-img pt-2 px-1">
-      <img src='assets/images/user-profile.png' alt="profile-img" class="w-100 h-100" />
-    </div>
-    <div class="fw-normal email-add">{{ email }}</div>
+<div class="profile-box d-flex flex-wrap gap-3 justify-content-between align-items-center">
+  <div>
+    <h6 class="mb-1">Account overview</h6>
+    <p *ngIf="!userId" class="mb-0 text-secondary">Sign in to see your orders, wishlist and saved details.</p>
+    <p *ngIf="userId && email" class="mb-0 text-secondary">{{ email }}</p>
+    <div *ngIf="userId && !email" class="skeleton skeleton-line mb-0" style="width: 180px"></div>
   </div>
-  <button class="edit-profile" [routerLink]="'/account/profile/edit'" [class.d-none]="!userId">
-    Edit Profile
-  </button>
+  <button *ngIf="userId" class="edit-link" [routerLink]="'/account/profile/edit'"><i class="pi pi-pencil me-2"></i>Edit profile</button>
+  <a *ngIf="!userId" routerLink="/public/auth" class="edit-link"><i class="pi pi-sign-in me-2"></i>Sign in</a>
 </div>
 
-<div class="row options">
-  <div class="col-lg-4" *ngFor="let option of overviewOptions" (click)="navigateToSection(option.section)">
-    <div class="option px-3 d-flex justify-content-center align-items-center flex-column cursor-pointer">
-      <img [src]="option.image" [alt]="option.altText" class="pb-1" />
-      <p class="fw-normal text-black mb-0 pb-0">{{ option.title }}</p>
-      <span class="text-center mt-0">{{ option.description }}</span>
-    </div>
+<div class="row g-3 mt-1">
+  <div class="col-sm-6 col-xl-4" *ngFor="let option of overviewOptions">
+    <button type="button" class="tile w-100 text-start" (click)="navigateToSection(option.section)">
+      <span class="tile-icon"><i class="pi" [ngClass]="option.icon"></i></span>
+      <span class="tile-title">{{ option.title }}</span>
+      <span class="tile-text">{{ option.description }}</span>
+      <i class="pi pi-arrow-right tile-arrow"></i>
+    </button>
   </div>
 </div>

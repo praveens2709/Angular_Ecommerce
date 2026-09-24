@@ -1,42 +1,22 @@
 <div class="dashboard-container">
-  <!-- Info Cards Section -->
+  <!-- KPI cards -->
   <div class="card-container">
-    <div class="card blue-card">
-      <h3>Products</h3>
+    <div class="card purple-card">
+      <h3>Revenue</h3>
       <div class="card-content d-flex align-items-center justify-content-between mb-2">
-        <i class="pi pi-shopping-cart"></i>
-        <h4 class="mb-0">{{ dashboardData.products.total }}</h4>
+        <i class="pi pi-indian-rupee"></i>
+        <h4 class="mb-0">{{ dashboardData.revenue.total | currency : 'INR' : 'symbol' : '1.0-0' }}</h4>
       </div>
       <div class="bottom-content d-flex align-items-center justify-content-between">
-        <small>In Stock</small>
-        <small>{{ dashboardData.products.instock }}</small>
+        <small>Paid orders</small>
+        <small>{{ dashboardData.revenue.orders }}</small>
       </div>
       <div class="bottom-content d-flex align-items-center justify-content-between">
-        <small>Low Stock</small>
-        <small>{{ dashboardData.products.lowstock }}</small>
-      </div>
-      <div class="bottom-content d-flex align-items-center justify-content-between">
-        <small>Out of Stock</small>
-        <small>{{ dashboardData.products.outOfStock }}</small>
-      </div>
-    </div>    
-    
-    <div class="card green-card">
-      <h3>Categories</h3>
-      <div class="card-content d-flex align-items-center justify-content-between mb-2">
-        <i class="pi pi-tag"></i>
-        <h4 class="mb-0">{{ dashboardData.categories.total }}</h4>
-      </div>
-      <div class="bottom-content d-flex align-items-center justify-content-between">
-        <small>Active</small>
-        <small>{{ dashboardData.categories.active }}</small>
-      </div>
-      <div class="bottom-content d-flex align-items-center justify-content-between">
-        <small>Inactive</small>
-        <small>{{ dashboardData.categories.inactive }}</small>
+        <small>Average order</small>
+        <small>{{ dashboardData.revenue.averageOrder | currency : 'INR' : 'symbol' : '1.0-0' }}</small>
       </div>
     </div>
-    
+
     <div class="card yellow-card">
       <h3>Orders</h3>
       <div class="card-content d-flex align-items-center justify-content-between mb-2">
@@ -48,15 +28,31 @@
         <small>{{ dashboardData.orders.pending }}</small>
       </div>
       <div class="bottom-content d-flex align-items-center justify-content-between">
-        <small>Completed</small>
+        <small>Delivered</small>
         <small>{{ dashboardData.orders.completed }}</small>
       </div>
     </div>
-    
-    <div class="card red-card">
-      <h3>Users</h3>
+
+    <div class="card blue-card">
+      <h3>Products</h3>
       <div class="card-content d-flex align-items-center justify-content-between mb-2">
-        <i class="pi pi-chart-line"></i>
+        <i class="pi pi-shopping-cart"></i>
+        <h4 class="mb-0">{{ dashboardData.products.total }}</h4>
+      </div>
+      <div class="bottom-content d-flex align-items-center justify-content-between">
+        <small>Low stock</small>
+        <small>{{ dashboardData.products.lowstock }}</small>
+      </div>
+      <div class="bottom-content d-flex align-items-center justify-content-between">
+        <small>Out of stock</small>
+        <small>{{ dashboardData.products.outOfStock }}</small>
+      </div>
+    </div>
+
+    <div class="card red-card">
+      <h3>Customers</h3>
+      <div class="card-content d-flex align-items-center justify-content-between mb-2">
+        <i class="pi pi-users"></i>
         <h4 class="mb-0">{{ dashboardData.users.total }}</h4>
       </div>
       <div class="bottom-content d-flex align-items-center justify-content-between">
@@ -64,24 +60,59 @@
         <small>{{ dashboardData.users.active }}</small>
       </div>
       <div class="bottom-content d-flex align-items-center justify-content-between">
-        <small>Inactive</small>
-        <small>{{ dashboardData.users.inactive }}</small>
+        <small>Categories</small>
+        <small>{{ dashboardData.categories.active }} active</small>
       </div>
     </div>
-    
-
   </div>
-  <!-- Charts Section -->
-  <!-- <div class="chart-container">
-    <div class="chart-card">
-      <p-chart
-        type="line"
-        [data]="lineChartData"
-        [options]="lineChartOptions"
-      ></p-chart>
+
+  <!-- Charts -->
+  <div class="chart-container">
+    <div class="chart-card sales">
+      <h5 class="mb-3">Last 14 days</h5>
+      <div class="chart-box">
+        <p-chart *ngIf="salesChart" type="bar" [data]="salesChart" [options]="salesOptions" height="280px"></p-chart>
+      </div>
     </div>
     <div class="chart-card">
-      <p-chart type="pie" [data]="pieChartData"></p-chart>
+      <h5 class="mb-3">Orders by status</h5>
+      <div class="chart-box">
+        <p-chart *ngIf="statusChart && hasOrders" type="doughnut" [data]="statusChart" [options]="statusOptions" height="280px"></p-chart>
+        <p *ngIf="!loading && !hasOrders" class="text-muted text-center pt-5">No orders yet.</p>
+      </div>
     </div>
-  </div> -->
+  </div>
+
+  <!-- Lists -->
+  <div class="chart-container">
+    <div class="chart-card">
+      <h5 class="mb-3">Top products</h5>
+      <p *ngIf="!dashboardData.topProducts.length" class="text-muted mb-0">Sales will show up here.</p>
+      <div *ngFor="let p of dashboardData.topProducts; let i = index" class="list-row d-flex align-items-center gap-3">
+        <span class="rank">{{ i + 1 }}</span>
+        <img [src]="p.image || 'assets/images/placeholder.png'" alt="" class="thumb" />
+        <div class="flex-fill">
+          <div class="fw-semibold">{{ p.name }}</div>
+          <small class="text-muted">{{ p.quantity }} sold</small>
+        </div>
+        <span class="fw-semibold">{{ p.revenue | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Low stock</h5>
+        <a routerLink="/admin/products" class="small">Manage stock</a>
+      </div>
+      <p *ngIf="!dashboardData.lowStock.length" class="text-muted mb-0">No sizes are running low. Products need stock tracking turned on to appear here.</p>
+      <div *ngFor="let p of dashboardData.lowStock" class="list-row d-flex align-items-center gap-3">
+        <img [src]="p.image || 'assets/images/placeholder.png'" alt="" class="thumb" />
+        <div class="flex-fill">
+          <div class="fw-semibold">{{ p.name }}</div>
+          <div class="d-flex flex-wrap gap-1 mt-1">
+            <span *ngFor="let s of p.sizes" class="size-chip" [class.out]="s.left === 0">{{ s.size }}: {{ s.left }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

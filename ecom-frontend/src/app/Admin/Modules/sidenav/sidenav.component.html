@@ -40,19 +40,14 @@
 
   <!-- Header -->
   <div class="header position-fixed top-0 border-bottom px-4 py-2 d-flex align-items-center justify-content-between">
-    <div class="input-group w-50">
-      <input type="text" class="form-control" placeholder="Search..." />
-      <button class="btn btn-outline-secondary">
-        <i class="pi pi-search text-white pt-1"></i>
-      </button>
-    </div>
+    <div class="text-white fw-semibold">DopeShope Admin</div>
   
     <div class="d-flex align-items-center gap-3">
-      <button class="btn btn-outline-secondary rounded-circle pt-2">
-        <i class="pi pi-bell text-white"></i>
-      </button>
-      <button class="btn btn-outline-secondary rounded-circle pt-2">
-        <i class="pi pi-user text-white"></i>
+      <a routerLink="/home" target="_blank" class="btn btn-outline-secondary rounded-circle pt-2" title="View store">
+        <i class="pi pi-external-link text-white"></i>
+      </a>
+      <button class="btn btn-outline-secondary rounded-circle pt-2" title="Logout" (click)="logout()">
+        <i class="pi pi-sign-out text-white"></i>
       </button>
     </div>
   </div>

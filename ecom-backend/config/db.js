@@ -10,6 +10,12 @@ const connectDB = async () => {
     console.log("MongoDB Connected ✅");
   } catch (error) {
     console.error("MongoDB Connection Error ❌", error.message);
+    if (/port number|bad auth|URI malformed/i.test(error.message)) {
+      console.error(
+        "Check MONGODB_URI: use the Atlas *database user* credentials, and URL-encode " +
+        "special characters in the username/password (e.g. '@' -> '%40')."
+      );
+    }
     process.exit(1);
   }
 };

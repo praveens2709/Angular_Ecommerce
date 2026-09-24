@@ -10,14 +10,16 @@ import { AuthService } from '../../../../Admin/auth/Services/auth-service.servic
   styleUrl: './overview.component.css'
 })
 export class OverviewComponent implements OnInit {
-  email: string = 'Guest';
+  email = '';
   userId: string | null = null;
 
   overviewOptions = [
-    { section: 'orders', image: './assets/images/orders.png', altText: 'orders', title: 'Orders', description: 'Check your order status' },
-    { section: 'addresses', image: './assets/images/address.png', altText: 'addresses', title: 'Addresses', description: 'Save addresses for a hassle-free checkout' },
-    { section: 'cards', image: './assets/images/saved-cards.png', altText: 'cards', title: 'Saved Cards', description: 'Save your cards for faster checkout' },
-    { section: 'profile', image: './assets/images/profile-details.png', altText: 'profile details', title: 'Profile', description: 'Change your profile details' },
+    { section: 'orders', icon: 'pi-box', title: 'Orders', description: 'Track, cancel or return your orders' },
+    { section: 'wishlist', icon: 'pi-heart', title: 'Wishlist', description: 'Products you saved for later' },
+    { section: 'addresses', icon: 'pi-map-marker', title: 'Addresses', description: 'Save addresses for a faster checkout' },
+    { section: 'cards', icon: 'pi-credit-card', title: 'Saved Cards', description: 'Manage your saved cards' },
+    { section: 'profile', icon: 'pi-user-edit', title: 'Profile', description: 'Update your name, email and phone' },
+    { section: 'contact', icon: 'pi-comments', title: 'Help & Support', description: 'Questions? We are happy to help' },
   ];
 
   constructor(private router: Router, private usersService: UsersService, private authService: AuthService) {}
@@ -27,6 +29,7 @@ export class OverviewComponent implements OnInit {
     this.userId = userData.id;
     
     if (this.userId) {
+      this.email = this.usersService.profiles.peek(this.userId)?.email ?? '';
       this.usersService.getUserById(this.userId).subscribe((user) => {
         if (user) {
           this.email = user.email;
@@ -38,6 +41,8 @@ export class OverviewComponent implements OnInit {
   navigateToSection(section: string): void {
     const routeMapping: { [key: string]: string } = {
       orders: '/account/orders',
+      wishlist: '/account/wishlist',
+      contact: '/contact',
       addresses: '/account/addresses',
       cards: '/account/cards',
       profile: '/account/profile',

@@ -1,0 +1,255 @@
+<app-header></app-header>
+<!-- Fills the screen so the footer stays below the fold while content loads -->
+<div class="page-fill">
+
+<ng-container *ngIf="{ page: page$ | async, store: store$ | async } as vm">
+  <section class="info-hero">
+    <div class="container">
+      <span class="eyebrow">{{ vm.page === 'about' ? 'Our Story' : 'Policies' }}</span>
+      <h1>{{ titleFor(vm.page!) }}</h1>
+      <p *ngIf="vm.page !== 'about'" class="mb-0">Last updated {{ lastUpdated | date : 'longDate' }}</p>
+    </div>
+  </section>
+
+  <div class="container info-body" *ngIf="vm.store as store">
+    <div class="row g-4">
+      <aside class="col-lg-3">
+        <nav class="side-nav">
+          <a *ngFor="let link of links" [routerLink]="link.path" [class.active]="link.page === vm.page">{{ link.label }}</a>
+          <a routerLink="/contact">Contact Us</a>
+        </nav>
+      </aside>
+
+      <article class="col-lg-9 content" [ngSwitch]="vm.page">
+        <!-- ================= ABOUT ================= -->
+        <ng-container *ngSwitchCase="'about'">
+          <p class="lead">
+            {{ store.name }} started with a simple idea: everyday clothing should feel as good as it looks, without costing a fortune.
+          </p>
+          <p>
+            We design and curate comfortable essentials, from classic cotton tees to relaxed fits, and sell them directly to you. Cutting out the
+            middlemen lets us focus on fabric, fit and fair prices.
+          </p>
+          <div class="row g-3 my-4">
+            <div class="col-md-4" *ngFor="let v of [
+              { icon: 'pi-verified', title: 'Quality first', text: 'Every piece is checked before it ships.' },
+              { icon: 'pi-truck', title: 'Free delivery', text: 'Free shipping on every order, cash on delivery available.' },
+              { icon: 'pi-replay', title: 'Easy returns', text: store.returnWindowDays + '-day returns and size exchanges.' }
+            ]">
+              <div class="value-card h-100">
+                <i class="pi" [ngClass]="v.icon"></i>
+                <h5 class="mt-2">{{ v.title }}</h5>
+                <p class="mb-0">{{ v.text }}</p>
+              </div>
+            </div>
+          </div>
+          <p>
+            Questions, feedback or collaboration ideas? We'd love to hear from you: <a routerLink="/contact">get in touch</a>.
+          </p>
+          <p *ngIf="store.legalName" class="text-secondary small">{{ store.name }} is operated by {{ store.legalName }}<span *ngIf="fullAddress(store)">, {{ fullAddress(store) }}</span>.</p>
+        </ng-container>
+
+        <!-- ================= SHIPPING ================= -->
+        <ng-container *ngSwitchCase="'shipping'">
+          <h2>Shipping charges</h2>
+          <p>Shipping is <strong>free on every order</strong>, with no minimum order value.</p>
+
+          <h2>Where we deliver</h2>
+          <p>
+            We deliver across India. Enter your pincode on any product page to check delivery to your area. A few remote pincodes may not be
+            serviceable yet; you'll see this before you order.
+          </p>
+
+          <h2>Dispatch and delivery times</h2>
+          <p>Orders are packed and handed to our courier partners within 1–2 business days. Estimated delivery after dispatch:</p>
+          <!-- Explicit thead/tbody: browsers add tbody themselves, which breaks SSR hydration -->
+          <table class="policy-table">
+            <thead><tr><th>Destination</th><th>Estimated delivery</th></tr></thead>
+            <tbody>
+              <tr><td>Same city as our warehouse</td><td>About 2 business days</td></tr>
+              <tr><td>Same state</td><td>About 3 business days</td></tr>
+              <tr><td>Rest of India</td><td>About 5 business days</td></tr>
+              <tr><td>North-East, Jammu &amp; Kashmir, Ladakh and islands</td><td>Up to 7 business days</td></tr>
+            </tbody>
+          </table>
+          <p>These are estimates. Sundays, public holidays, weather and courier delays can add time.</p>
+
+          <h2>Cash on delivery</h2>
+          <p>Cash on delivery (cash or UPI to the delivery partner) is available on all serviceable pincodes.</p>
+
+          <h2>Tracking your order</h2>
+          <p>
+            Follow every step (ordered, shipped, delivered) under <a routerLink="/account/orders">Account › Orders</a>. We also email you when
+            your order ships and when it's delivered.
+          </p>
+
+          <h2>Failed delivery</h2>
+          <p>
+            If the courier can't reach you after repeated attempts, the parcel returns to us and the order is cancelled. Any prepaid amount is
+            refunded as described in our <a routerLink="/returns-policy">Returns &amp; Refunds policy</a>.
+          </p>
+        </ng-container>
+
+        <!-- ================= RETURNS ================= -->
+        <ng-container *ngSwitchCase="'returns'">
+          <h2>Cancelling an order</h2>
+          <p>
+            You can cancel any order <strong>before it ships</strong> from the order page in <a routerLink="/account/orders">Account › Orders</a>.
+            Once an order has shipped it can't be cancelled, but you can return it after delivery.
+          </p>
+
+          <h2>Returns and exchanges</h2>
+          <ul>
+            <li>Request a return or a size exchange within <strong>{{ store.returnWindowDays }} days of delivery</strong>, from the order page.</li>
+            <li>Items must be unused and unwashed, with original tags and packaging.</li>
+            <li>Innerwear may not be returnable for hygiene reasons unless it arrived damaged or incorrect.</li>
+            <li>Exchanges are for a different size of the same product, subject to stock. The replacement ships free.</li>
+          </ul>
+
+          <h2>How it works</h2>
+          <ol>
+            <li>Open the order and choose <em>Return or Exchange</em>, then tell us why.</li>
+            <li>We review the request (usually within 1–2 business days) and arrange a pickup or share return instructions.</li>
+            <li>Once the item reaches us and passes a quality check, we approve the refund or ship the exchange.</li>
+          </ol>
+
+          <h2>Refunds</h2>
+          <ul>
+            <li>Prepaid orders are refunded to the original payment method within 5–7 business days of approval.</li>
+            <li>Cash-on-delivery orders are refunded by bank transfer or UPI; we'll ask for your details.</li>
+            <li>Coupon discounts are not refunded as cash.</li>
+          </ul>
+
+          <h2>Damaged or wrong item?</h2>
+          <p>Contact us within 48 hours of delivery with photos and your order ID, and we'll make it right at no cost to you.</p>
+        </ng-container>
+
+        <!-- ================= PRIVACY ================= -->
+        <ng-container *ngSwitchCase="'privacy'">
+          <p>
+            This policy explains what personal data {{ store.legalName || store.name }} ("we") collects when you use this website, why, and the
+            choices you have. It is written with India's Digital Personal Data Protection Act, 2023 in mind.
+          </p>
+
+          <h2>What we collect</h2>
+          <ul>
+            <li><strong>Account details:</strong> name, email, mobile number, gender and (optionally) date of birth.</li>
+            <li><strong>Delivery addresses</strong> you save.</li>
+            <li><strong>Orders:</strong> items, amounts, payment method, delivery status, returns.</li>
+            <li><strong>Saved cards:</strong> only the cardholder name, card type, expiry and the <em>last 4 digits</em>. We never store full card numbers or CVV.</li>
+            <li><strong>Reviews, wishlist and messages</strong> you send us.</li>
+            <li><strong>Technical data</strong> such as IP address and browser type, used for security and to prevent abuse.</li>
+          </ul>
+
+          <h2>Why we use it</h2>
+          <ul>
+            <li>To process, deliver and support your orders, returns and refunds.</li>
+            <li>To send order confirmations, delivery updates and password-reset emails.</li>
+            <li>To keep your account secure and prevent fraud.</li>
+            <li>To meet legal, tax and accounting obligations (for example GST invoices).</li>
+          </ul>
+          <p>We do not sell your personal data.</p>
+
+          <h2>Who we share it with</h2>
+          <p>Only with service providers who help us run the store, and only what they need:</p>
+          <ul>
+            <li>Courier partners (name, address, phone) to deliver your order.</li>
+            <li>Payment providers to process payments.</li>
+            <li>Email, hosting, database and image-storage providers that operate our systems.</li>
+            <li>Authorities, when required by law.</li>
+          </ul>
+
+          <h2>Cookies and local storage</h2>
+          <p>
+            We use your browser's local storage to keep you signed in and to remember your delivery pincode. We don't use advertising or
+            third-party tracking cookies.
+          </p>
+
+          <h2>How long we keep it</h2>
+          <p>
+            Account data is kept while your account is active. Order and invoice records are kept as long as tax laws require, even after an
+            account is deleted.
+          </p>
+
+          <h2>Your rights</h2>
+          <ul>
+            <li>View and correct your details under <a routerLink="/account/profile">Account › Profile</a> and <a routerLink="/account/addresses">Addresses</a>.</li>
+            <li>Delete your account under <a routerLink="/account/delete">Account › Delete Account</a>.</li>
+            <li>Ask us about, or object to, how we use your data by <a routerLink="/contact">contacting us</a>.</li>
+          </ul>
+
+          <h2>Security</h2>
+          <p>Passwords are stored as one-way hashes, sessions expire automatically, and access to customer data is restricted to authorised staff.</p>
+
+          <h2>Grievance officer</h2>
+          <p>
+            For privacy concerns or complaints, write to our grievance officer<span *ngIf="store.email"> at <a [href]="'mailto:' + store.email">{{ store.email }}</a></span><span *ngIf="fullAddress(store)">, or by post to {{ store.legalName || store.name }}, {{ fullAddress(store) }}</span>.
+            We aim to respond within 30 days.
+          </p>
+        </ng-container>
+
+        <!-- ================= TERMS ================= -->
+        <ng-container *ngSwitchCase="'terms'">
+          <p>
+            These terms apply to your use of this website and to purchases made on it from {{ store.legalName || store.name }}. By using the site
+            or placing an order you agree to them.
+          </p>
+
+          <h2>Your account</h2>
+          <p>
+            You must be at least 18, or use the site under a parent's supervision. Keep your password confidential; you're responsible for
+            activity on your account. We may suspend accounts that misuse the site.
+          </p>
+
+          <h2>Products and prices</h2>
+          <ul>
+            <li>Prices are in Indian Rupees and include GST. Shipping is free.</li>
+            <li>We try to show products accurately, but colours may vary slightly between screens.</li>
+            <li>Prices and availability can change without notice. If an item is priced incorrectly, we may cancel the order and refund you.</li>
+          </ul>
+
+          <h2>Orders</h2>
+          <p>
+            An order is a request to buy. It's accepted when we ship it. We may decline or cancel an order (for example if stock runs out or we
+            suspect fraud); any amount paid is refunded in full.
+          </p>
+
+          <h2>Payment</h2>
+          <p>We accept cash on delivery and online payments through our payment partner. Coupons can't be exchanged for cash.</p>
+
+          <h2>Shipping, returns and refunds</h2>
+          <p>
+            See our <a routerLink="/shipping-policy">Shipping Policy</a> and <a routerLink="/returns-policy">Returns, Refunds &amp; Cancellation</a>
+            policy, which form part of these terms.
+          </p>
+
+          <h2>Reviews and content</h2>
+          <p>
+            Reviews must be honest and relate to the product. We may remove content that is offensive, misleading or unrelated. By posting, you
+            let us display your review on the site.
+          </p>
+
+          <h2>Intellectual property</h2>
+          <p>The {{ store.name }} name, logo, photos and site design belong to us and may not be copied without permission.</p>
+
+          <h2>Liability</h2>
+          <p>
+            To the extent the law allows, our liability for any order is limited to the amount you paid for it. Nothing in these terms limits
+            your rights under the Consumer Protection Act, 2019.
+          </p>
+
+          <h2>Governing law</h2>
+          <p>These terms are governed by the laws of India<span *ngIf="store.city">, and courts in {{ store.city }} have jurisdiction</span>.</p>
+
+          <h2>Contact</h2>
+          <p>
+            Questions about these terms? <a routerLink="/contact">Contact us</a><span *ngIf="store.email"> or email <a [href]="'mailto:' + store.email">{{ store.email }}</a></span>.
+          </p>
+        </ng-container>
+      </article>
+    </div>
+  </div>
+</ng-container>
+</div>
+
+<app-site-footer></app-site-footer>

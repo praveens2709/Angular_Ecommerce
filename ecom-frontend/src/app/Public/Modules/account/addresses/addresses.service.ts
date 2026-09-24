@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, tap, throwError } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { ToastService } from '../../../../Services/toast-service.service';
+import { LastValueCache } from '../../../../Services/last-value.cache';
 
 @Injectable({
   providedIn: 'root',
@@ -10,11 +11,14 @@ import { ToastService } from '../../../../Services/toast-service.service';
 export class AddressesService {
   private apiUrl = `${environment.apiUrl}/addresses`;
 
+  /** Last list per user id (key supplied by the caller) */
+  readonly lists = new LastValueCache<any[]>();
+
   constructor(private http: HttpClient, private toastService: ToastService) {}
 
-  /** ✅ Get Addresses */
-  getAddresses(userId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/${userId}`).pipe(
+  /** ✅ Get the logged-in user's addresses */
+  getAddresses(cacheKey?: string | null): Observable<any[]> {
+    return this.lists.track(cacheKey, this.http.get<any[]>(this.apiUrl)).pipe(
       catchError((error) => this.handleError(error, 'Failed to load addresses'))
     );
   }
@@ -45,7 +49,8 @@ export class AddressesService {
 
   /** ✅ Handle Errors */
   private handleError(error: any, message: string): Observable<never> {
-    this.toastService.error('Error', error.error?.message || message);
-    return throwError(() => new Error(error.error?.message || message));
+    const detail = error.error?.message || error.error?.error || message;
+    this.toastService.error('Error', detail);
+    return throwError(() => new Error(detail));
   }
 }

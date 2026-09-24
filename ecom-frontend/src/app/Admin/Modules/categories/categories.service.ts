@@ -12,11 +12,16 @@ export class CategoriesService {
 
   constructor(private http: HttpClient) {}
 
+  /** Categories with product count and a sample image (active only unless includeInactive) */
+  getCategorySummary(includeInactive = false): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/summary`, { params: includeInactive ? { all: 'true' } : {} });
+  }
+
   getCategories(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl).pipe(
       catchError((error) => {
         console.error('Error fetching categories:', error);
-        return throwError(() => new Error('Error fetching categories'));
+        return throwError(() => error);
       })
     );
   }
@@ -25,7 +30,7 @@ export class CategoriesService {
     return this.http.get<any>(`${this.apiUrl}/${categoryId}`).pipe(
       catchError((error) => {
         console.error('Error fetching category by ID:', error);
-        return throwError(() => new Error('Error fetching category by ID'));
+        return throwError(() => error);
       })
     );
   }
@@ -34,7 +39,7 @@ export class CategoriesService {
     return this.http.post<any>(this.apiUrl, category).pipe(
       catchError((error) => {
         console.error('Error adding category:', error);
-        return throwError(() => new Error('Error adding category'));
+        return throwError(() => error);
       })
     );
   }
@@ -43,7 +48,7 @@ export class CategoriesService {
     return this.http.put<any>(`${this.apiUrl}/${categoryId}`, category).pipe(
       catchError((error) => {
         console.error('Error updating category:', error);
-        return throwError(() => new Error('Error updating category'));
+        return throwError(() => error);
       })
     );
   }
@@ -52,7 +57,7 @@ export class CategoriesService {
     return this.http.delete<any>(`${this.apiUrl}/${categoryId}`).pipe(
       catchError((error) => {
         console.error('Error deleting category:', error);
-        return throwError(() => new Error('Error deleting category'));
+        return throwError(() => error);
       })
     );
   }
@@ -62,7 +67,7 @@ export class CategoriesService {
       map(response => response.count),
       catchError((error) => {
         console.error('Error fetching product count:', error);
-        return throwError(() => new Error('Error fetching product count'));
+        return throwError(() => error);
       })
     );
   }

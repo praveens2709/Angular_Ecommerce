@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { StoreService } from '../../../Services/store.service';
 
 @Component({
   selector: 'app-address-form',
@@ -16,8 +17,10 @@ export class AddressFormComponent implements OnChanges {
   @Output() onClose = new EventEmitter<void>();
 
   addressForm: FormGroup;
+  pincodeHint = '';
+  pincodeInvalid = false;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private storeService: StoreService) {
     this.addressForm = this.fb.group({
       fullName: ['', Validators.required],
       mobile: [
@@ -50,7 +53,31 @@ export class AddressFormComponent implements OnChanges {
     }
   }
 
+  /** Fills city/state from India Post when a full pincode is typed */
+  private onPincode(pincode: string): void {
+    this.pincodeHint = '';
+    this.pincodeInvalid = false;
+    if (!/^[1-9]\d{5}$/.test(pincode)) return;
+    this.storeService.checkPincode(pincode).subscribe((result) => {
+      if (this.addressForm.value.postalCode !== pincode) return; // user kept typing
+      if (!result.valid) {
+        this.pincodeInvalid = true;
+        this.pincodeHint = result.message || "We couldn't find this pincode";
+        return;
+      }
+      if (result.city && result.state) {
+        this.addressForm.patchValue({
+          city: this.addressForm.value.city || result.city,
+          state: result.state,
+        });
+        this.pincodeHint = result.deliverable ? `${result.city}, ${result.state}` : result.message || "We don't deliver here yet";
+        this.pincodeInvalid = !result.deliverable;
+      }
+    });
+  }
+
   onSubmit(): void {
+    if (this.pincodeInvalid) return;
     if (this.addressForm.valid) {
       this.onSave.emit(this.addressForm.value);
     }
@@ -66,6 +93,8 @@ export class AddressFormComponent implements OnChanges {
     if (input.value.length > maxLength) {
       input.value = input.value.slice(0, maxLength);
     }
-    this.addressForm.get(input.getAttribute('formControlName')!)?.setValue(input.value);
+    const name = input.getAttribute('formControlName')!;
+    this.addressForm.get(name)?.setValue(input.value);
+    if (name === 'postalCode') this.onPincode(input.value);
   }
 }

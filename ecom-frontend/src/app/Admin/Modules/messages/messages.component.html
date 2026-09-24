@@ -1,0 +1,36 @@
+<div class="card shadow-sm border-0 rounded-3">
+  <div class="card-header bg-light d-flex flex-wrap gap-2 justify-content-between align-items-center">
+    <h3 class="mb-0 text-primary fs-5 fw-bold">
+      Messages <span *ngIf="unread" class="badge bg-danger ms-1">{{ unread }} new</span>
+    </h3>
+    <div class="d-flex gap-2">
+      <button *ngFor="let f of [{ v: 'New', l: 'New' }, { v: 'Resolved', l: 'Resolved' }, { v: '', l: 'All' }]" type="button"
+        class="btn btn-sm filter-chip" [class.active]="filter === f.v" (click)="setFilter($any(f.v))">{{ f.l }}</button>
+    </div>
+  </div>
+
+  <div class="list-group list-group-flush">
+    <p *ngIf="!loading && messages.length === 0" class="text-center text-muted py-5 mb-0">No messages here.</p>
+    <div *ngFor="let m of messages" class="list-group-item py-3">
+      <div class="d-flex justify-content-between align-items-start gap-3 cursor-pointer" (click)="toggle(m)">
+        <div class="flex-grow-1 overflow-hidden">
+          <div class="d-flex align-items-center gap-2">
+            <span *ngIf="m.status === 'New'" class="dot"></span>
+            <strong>{{ m.name }}</strong>
+            <small class="text-muted">&lt;{{ m.email }}&gt;</small>
+          </div>
+          <div class="fw-semibold mt-1">{{ m.subject }}<span *ngIf="m.orderId" class="text-muted fw-normal"> · Order {{ m.orderId }}</span></div>
+          <div class="text-muted preview" [class.full]="expanded === m._id">{{ m.message }}</div>
+        </div>
+        <small class="text-muted text-nowrap">{{ m.createdAt | date : 'MMM d, h:mm a' }}</small>
+      </div>
+      <div *ngIf="expanded === m._id" class="d-flex gap-2 mt-3">
+        <a class="btn btn-sm btn-primary" [href]="replyLink(m)"><i class="pi pi-reply me-1"></i>Reply by email</a>
+        <button *ngIf="m.status === 'New'" class="btn btn-sm btn-outline-success" (click)="setStatus(m, 'Resolved')">
+          <i class="pi pi-check me-1"></i>Mark resolved
+        </button>
+        <button *ngIf="m.status === 'Resolved'" class="btn btn-sm btn-outline-secondary" (click)="setStatus(m, 'New')">Reopen</button>
+      </div>
+    </div>
+  </div>
+</div>

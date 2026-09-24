@@ -34,3 +34,23 @@ a:hover .pi-shopping-bag,
 a.active .pi-shopping-bag {
   color: #c5341e;
 }
+
+.icon-link {
+  color: #992603;
+}
+
+.wish-count {
+  top: -8px;
+  right: -10px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: #d6334d;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

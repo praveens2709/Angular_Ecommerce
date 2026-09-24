@@ -58,7 +58,7 @@
         </div>
         <div class="col-lg-4">
           <app-price-details [priceDetails]="priceDetails" [buttonText]="'Continue'" [buttonLink]="'/payment'"
-            [isButtonDisabled]="!selectedAddress"
+            [isButtonDisabled]="!selectedAddress" (buttonClick)="saveCheckoutAddress()"
             warningMessage="Please select a valid address to continue"></app-price-details>
         </div>
       </div>

@@ -13,6 +13,7 @@ const CartSchema = new mongoose.Schema({
   seller: { type: String, required: true },
   discount: { type: Number, required: true },
   mrp: { type: Number, required: true },
+  size: { type: String },
   quantity: { type: Number, required: true, default: 1 },
   basePrice: { type: Number, required: true },
   baseMRP: { type: Number, required: true },

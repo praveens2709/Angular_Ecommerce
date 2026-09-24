@@ -10,6 +10,8 @@ import { AuthService } from '../../../../Admin/auth/Services/auth-service.servic
 })
 export class AddressesComponent implements OnInit {
   addresses: any[] = [];
+  /** True only until the first response when nothing is remembered yet */
+  loading = false;
   isDialogVisible = false;
   isDeleteDialogVisible = false;
   dialogTitle = 'Add Address';
@@ -33,13 +35,18 @@ export class AddressesComponent implements OnInit {
 
   loadAddresses(): void {
     if (!this.userId) return;
+    const cached = this.addressService.lists.peek(this.userId);
+    if (cached) this.addresses = cached;
+    this.loading = !cached;
     this.addressService.getAddresses(this.userId).subscribe({
       next: (data) => {
         this.addresses = data;
+        this.loading = false;
       },
-      error: () => console.error('Error', 'Failed to load addresses'),
+      error: () => (this.loading = false),
     });
   }
+
 
   openAddDialog(): void {
     this.isEditMode = false;
@@ -67,7 +74,7 @@ export class AddressesComponent implements OnInit {
         error: () => console.error('Error', 'Failed to update address'),
       });
     } else {
-      this.addressService.addAddress({ ...address, userId: this.userId }).subscribe({
+      this.addressService.addAddress(address).subscribe({
         next: () => {
           this.loadAddresses();
           this.isDialogVisible = false;

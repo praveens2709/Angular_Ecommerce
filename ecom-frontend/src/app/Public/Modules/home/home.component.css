@@ -24,8 +24,51 @@ a {
     background-size: cover;
 }
 
+/* ---------- Fixed home menu ---------- */
+.home-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding-bottom: 6px;
+    background: transparent;
+    transition: background-color 0.35s ease, box-shadow 0.35s ease, padding 0.35s ease;
+}
+
+.home-nav.scrolled {
+    background: #ffffff;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+}
+
+.home-nav .navbar a,
+.home-nav .icon-link {
+    color: #ffffff;
+    transition: color 0.35s ease;
+}
+
+.home-nav.scrolled .navbar a,
+.home-nav.scrolled .icon-link {
+    color: #992603;
+}
+
+.home-nav .cart-count {
+    background: #ffffff;
+    color: #111111;
+    transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+.home-nav.scrolled .cart-count {
+    background: #992603;
+    color: #ffffff;
+}
+
 .navbar a:after {
     background: #fff;
+}
+
+.home-nav.scrolled .navbar a:after {
+    background: #992603;
 }
 
 .navbar a:hover::after {
@@ -36,11 +79,10 @@ a {
 .navbar a.active::after {
     width: 100%;
     left: 0;
-    background-color: #fff;
 }
 
 .content {
-    padding: 110px 50px 0 50px;
+    padding: 190px 50px 0 50px;
     z-index: 99;
 }
 
@@ -59,4 +101,33 @@ a {
 .shop-now-btn:hover {
     background-color: #ffffff;
     color: #034146;
+}
+
+/* Scroll hint */
+.scroll-hint {
+    left: 50%;
+    bottom: 28px;
+    transform: translateX(-50%);
+    z-index: 100;
+    opacity: 0.9;
+
+    i {
+        font-size: 1.25rem;
+        animation: bounce-down 1.8s ease-in-out infinite;
+    }
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+@keyframes bounce-down {
+    0%, 100% { transform: translateY(0); opacity: 1; }
+    50% { transform: translateY(12px); opacity: 0.55; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scroll-hint i {
+        animation: none;
+    }
 }

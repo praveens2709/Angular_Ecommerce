@@ -7,3 +7,88 @@ span {
 .disabled-button {
     opacity: 0.8;
 }
+.coupon-box {
+    padding-bottom: 14px;
+    border-bottom: 1px solid #e5d7d2;
+}
+
+.coupon-input {
+    border: 1px solid #c9b8b2;
+    padding: 6px 10px;
+    font-size: 14px;
+    text-transform: uppercase;
+    outline: none;
+}
+
+.coupon-input:focus {
+    border-color: #992603;
+}
+
+.apply-btn,
+.link-btn {
+    background: transparent;
+    border: 1px solid #992603;
+    color: #992603;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 0 14px;
+    margin: 0 !important;
+    width: auto !important;
+}
+
+.apply-btn:disabled {
+    opacity: 0.5;
+}
+
+.link-btn {
+    border: 0;
+    padding: 0;
+}
+
+.applied-coupon {
+    border: 1px dashed #992603;
+    background: #fdf4f2;
+    padding: 8px 10px;
+}
+
+.suggestion {
+    background: #faf6f5;
+    border: 1px dashed #d9c3bd;
+    padding: 5px 8px;
+    font-size: 13px;
+    color: #333;
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+.suggestion:hover {
+    border-color: #992603;
+}
+
+/* Beat the global `.cart-right button` fill/hover */
+.cart-right .coupon-box button,
+.cart-right .coupon-box button:hover {
+    background: transparent;
+    color: #992603;
+    line-height: 1.4;
+    letter-spacing: 0.3px;
+}
+
+.cart-right .coupon-box .suggestion,
+.cart-right .coupon-box .suggestion:hover {
+    background: #faf6f5;
+    color: #333;
+    padding: 5px 8px;
+    font-weight: 400;
+}
+
+.cart-right .coupon-box .apply-btn:hover:not(:disabled) {
+    background: #992603;
+    color: #ffffff;
+}
+
+/* The global `.cart-right button span` rule forces white text; keep codes readable */
+.cart-right .coupon-box .suggestion span {
+    color: #992603 !important;
+    margin: 0;
+}

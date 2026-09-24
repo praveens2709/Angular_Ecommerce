@@ -1,0 +1,71 @@
+# Render Blueprint: New > Blueprint > pick this repo. Creates the API and the storefront.
+# Secrets marked `sync: false` are asked for in the Render dashboard; they never live in git.
+services:
+  - type: web
+    name: dopeshope-api
+    runtime: node
+    plan: free
+    rootDir: ecom-backend
+    buildCommand: npm ci --omit=dev
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        sync: false # e.g. https://dopeshope-web.onrender.com
+      - key: CLIENT_ORIGINS
+        sync: false # same as CLIENT_URL (comma-separate extra domains)
+      - key: PUBLIC_URL
+        sync: false # e.g. https://dopeshope-api.onrender.com
+      - key: CLOUDINARY_URL
+        sync: false
+      - key: SMTP_HOST
+        value: smtp-relay.brevo.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: SHOP_TIMEZONE
+        value: Asia/Kolkata
+      - key: STORE_LEGAL_NAME
+        sync: false
+      - key: STORE_EMAIL
+        sync: false
+      - key: STORE_PHONE
+        sync: false
+      - key: STORE_ADDRESS
+        sync: false
+      - key: STORE_CITY
+        sync: false
+      - key: STORE_STATE
+        sync: false
+      - key: STORE_PINCODE
+        sync: false
+      - key: STORE_GSTIN
+        sync: false
+
+  - type: web
+    name: dopeshope-web
+    runtime: node
+    plan: free
+    rootDir: ecom-frontend
+    buildCommand: npm ci && npm run build
+    startCommand: node dist/ecom/server/server.mjs
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: API_URL
+        sync: false # e.g. https://dopeshope-api.onrender.com/api
+      - key: NG_ALLOWED_HOSTS
+        sync: false # e.g. dopeshope-web.onrender.com,www.yourdomain.com

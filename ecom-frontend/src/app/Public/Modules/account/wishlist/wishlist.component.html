@@ -1,0 +1,42 @@
+<div class="mt-2">
+  <h6 class="pb-2 fw-semibold">Wishlist</h6>
+
+  <ng-container *ngIf="isLoggedIn; else notLoggedIn">
+    <ng-container *ngIf="items$ | async as items">
+      <div *ngIf="items.length === 0" class="empty text-center py-5">
+        <i class="pi pi-heart fs-1"></i>
+        <p class="fw-semibold mt-3 mb-1">Your wishlist is empty</p>
+        <p class="text-secondary mb-3">Tap the heart on any product to save it for later.</p>
+        <a routerLink="/shop" class="text-orange fw-semibold">Explore products</a>
+      </div>
+
+      <div class="row g-3" *ngIf="items.length > 0">
+        <div class="col-6 col-md-4" *ngFor="let product of items">
+          <a [routerLink]="['/product-detail', product._id]" class="wish-card d-block position-relative">
+            <button type="button" class="remove position-absolute" aria-label="Remove from wishlist" (click)="remove($event, product)">
+              <i class="pi pi-times"></i>
+            </button>
+            <div class="img d-flex align-items-center justify-content-center">
+              <img [src]="product.image | optImg : 220" [alt]="product.name" loading="lazy" decoding="async" />
+            </div>
+            <div class="p-2">
+              <p class="name mb-0">{{ product.name }}<span *ngIf="product.color" class="text-secondary"> · {{ product.color }}</span></p>
+              <div class="d-flex gap-2 align-items-baseline">
+                <span class="price">{{ product.price | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
+                <span class="mrp">{{ product.mrp | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
+              </div>
+              <small *ngIf="product.inventoryStatus === 'OUTOFSTOCK'" class="text-danger fw-semibold">Out of stock</small>
+              <span class="choose d-block mt-2">Choose size <i class="pi pi-arrow-right ms-1"></i></span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <ng-template #notLoggedIn>
+    <div class="profile-box2 px-5 py-4 mt-2">
+      <p class="text-center mt-3">Please <a routerLink="/public/auth" class="text-orange">Sign In</a> to see your wishlist.</p>
+    </div>
+  </ng-template>
+</div>

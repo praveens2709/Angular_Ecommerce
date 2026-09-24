@@ -9,9 +9,20 @@ import { Router } from '@angular/router';
   styleUrl: './cart-header.component.css'
 })
 export class CartHeaderComponent {
+  readonly steps = [
+    { path: '/cart', label: 'Bag' },
+    { path: '/address', label: 'Address' },
+    { path: '/payment', label: 'Payment' },
+  ];
+
   constructor(public router: Router) {}
 
+  get currentIndex(): number {
+    const url = this.router.url.split('?')[0];
+    return Math.max(0, this.steps.findIndex((s) => s.path === url));
+  }
+
   isActive(path: string): boolean {
-    return this.router.url === path;
+    return this.router.url.split('?')[0] === path;
   }
 }

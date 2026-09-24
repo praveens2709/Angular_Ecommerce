@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Paged } from '../orders/order.service';
+import { LastValueCache } from '../../../Services/last-value.cache';
 import { Observable, catchError, tap, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ToastService } from '../../../Services/toast-service.service';
@@ -10,18 +12,24 @@ import { ToastService } from '../../../Services/toast-service.service';
 export class UsersService {
   private apiUrl = `${environment.apiUrl}/users`;
 
+  /** Last profile per user id, so account pages don't flash while refetching */
+  readonly profiles = new LastValueCache<any>();
+
   constructor(private http: HttpClient, private toastService: ToastService) {}
 
   /** ✅ Get a single user by ID */
   getUserById(id: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
+    return this.profiles.track(id, this.http.get<any>(`${this.apiUrl}/${id}`)).pipe(
       catchError((error) => this.handleError(error, 'Failed to load user data'))
     );
   }
 
-  /** ✅ Get all users */
-  getUsers(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl).pipe(
+  /** ✅ Admin: paged users, optional search and gender filter */
+  getUsers(page: number, limit: number, filters: { q?: string; gender?: string } = {}): Observable<Paged<any>> {
+    let params = new HttpParams().set('page', page).set('limit', limit);
+    if (filters.q) params = params.set('q', filters.q);
+    if (filters.gender) params = params.set('gender', filters.gender);
+    return this.http.get<Paged<any>>(this.apiUrl, { params }).pipe(
       catchError((error) => this.handleError(error, 'Failed to load users'))
     );
   }
@@ -37,7 +45,8 @@ export class UsersService {
   /** ✅ Edit an existing user */
   editUser(id: string, user: any): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/${id}`, user).pipe(
-      tap(() => this.toastService.success('Success', 'Profile updated successfully!')),
+      tap((res) => res?.user && this.profiles.set(id, res.user)),
+      tap(() => this.toastService.success('Success', 'Saved successfully!')),
       catchError((error) => this.handleError(error, 'Failed to update profile'))
     );
   }
@@ -52,7 +61,8 @@ export class UsersService {
 
   /** ✅ Handle Errors */
   private handleError(error: any, message: string): Observable<never> {
-    this.toastService.error('Error', error.error?.message || message);
-    return throwError(() => new Error(error.error?.message || message));
+    const detail = error.error?.message || error.error?.error || message;
+    this.toastService.error('Error', detail);
+    return throwError(() => new Error(detail));
   }
 }
