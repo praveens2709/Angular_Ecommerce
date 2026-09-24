@@ -8,7 +8,7 @@ describe('OrderDetailsComponent rules', () => {
   beforeEach(() => {
     // These rules don't touch the API, so the services can be stand-ins
     const route = { snapshot: { paramMap: new Map() } } as unknown as ActivatedRoute;
-    component = new OrderDetailsComponent(route, {} as any, {} as any);
+    component = new OrderDetailsComponent(route, {} as any);
   });
 
   const order = (overrides: any) => ({ _id: 'o1', orderDate: daysAgo(10), products: [{ size: 'M' }], ...overrides });

@@ -72,6 +72,7 @@
       <i class="pi" [ngClass]="downloadingInvoice ? 'pi-spin pi-spinner' : 'pi-file-pdf'"></i>
       {{ downloadingInvoice ? 'Preparing invoice…' : 'Download invoice' }}
     </button>
+    <p *ngIf="invoiceError" class="form-error" role="alert">{{ invoiceError }}</p>
     <button class="cancel-order-btn w-100" (click)="showCancelDialog()" *ngIf="canCancel">
       Cancel Order
     </button>
@@ -91,6 +92,7 @@
   message="Are you sure you want to cancel this order?"
   confirmButtonText="Confirm"
   cancelButtonText="Cancel"
+  [error]="cancelError"
   (confirm)="confirmCancelOrder()"
   (cancel)="closeDialog()"
   (close)="isDialogVisible = false"
@@ -136,6 +138,7 @@
     </button>
   </div>
   <textarea class="form-control" rows="2" placeholder="Or tell us more" [(ngModel)]="returnReason" maxlength="500"></textarea>
+  <p *ngIf="returnError" class="form-error mb-0" role="alert">{{ returnError }}</p>
 
   <button type="button" class="submit-return w-100 mt-3" [disabled]="!canSubmitReturn || isSubmitting" (click)="submitReturn()">
     Submit request

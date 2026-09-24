@@ -5,7 +5,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { ProductService, SIZES, isStockTracked } from './product.service';
 import { CategoriesService } from '../categories/categories.service';
-import { ToastService } from '../../../Services/toast-service.service';
 import { UploadService } from '../../../Services/upload.service';
 
 const MAX_IMAGE_MB = 5;
@@ -45,7 +44,6 @@ export class ProductsComponent implements OnInit, OnDestroy {
     private productService: ProductService,
     private categoriesService: CategoriesService,
     private uploadService: UploadService,
-    private toastService: ToastService,
     private fb: FormBuilder
   ) {
     this.productForm = this.fb.group({
@@ -127,12 +125,20 @@ export class ProductsComponent implements OnInit, OnDestroy {
     }
   }
 
+  pageError = '';
+  saveError = '';
+  deleteError = '';
+  uploadError = '';
+
   openDialog(mode: 'add' | 'edit', product?: any): void {
+    this.pageError = '';
     if (this.categories.length === 0) {
-      this.toastService.error('No categories', 'Please add an active category first.');
+      this.pageError = 'Add an active category first (Admin → Categories), then add products.';
       return;
     }
     this.dialogMode = mode;
+    this.saveError = '';
+    this.uploadError = '';
 
     if (mode === 'edit' && product) {
       this.currentProduct = { ...product };
@@ -189,22 +195,23 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
     const request = this.dialogMode === 'edit' ? this.productService.editProduct(productData) : this.productService.addProduct(productData);
     this.isSaving = true;
+    this.saveError = '';
     request.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.isSaving = false;
         this.dialogVisible = false;
-        this.toastService.success('Saved', this.dialogMode === 'edit' ? 'Product updated successfully' : 'Product added successfully');
         this.loadProducts();
       },
       error: (error) => {
         this.isSaving = false;
-        this.toastService.error('Could not save', error.error?.message || 'Please check the form and try again');
+        this.saveError = error.error?.message || 'Could not save. Please check the form and try again.';
       },
     });
   }
 
   openDeleteDialog(product: any): void {
     this.currentProduct = product;
+    this.deleteError = '';
     this.deleteDialogVisible = true;
   }
 
@@ -212,10 +219,9 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.productService.deleteProduct(this.currentProduct._id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.deleteDialogVisible = false;
-        this.toastService.success('Deleted', 'Product deleted successfully');
         this.loadProducts();
       },
-      error: (err) => this.toastService.error('Could not delete', err.error?.message || 'Please try again'),
+      error: (err) => (this.deleteError = err.error?.message || 'Could not delete. Please try again.'),
     });
   }
 
@@ -223,9 +229,10 @@ export class ProductsComponent implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     const files = Array.from(input.files || []);
     input.value = '';
+    this.uploadError = '';
     const tooBig = files.find((f) => f.size > MAX_IMAGE_MB * 1024 * 1024);
     if (tooBig) {
-      this.toastService.error('Image too large', `${tooBig.name} is over ${MAX_IMAGE_MB} MB.`);
+      this.uploadError = `${tooBig.name} is over ${MAX_IMAGE_MB} MB. Please pick a smaller image.`;
       return [];
     }
     return files;
@@ -258,7 +265,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.uploading = false;
-        this.toastService.error('Upload failed', err.error?.message || 'Please try another image');
+        this.uploadError = err.error?.message || 'Upload failed. Please try another image.';
       },
     });
   }

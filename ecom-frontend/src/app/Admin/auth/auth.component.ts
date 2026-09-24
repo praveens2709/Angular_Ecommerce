@@ -12,6 +12,8 @@ import { AuthService } from './Services/auth-service.service';
 export class AuthComponent implements OnInit {
   authForm!: FormGroup;
   isLogin = true;
+  error = '';
+  submitting = false;
 
   constructor(
     private fb: FormBuilder,
@@ -33,6 +35,8 @@ export class AuthComponent implements OnInit {
     if (this.isLogin) {
       this.authForm.removeControl('name');
     }
+    this.error = '';
+    this.authForm.valueChanges.subscribe(() => (this.error = ''));
   }
 
   toggleAuth() {
@@ -41,23 +45,20 @@ export class AuthComponent implements OnInit {
   }
 
   formSubmit(): void {
-    if (this.authForm.invalid) {
-      console.error('Form is invalid');
-      return;
-    }
-  
+    if (this.authForm.invalid || this.submitting) return;
+
     const { name, email, password } = this.authForm.value;
   
     const authMethod = this.isLogin
       ? this.authService.adminLogin(email, password)
       : this.authService.adminRegister(name, email, password);
   
+    this.submitting = true;
     authMethod.subscribe({
-      next: () => {
-        this.router.navigate(['/admin/dashboard']);    
-      },
+      next: () => this.router.navigate(['/admin/dashboard']),
       error: (error) => {
-        console.error(`${this.isLogin ? 'Login' : 'Registration'} failed:`, error.message);
+        this.submitting = false;
+        this.error = error.message;
       },
     });
   }     

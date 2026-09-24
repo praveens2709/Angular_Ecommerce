@@ -4,7 +4,6 @@ import { Paged } from '../orders/order.service';
 import { LastValueCache } from '../../../Services/last-value.cache';
 import { Observable, catchError, tap, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { ToastService } from '../../../Services/toast-service.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +14,7 @@ export class UsersService {
   /** Last profile per user id, so account pages don't flash while refetching */
   readonly profiles = new LastValueCache<any>();
 
-  constructor(private http: HttpClient, private toastService: ToastService) {}
+  constructor(private http: HttpClient) {}
 
   /** ✅ Get a single user by ID */
   getUserById(id: string): Observable<any> {
@@ -37,7 +36,6 @@ export class UsersService {
   /** ✅ Add a new user */
   addUser(user: any): Observable<any> {
     return this.http.post<any>(this.apiUrl, user).pipe(
-      tap(() => this.toastService.success('Success', 'User added successfully!')),
       catchError((error) => this.handleError(error, 'Failed to add user'))
     );
   }
@@ -46,7 +44,6 @@ export class UsersService {
   editUser(id: string, user: any): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/${id}`, user).pipe(
       tap((res) => res?.user && this.profiles.set(id, res.user)),
-      tap(() => this.toastService.success('Success', 'Saved successfully!')),
       catchError((error) => this.handleError(error, 'Failed to update profile'))
     );
   }
@@ -54,15 +51,13 @@ export class UsersService {
   /** ✅ Delete a user */
   deleteUser(id: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${id}`).pipe(
-      tap(() => this.toastService.success('Removed', 'User deleted successfully!')),
       catchError((error) => this.handleError(error, 'Failed to delete user'))
     );
   }
 
-  /** ✅ Handle Errors */
+  /** Rejects with a readable message for the page to show inline */
   private handleError(error: any, message: string): Observable<never> {
     const detail = error.error?.message || error.error?.error || message;
-    this.toastService.error('Error', detail);
     return throwError(() => new Error(detail));
   }
 }

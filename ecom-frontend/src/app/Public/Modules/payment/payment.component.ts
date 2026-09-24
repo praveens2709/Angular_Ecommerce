@@ -6,7 +6,6 @@ import { PaymentService } from '../../../Services/payment.service';
 import { OrderService } from '../../../Admin/Modules/orders/order.service';
 import { UsersService } from '../../../Admin/Modules/users/users.service';
 import { AuthService } from '../../../Admin/auth/Services/auth-service.service';
-import { ToastService } from '../../../Services/toast-service.service';
 
 @Component({
   selector: 'app-payment',
@@ -49,9 +48,11 @@ export class PaymentComponent implements OnInit, OnDestroy {
     private orderService: OrderService,
     private usersService: UsersService,
     private authService: AuthService,
-    private toastService: ToastService,
     private router: Router
   ) {}
+
+  /** Why the last order/payment attempt failed, shown under the pay button */
+  orderError = '';
 
   ngOnInit(): void {
     // Refreshing this page loses the chosen address; send the shopper back to pick one
@@ -78,6 +79,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
 
   handlePaymentMethodChange(method: string): void {
     this.selectedPaymentMethod = method;
+    this.orderError = '';
     this.selectedRecommendedOption = '';
     this.selectedUPIOption = '';
   }
@@ -101,7 +103,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
 
   placeCodOrder(): void {
     if (!this.isCaptchaValid) {
-      this.toastService.error('Invalid code', 'Please enter the code shown in the image.');
+      this.orderError = 'Please enter the code shown in the image.';
       return;
     }
     this.createOrder('COD');
@@ -115,19 +117,20 @@ export class PaymentComponent implements OnInit, OnDestroy {
   /** Collect payment via Razorpay, then create the order */
   processPayment(method: 'UPI' | 'CARD'): void {
     if (!this.hasItemsToOrder()) return;
+    this.orderError = '';
 
     this.paymentService.payWithRazorpay(
       this.priceDetails.totalAmount,
       'INR',
       { name: this.user?.fullName, email: this.user?.email, contact: this.user?.mobile },
       (paymentId) => this.createOrder(method, paymentId),
-      (reason) => this.toastService.error('Payment not completed', reason)
+      (reason) => (this.orderError = `Payment not completed: ${reason}`)
     );
   }
 
   private hasItemsToOrder(): boolean {
     if (this.cartService.getSelectedItems().length === 0) {
-      this.toastService.error('Nothing to order', 'Please select at least one item in your bag.');
+      // The bag page explains what to select
       this.router.navigate(['/cart']);
       return false;
     }
@@ -143,6 +146,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
     }
 
     this.isPlacingOrder = true;
+    this.orderError = '';
     this.orderService.createOrder({
       addressId: address._id,
       paymentMethod,
@@ -158,12 +162,11 @@ export class PaymentComponent implements OnInit, OnDestroy {
         // The server removed the ordered lines from the bag
         this.cartService.removeCoupon();
         this.cartService.loadCartItems();
-        this.toastService.success('Order placed', 'Your order has been placed successfully!');
         this.router.navigate(['/account/orders']);
       },
       error: (err) => {
         this.isPlacingOrder = false;
-        this.toastService.error('Order failed', err.error?.message || 'Could not place your order.');
+        this.orderError = err.error?.message || 'Could not place your order. Please try again.';
         // Stock or prices may have changed
         this.cartService.loadCartItems();
       },

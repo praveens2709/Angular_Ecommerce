@@ -17,6 +17,8 @@ export class RegisterComponent implements OnInit {
   @Output() switchToLogin = new EventEmitter<void>();
 
   registerForm!: FormGroup;
+  error = '';
+  submitting = false;
 
   constructor(
     private fb: FormBuilder, 
@@ -37,27 +39,21 @@ export class RegisterComponent implements OnInit {
       mobile: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
       gender: ['', [Validators.required]]
     });
+    this.registerForm.valueChanges.subscribe(() => (this.error = ''));
   }
 
   formSubmit(): void {
-    if (this.registerForm.valid) {
-      const { firstName, lastName, email, password, mobile, gender } = this.registerForm.value;
-  
-      console.log('🔹 Registration Attempt:', { firstName, lastName, email, password, mobile, gender });
-  
-      this.authService.register(firstName, lastName, email, password, mobile, gender).subscribe({
-        next: () => {
-          console.log('Registration Successful for:', email);
-          this.router.navigate(['home']);
-        },
-        error: (error) => {
-          console.error('Registration failed:', error);
-        }
-      });
-    } else {
-      console.warn('Registration form is invalid:', this.registerForm.value);
-    }
-  }  
+    if (this.registerForm.invalid || this.submitting) return;
+    const { firstName, lastName, email, password, mobile, gender } = this.registerForm.value;
+    this.submitting = true;
+    this.authService.register(firstName, lastName, email, password, mobile, gender).subscribe({
+      next: () => this.router.navigate(['home']),
+      error: (error) => {
+        this.submitting = false;
+        this.error = error.message;
+      },
+    });
+  }
 
   goToLogin(): void {
     this.switchToLogin.emit();

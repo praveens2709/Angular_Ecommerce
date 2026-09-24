@@ -16,6 +16,7 @@ export class ForgotPasswordComponent {
   form: FormGroup;
   sent = false;
   sending = false;
+  error = '';
 
   constructor(private fb: FormBuilder, private authService: AuthService) {
     this.form = this.fb.group({ email: ['', [Validators.required, Validators.email]] });
@@ -24,12 +25,16 @@ export class ForgotPasswordComponent {
   submit(): void {
     if (this.form.invalid || this.sending) return;
     this.sending = true;
+    this.error = '';
     this.authService.forgotPassword(this.form.value.email).subscribe({
       next: () => {
         this.sending = false;
         this.sent = true;
       },
-      error: () => (this.sending = false),
+      error: (err) => {
+        this.sending = false;
+        this.error = err.message;
+      },
     });
   }
 }

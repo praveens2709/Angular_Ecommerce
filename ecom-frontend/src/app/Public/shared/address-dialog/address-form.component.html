@@ -123,6 +123,8 @@
         Please select a type of address
       </small>
     </div>
+
+    <p *ngIf="error" class="form-error" role="alert">{{ error }}</p>
   </form>
 
   <!-- Fixed Footer -->

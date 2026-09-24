@@ -203,6 +203,8 @@
           Please select a card type
         </small>
       </div>
+
+      <p *ngIf="saveError" class="form-error" role="alert">{{ saveError }}</p>
     </form>
 
     <!-- Dialog Footer -->
@@ -233,6 +235,7 @@
   message="Are you sure you want to remove this saved card?"
   confirmButtonText="Remove"
   cancelButtonText="Cancel"
+  [error]="deleteError"
   (confirm)="confirmDeleteCard()"
   (cancel)="isDeleteDialogVisible = false"
   (close)="isDeleteDialogVisible = false"

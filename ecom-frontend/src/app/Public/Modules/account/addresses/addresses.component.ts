@@ -48,8 +48,12 @@ export class AddressesComponent implements OnInit {
   }
 
 
+  saveError = '';
+  deleteError = '';
+
   openAddDialog(): void {
     this.isEditMode = false;
+    this.saveError = '';
     this.dialogTitle = 'Add New Address';
     this.selectedAddress = null;
     this.isDialogVisible = true;
@@ -57,6 +61,7 @@ export class AddressesComponent implements OnInit {
 
   openEditDialog(address: any): void {
     this.isEditMode = true;
+    this.saveError = '';
     this.dialogTitle = 'Edit Address';
     this.selectedAddress = { ...address };
     this.isDialogVisible = true;
@@ -71,7 +76,7 @@ export class AddressesComponent implements OnInit {
           this.loadAddresses();
           this.isDialogVisible = false;
         },
-        error: () => console.error('Error', 'Failed to update address'),
+        error: (err) => (this.saveError = err.message),
       });
     } else {
       this.addressService.addAddress(address).subscribe({
@@ -79,13 +84,14 @@ export class AddressesComponent implements OnInit {
           this.loadAddresses();
           this.isDialogVisible = false;
         },
-        error: () => console.error('Error', 'Failed to add address'),
+        error: (err) => (this.saveError = err.message),
       });
     }
   }
 
   openDeleteDialog(addressId: string): void {
     this.addressToDeleteId = addressId;
+    this.deleteError = '';
     this.isDeleteDialogVisible = true;
   }
 
@@ -98,7 +104,7 @@ export class AddressesComponent implements OnInit {
         this.isDeleteDialogVisible = false;
         this.addressToDeleteId = null;
       },
-      error: () => console.error('Error', 'Failed to delete address'),
+      error: (err) => (this.deleteError = err.message),
     });
   }
 

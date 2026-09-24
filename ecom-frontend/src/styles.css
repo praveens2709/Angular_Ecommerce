@@ -39,28 +39,22 @@ body {
   cursor: pointer;
 }
 
-.p-toast {
-  max-width: 280px;
+/* Inline message shown next to the form or button it belongs to (the site has no toasts) */
+.form-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: #b3261e;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  margin: 6px 0 10px;
+  text-align: left;
 }
-
-.p-toast .p-toast-message .p-toast-message-content {
-  padding: 0px;
-}
-
-.p-toast .p-toast-message .p-toast-message-content .p-toast-message-icon {
-  font-size: 1rem;
-  margin: 8px 0 0 5px;
-}
-
-.p-toast .p-toast-message .p-toast-message-content .p-toast-detail {
-  margin: 0;
-  font-size: 12px;
-}
-
-.p-toast .p-toast-message .p-toast-message-content .p-toast-summary {
-  font-weight: 700;
-  font-size: 16px;
-  margin-top: 7px;
+.form-error::before {
+  content: '\e989'; /* pi-exclamation-circle */
+  font-family: 'primeicons';
+  font-size: 0.9rem;
+  line-height: 1.35;
 }
 
 .card .p-tag {

@@ -14,8 +14,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
 import { TableModule } from 'primeng/table';
 import { ChartModule } from 'primeng/chart';
 import { DashboardComponent } from './Admin/Modules/dashboard/dashboard.component';
@@ -149,7 +147,6 @@ const DopeShopeTheme = definePreset(Lara, {
     FormsModule,
     CommonModule,
     ReactiveFormsModule,
-    ToastModule,
     BrowserAnimationsModule,
     TableModule,
     CardModule,
@@ -174,7 +171,6 @@ const DopeShopeTheme = definePreset(Lara, {
     CalendarModule
   ],
   providers: [
-    MessageService,
     { provide: TitleStrategy, useClass: SeoTitleStrategy },
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     // PrimeNG 19 ships no CSS files; the theme is injected at runtime.

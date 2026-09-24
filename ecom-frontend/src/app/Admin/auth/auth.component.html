@@ -47,8 +47,10 @@
           <i class="pi pi-lock position-absolute" style="font-weight: 800"></i>
         </div>
 
-        <button type="submit" [disabled]="authForm.invalid" class="btn border-0 text-white fw-semibold rounded-2">
-          {{ isLogin ? 'Login' : 'Register' }}
+        <p *ngIf="error" class="form-error" role="alert">{{ error }}</p>
+
+        <button type="submit" [disabled]="authForm.invalid || submitting" class="btn border-0 text-white fw-semibold rounded-2">
+          {{ submitting ? 'Please wait…' : isLogin ? 'Login' : 'Register' }}
         </button>
 
         <p class="toggle-text mt-3">

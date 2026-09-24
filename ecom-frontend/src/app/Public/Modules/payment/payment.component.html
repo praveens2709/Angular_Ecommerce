@@ -34,6 +34,7 @@
                                 [label]="selectedRecommendedOption === 'cod' ? 'PLACE ORDER' : 'PAY NOW'"
                                 [disabled]="isPlacingOrder" (click)="payRecommended()"
                                 class="w-100 mt-3 mb-2"></button>
+                            <p *ngIf="orderError" class="form-error" role="alert">{{ orderError }}</p>
                         </div>
                         <div *ngIf="selectedPaymentMethod === 'cod'" class="payment-right d-flex flex-column p-3">
                             <p class="red mb-3 fw-semibold">Cash on Delivery (Cash/UPI)</p>
@@ -50,6 +51,7 @@
                             </div>
                             <button pButton label="PLACE ORDER" class="w-100"
                                 [disabled]="!isCaptchaValid || isPlacingOrder" (click)="placeCodOrder()"></button>
+                            <p *ngIf="orderError" class="form-error" role="alert">{{ orderError }}</p>
                         </div>
                         <div *ngIf="selectedPaymentMethod === 'upi'" class="payment-right d-flex flex-column p-3">
                             <p class="red mb-2 fw-semibold">Pay using UPI</p>
@@ -64,6 +66,7 @@
                             </div>
                             <button *ngIf="selectedUPIOption" pButton label="PAY NOW" class="w-100 mt-3 mb-2"
                                 [disabled]="isPlacingOrder" (click)="processPayment('UPI')"></button>
+                            <p *ngIf="orderError" class="form-error" role="alert">{{ orderError }}</p>
                         </div>
                         <div *ngIf="selectedPaymentMethod === 'card'" class="payment-right d-flex flex-column p-3">
                             <p class="red mb-4 fw-semibold">Pay using Credit/Debit Card</p>
@@ -73,6 +76,7 @@
                             </p>
                             <button pButton label="PAY NOW" class="w-100"
                                 [disabled]="isPlacingOrder" (click)="processPayment('CARD')"></button>
+                            <p *ngIf="orderError" class="form-error" role="alert">{{ orderError }}</p>
                         </div>                        
                     </div>
                 </div>

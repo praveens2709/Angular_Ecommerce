@@ -45,6 +45,7 @@
   message="This will permanently delete your account. Continue?"
   confirmButtonText="Delete"
   cancelButtonText="Cancel"
+  [error]="error"
   (confirm)="confirmDelete()"
   (cancel)="isDialogVisible = false"
   (close)="isDialogVisible = false"

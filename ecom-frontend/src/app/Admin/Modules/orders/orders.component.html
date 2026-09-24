@@ -21,6 +21,7 @@
       {{ s || 'All' }}
     </button>
   </div>
+  <p *ngIf="loadError" class="form-error mx-3" role="alert">{{ loadError }}</p>
 
   <div>
     <p-table
@@ -190,6 +191,7 @@
         </button>
         <button class="btn btn-sm btn-outline-secondary" (click)="viewDialogVisible = false">Close</button>
       </div>
+      <p *ngIf="invoiceError" class="form-error mb-0" role="alert">{{ invoiceError }}</p>
     </div>
   </p-dialog>
 
@@ -202,6 +204,7 @@
     [style]="{ width: '460px' }"
   >
     <p>{{ pendingAction?.confirm }}</p>
+    <p *ngIf="actionError" class="form-error" role="alert">{{ actionError }}</p>
     <div class="d-flex justify-content-end mt-3 gap-2">
       <button class="btn" [ngClass]="pendingAction?.className || ''" (click)="confirmAction()">Yes</button>
       <button class="btn btn-outline-secondary" (click)="pendingAction = null">No</button>

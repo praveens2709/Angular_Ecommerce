@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { Router, provideRouter } from '@angular/router';
-import { MessageService } from 'primeng/api';
 import { AuthService } from './auth-service.service';
 import { authInterceptor } from './auth.intercepter';
 import { userAuthGuard } from './user-auth.guard';
@@ -24,7 +23,6 @@ describe('auth', () => {
         provideHttpClient(withInterceptors([authInterceptor])),
         provideHttpClientTesting(),
         provideRouter([]),
-        MessageService,
       ],
     });
     http = TestBed.inject(HttpClient);

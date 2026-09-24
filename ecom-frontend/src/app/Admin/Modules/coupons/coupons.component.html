@@ -35,10 +35,11 @@
             <button class="btn btn-sm btn-outline-secondary p-0 px-2 py-1" [title]="coupon.active ? 'Pause' : 'Activate'" (click)="toggleActive(coupon)">
               <i class="pi pt-1" [ngClass]="coupon.active ? 'pi-pause' : 'pi-play'"></i>
             </button>
-            <button class="btn btn-sm btn-outline-danger p-0 px-2 py-1" title="Delete" (click)="deleteTarget = coupon">
+            <button class="btn btn-sm btn-outline-danger p-0 px-2 py-1" title="Delete" (click)="openDelete(coupon)">
               <i class="pi pi-trash pt-1"></i>
             </button>
           </div>
+          <p *ngIf="rowError?.id === coupon._id" class="form-error mb-0" role="alert">{{ rowError?.message }}</p>
         </td>
       </tr>
     </ng-template>
@@ -92,6 +93,7 @@
         <label for="description">Description shown to shoppers (optional)</label>
         <input id="description" class="form-control" formControlName="description" placeholder="Auto-generated if left empty" />
       </div>
+      <p *ngIf="saveError" class="form-error mb-0" role="alert">{{ saveError }}</p>
       <div class="d-flex justify-content-end gap-2">
         <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Save</button>
         <button type="button" class="btn btn-secondary" (click)="dialogVisible = false">Cancel</button>
@@ -101,6 +103,7 @@
 
   <p-dialog [visible]="!!deleteTarget" (visibleChange)="!$event && (deleteTarget = null)" [modal]="true" header="Delete coupon" [style]="{ width: '440px' }">
     <p>Delete coupon <strong>{{ deleteTarget?.code }}</strong>? Past orders keep their discount.</p>
+    <p *ngIf="deleteError" class="form-error" role="alert">{{ deleteError }}</p>
     <div class="d-flex justify-content-end gap-2">
       <button class="btn btn-danger" (click)="confirmDelete()">Delete</button>
       <button class="btn btn-secondary" (click)="deleteTarget = null">Cancel</button>

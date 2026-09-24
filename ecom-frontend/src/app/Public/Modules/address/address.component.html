@@ -66,7 +66,7 @@
   </div>
 
   <!-- Address Form Dialog -->
-  <app-address-form [isDialogVisible]="isDialogVisible" [dialogTitle]="dialogTitle" [addressData]="selectedAddressData"
+  <app-address-form [isDialogVisible]="isDialogVisible" [dialogTitle]="dialogTitle" [addressData]="selectedAddressData" [error]="saveError"
     (onSave)="handleAddressSave($event)" (onClose)="handleDialogClose()"></app-address-form>
 </div>
 
@@ -76,6 +76,7 @@
   message="Are you sure you want to remove this address? This action cannot be undone."
   confirmButtonText="Remove"
   cancelButtonText="Cancel"
+  [error]="deleteError"
   (confirm)="confirmDeleteAddress()"
   (cancel)="isDeleteDialogVisible = false"
   (close)="isDeleteDialogVisible = false"

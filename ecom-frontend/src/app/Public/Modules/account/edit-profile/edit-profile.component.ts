@@ -74,17 +74,24 @@ export class EditProfileComponent implements OnInit {
     this.profileForm.get('gender')?.setValue(gender);
   }
 
+  saveError = '';
+
   showSaveDialog(): void {
+    this.saveError = '';
     this.isDialogVisible = true;
   }
 
   confirmSave(): void {
     if (this.profileForm.valid) {
       const { birthday, ...rest } = this.profileForm.value;
-      this.usersService.editUser(this.userId!, { ...rest, dateOfBirth: birthday || null }).subscribe(() => {
-        this.initialFormValue = { ...this.profileForm.value };
-        this.isDialogVisible = false;
-        this.router.navigate(['account/profile']);
+      this.usersService.editUser(this.userId!, { ...rest, dateOfBirth: birthday || null }).subscribe({
+        next: () => {
+          this.initialFormValue = { ...this.profileForm.value };
+          this.isDialogVisible = false;
+          this.router.navigate(['account/profile']);
+        },
+        // e.g. the email or mobile is already used by another account
+        error: (err) => (this.saveError = err.message),
       });
     }
   }

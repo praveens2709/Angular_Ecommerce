@@ -111,6 +111,9 @@ export class CardsComponent implements OnInit {
     });
   }
 
+  saveError = '';
+  deleteError = '';
+
   onSubmit() {
     if (this.cardForm.invalid) {
       this.cardForm.markAllAsTouched();
@@ -128,12 +131,13 @@ export class CardsComponent implements OnInit {
         this.isDialogVisible = false;
         this.cardForm.reset();
       },
-      error: (error) => console.error('Error saving card:', error),
+      error: (error) => (this.saveError = error.message),
     });
   }
 
   openAddCardDialog(): void {
     this.dialogTitle = 'Add Card';
+    this.saveError = '';
     this.editingCardId = null;
     this.cardForm.reset();
     this.cardForm.get('cardNumber')?.enable();
@@ -144,6 +148,7 @@ export class CardsComponent implements OnInit {
   // The number can't change (it isn't stored); only name and expiry are editable
   openEditCardDialog(card: any): void {
     this.dialogTitle = 'Edit Card Details';
+    this.saveError = '';
     this.editingCardId = card._id;
     this.editingLast4 = card.last4;
     this.cardForm.reset({
@@ -160,6 +165,7 @@ export class CardsComponent implements OnInit {
 
   openDeleteDialog(cardId: string): void {
     this.cardToDeleteId = cardId;
+    this.deleteError = '';
     this.isDeleteDialogVisible = true;
   }
 
@@ -173,7 +179,7 @@ export class CardsComponent implements OnInit {
         this.isDeleteDialogVisible = false;
         this.cardToDeleteId = null;
       },
-      error: (err) => console.error('Error deleting card', err),
+      error: (err) => (this.deleteError = err.message),
     });
   }
 }

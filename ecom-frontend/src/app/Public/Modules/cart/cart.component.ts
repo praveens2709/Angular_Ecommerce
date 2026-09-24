@@ -21,6 +21,7 @@ export class CartComponent implements OnInit, OnDestroy {
   cartItems: any[] = [];
   cartCount: number = 0;
   currentItem: any = null;
+  itemError: { id: string; message: string } | null = null;
   selectedQuantity: number = 1;
   priceDetails: any = {
     totalMRP: 0,
@@ -34,6 +35,7 @@ export class CartComponent implements OnInit, OnDestroy {
   private cartItemsSub: Subscription | null = null;
   private cartCountSub: Subscription | null = null;
   private priceDetailsSub: Subscription | null = null;
+  private itemErrorSub: Subscription | null = null;
 
   constructor(private cartService: CartService) { }
 
@@ -50,12 +52,15 @@ export class CartComponent implements OnInit, OnDestroy {
     this.priceDetailsSub = this.cartService.getPriceDetails().subscribe((details) => {
       this.priceDetails = details;
     });
+
+    this.itemErrorSub = this.cartService.itemError$.subscribe((error) => (this.itemError = error));
   }
 
   ngOnDestroy(): void {
     this.cartItemsSub?.unsubscribe();
     this.cartCountSub?.unsubscribe();
     this.priceDetailsSub?.unsubscribe();
+    this.itemErrorSub?.unsubscribe();
   }
 
   /** Selected items that can't be ordered right now */

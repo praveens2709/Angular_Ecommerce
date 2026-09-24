@@ -51,12 +51,16 @@ export class AddressComponent implements OnInit {
           this.selectedAddress = this.addresses[0]?._id ?? null;
         }
       },
-      error: (err) => console.error('Error', err),
+      error: (err) => (this.deleteError = err.message),
     });
   }
 
+  saveError = '';
+  deleteError = '';
+
   openAddDialog(): void {
     this.isEditMode = false;
+    this.saveError = '';
     this.dialogTitle = 'Add New Address';
     this.selectedAddressData = null;
     this.isDialogVisible = true;
@@ -64,6 +68,7 @@ export class AddressComponent implements OnInit {
 
   openEditDialog(address: any): void {
     this.isEditMode = true;
+    this.saveError = '';
     this.dialogTitle = 'Edit Address';
     this.selectedAddressData = { ...address };
     this.isDialogVisible = true;
@@ -78,7 +83,7 @@ export class AddressComponent implements OnInit {
           this.loadAddresses();
           this.isDialogVisible = false;
         },
-        error: (err) => console.error('Error', err),
+        error: (err) => (this.saveError = err.message),
       });
     } else {
       this.addressService.addAddress(address).subscribe({
@@ -86,13 +91,14 @@ export class AddressComponent implements OnInit {
           this.loadAddresses();
           this.isDialogVisible = false;
         },
-        error: (err) => console.error('Error', err),
+        error: (err) => (this.saveError = err.message),
       });
     }
   }
 
   openDeleteDialog(addressId: string): void {
     this.addressToDeleteId = addressId;
+    this.deleteError = '';
     this.isDeleteDialogVisible = true;
   }
 

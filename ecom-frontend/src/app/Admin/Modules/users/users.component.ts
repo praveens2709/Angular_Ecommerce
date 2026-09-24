@@ -62,10 +62,14 @@ export class UsersComponent {
   }
 
   /** Disabled users can't log in or place orders */
+  rowError: { id: string; message: string } | null = null;
+
   toggleActive(user: any): void {
     const next = user.active === false;
+    this.rowError = null;
     this.usersService.editUser(user._id, { active: next }).subscribe({
       next: () => (user.active = next),
+      error: (err) => (this.rowError = { id: user._id, message: err.message }),
     });
   }
 }

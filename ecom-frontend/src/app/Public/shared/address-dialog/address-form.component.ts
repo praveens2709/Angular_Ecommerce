@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { StoreService } from '../../../Services/store.service';
 
@@ -13,6 +13,8 @@ export class AddressFormComponent implements OnChanges {
   @Input() isDialogVisible: boolean = false;
   @Input() dialogTitle: string = 'Add Address';
   @Input() addressData: any;
+  /** Save failure from the parent, shown above the buttons */
+  @Input() error: string = '';
   @Output() onSave = new EventEmitter<any>();
   @Output() onClose = new EventEmitter<void>();
 
@@ -44,7 +46,9 @@ export class AddressFormComponent implements OnChanges {
     });
   }
 
-  ngOnChanges(): void {
+  ngOnChanges(changes: SimpleChanges): void {
+    // Only reset the form when a different address is opened, not when an error arrives
+    if (!changes['addressData'] && !changes['isDialogVisible']) return;
     if (this.addressData) {
       this.addressForm.patchValue({ ...this.addressData });
     } else {

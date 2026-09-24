@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
-import { MessageService } from 'primeng/api';
 import { CartService } from './cart.service';
 import { environment } from '../../../../environments/environment';
 import { fakeToken, inSeconds } from '../../../testing/test-helpers';
@@ -24,7 +23,7 @@ describe('CartService', () => {
   beforeEach(() => {
     localStorage.setItem('userAuthToken', fakeToken({ id: 'u1', role: 'user', exp: inSeconds(3600) }));
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]), MessageService],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     });
     service = TestBed.inject(CartService);
     http = TestBed.inject(HttpTestingController);

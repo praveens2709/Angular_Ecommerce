@@ -66,6 +66,7 @@
               {{ user.active === false ? 'Enable' : 'Disable' }}
             </button>
             <span *ngIf="user.active === false" class="ms-2 badge bg-secondary">Disabled</span>
+            <p *ngIf="rowError?.id === user._id" class="form-error mb-0" role="alert">{{ rowError?.message }}</p>
           </td>
         </tr>
       </ng-template>

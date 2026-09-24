@@ -78,6 +78,7 @@
                 (click)="openQuantityModal(item)"
                 class="p-button-text mb-1"
               ></button>
+              <p *ngIf="itemError?.id === item.id" class="form-error" role="alert">{{ itemError?.message }}</p>
               <div class="d-flex gap-1 pt-1">
                 <p class="fw-bold">{{ item.price | currency : "INR" }}</p>
                 <span class="fw-normal text-decoration-line-through">{{

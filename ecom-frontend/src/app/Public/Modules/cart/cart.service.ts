@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, forkJoin, of } from 'rxjs';
 import { distinctUntilChanged, tap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
-import { ToastService } from '../../../Services/toast-service.service';
 import { AuthService } from '../../../Admin/auth/Services/auth-service.service';
 import { Coupon, evaluateCoupon } from '../../../Services/coupon.service';
 
@@ -23,6 +22,9 @@ export class CartService {
     itemsCount: 0,
   });
   private couponSubject = new BehaviorSubject<Coupon | null>(null);
+  /** Last failed quantity change, shown under that item in the bag */
+  private itemErrorSubject = new BehaviorSubject<{ id: string; message: string } | null>(null);
+  readonly itemError$ = this.itemErrorSubject.asObservable();
 
   private apiUrl = `${environment.apiUrl}/cart`;
 
@@ -31,7 +33,6 @@ export class CartService {
 
   constructor(
     private http: HttpClient,
-    private toastService: ToastService,
     private authService: AuthService,
     private router: Router
   ) {
@@ -158,29 +159,24 @@ export class CartService {
     items.forEach(item => this.http.put(`${this.apiUrl}/${item.id}`, { isSelected }).subscribe());
   }
 
-  addToCart(product: any, size?: string, onAdded?: () => void): void {
+  /** onError receives a message for the page to show next to its button */
+  addToCart(product: any, size?: string, onAdded?: () => void, onError?: (message: string) => void): void {
     if (!this.authService.isUserLoggedIn()) {
-      this.toastService.error('Please sign in', 'Sign in to add items to your bag.');
       this.router.navigate(['/public/auth']);
       return;
     }
     if (product.inventoryStatus === 'OUTOFSTOCK') {
-      this.toastService.error('Out of stock', `${product.name} is currently unavailable.`);
+      onError?.('This item is currently out of stock.');
       return;
     }
 
     // The backend increments quantity if this product is already in the cart
-    const alreadyInCart = this.isInCart(product._id, size);
-    const label = size ? `${product.name} (${size})` : product.name;
     this.http.post(this.apiUrl, { _id: product._id, size }).subscribe({
       next: () => {
         this.loadCartItems();
-        alreadyInCart
-          ? this.toastService.success('Cart Updated', `${label} quantity increased!`)
-          : this.toastService.success('Added to Cart', `${label} added successfully!`);
         onAdded?.();
       },
-      error: (err) => this.toastService.error('Error', err.error?.message || 'Could not add item to cart'),
+      error: (err) => onError?.(err.error?.message || 'Could not add this item to your bag. Please try again.'),
     });
   }
 
@@ -191,23 +187,21 @@ export class CartService {
   }
 
   updateItem(updatedItem: any): void {
+    this.itemErrorSubject.next(null);
     this.http.put(`${this.apiUrl}/${updatedItem.id}`, {
       quantity: updatedItem.quantity,
       isSelected: updatedItem.isSelected,
     }).subscribe({
       next: () => this.loadCartItems(),
       error: (err) => {
-        this.toastService.error('Could not update', err.error?.message || 'Please try again');
+        this.itemErrorSubject.next({ id: updatedItem.id, message: err.error?.message || 'Could not change the quantity. Please try again.' });
         this.loadCartItems();
       },
     });
   }
 
   removeFromCart(cartItemId: string): void {
-    this.http.delete(`${this.apiUrl}/${cartItemId}`).subscribe(() => {
-      this.loadCartItems();
-      this.toastService.success('Removed from Cart', 'Product removed successfully.');
-    });
+    this.http.delete(`${this.apiUrl}/${cartItemId}`).subscribe(() => this.loadCartItems());
   }
 
   /** Remove items silently (after they've been ordered) */
@@ -222,7 +216,6 @@ export class CartService {
     this.http.delete(this.apiUrl).subscribe(() => {
       this.couponSubject.next(null);
       this.setCartItems([]);
-      this.toastService.success('Cart Cleared', 'All items removed from cart.');
     });
   }
 }

@@ -126,7 +126,7 @@
             <span *ngIf="!isSizeSoldOut(row.size) && stockLeft(row.size) !== null && stockLeft(row.size)! <= 3" class="few-left">{{ stockLeft(row.size) }} left</span>
           </button>
         </div>
-        <small *ngIf="showSizeError" class="text-danger d-block mt-1">Please select a size</small>
+        <p *ngIf="showSizeError" class="form-error mb-0" role="alert">Please select a size</p>
         <small *ngIf="lowStockMessage" class="low-stock d-block mt-2"><i class="pi pi-bolt"></i> {{ lowStockMessage }}</small>
       </div>
 
@@ -151,6 +151,7 @@
           <span class="fw-semibold">BUY NOW</span>
         </button>
       </div>
+      <p *ngIf="bagError" class="form-error" role="alert">{{ bagError }}</p>
 
       <!-- Delivery -->
       <div class="delivery-options pb-3 mt-4">
@@ -234,6 +235,7 @@
           <p-rating [(ngModel)]="reviewRating" name="rating" [stars]="5"></p-rating>
           <textarea class="form-control mt-3" rows="3" name="comment" maxlength="1000" placeholder="What did you like or dislike? How was the fit?"
             [(ngModel)]="reviewComment"></textarea>
+          <p *ngIf="reviewError" class="form-error mb-0" role="alert">{{ reviewError }}</p>
           <div class="d-flex gap-2 mt-3">
             <button type="submit" class="bag-btn px-4" [disabled]="reviewRating < 1 || isSavingReview">Post review</button>
             <button type="button" class="bag-btn outline px-4" (click)="showReviewForm = false">Cancel</button>
@@ -251,6 +253,7 @@
           </div>
           <p *ngIf="review.comment" class="mb-1 description">{{ review.comment }}</p>
           <button *ngIf="myReview?._id === review._id" type="button" class="link-btn" (click)="deleteReview()">Delete my review</button>
+          <p *ngIf="myReview?._id === review._id && reviewDeleteError" class="form-error mb-0" role="alert">{{ reviewDeleteError }}</p>
         </div>
       </div>
     </div>
@@ -293,6 +296,7 @@
       </tr>
     </tbody>
   </table>
+  <p *ngIf="showSizeError && !selectedSize" class="form-error mt-2 mb-0" role="alert">Please select a size</p>
   <div class="d-flex gap-2 mt-3">
     <button type="button" class="bag-btn w-100 d-flex justify-content-center align-items-center gap-2"
       [disabled]="isOutOfStock" (click)="addToBag()">

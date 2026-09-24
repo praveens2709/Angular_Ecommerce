@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, tap, throwError } from 'rxjs';
+import { Observable, catchError, throwError } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
-import { ToastService } from '../../../../Services/toast-service.service';
 import { LastValueCache } from '../../../../Services/last-value.cache';
 
 @Injectable({
@@ -14,7 +13,7 @@ export class AddressesService {
   /** Last list per user id (key supplied by the caller) */
   readonly lists = new LastValueCache<any[]>();
 
-  constructor(private http: HttpClient, private toastService: ToastService) {}
+  constructor(private http: HttpClient) {}
 
   /** ✅ Get the logged-in user's addresses */
   getAddresses(cacheKey?: string | null): Observable<any[]> {
@@ -26,7 +25,6 @@ export class AddressesService {
   /** ✅ Add Address */
   addAddress(address: any): Observable<any> {
     return this.http.post<any>(this.apiUrl, address).pipe(
-      tap(() => this.toastService.success('Success', 'Address added successfully!')),
       catchError((error) => this.handleError(error, 'Failed to add address'))
     );
   }
@@ -34,7 +32,6 @@ export class AddressesService {
   /** ✅ Update Address */
   updateAddress(addressId: string, address: any): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/${addressId}`, address).pipe(
-      tap(() => this.toastService.success('Success', 'Address updated successfully!')),
       catchError((error) => this.handleError(error, 'Failed to update address'))
     );
   }
@@ -42,15 +39,13 @@ export class AddressesService {
   /** ✅ Delete Address */
   deleteAddress(addressId: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${addressId}`).pipe(
-      tap(() => this.toastService.success('Removed', 'Address removed successfully!')),
       catchError((error) => this.handleError(error, 'Failed to delete address'))
     );
   }
 
-  /** ✅ Handle Errors */
+  /** Rejects with a readable message for the page to show inline */
   private handleError(error: any, message: string): Observable<never> {
     const detail = error.error?.message || error.error?.error || message;
-    this.toastService.error('Error', detail);
     return throwError(() => new Error(detail));
   }
 }

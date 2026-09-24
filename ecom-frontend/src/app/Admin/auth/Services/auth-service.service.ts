@@ -4,7 +4,6 @@ import { BehaviorSubject, Observable, catchError, throwError } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { jwtDecode } from 'jwt-decode';
 import { environment } from '../../../../environments/environment';
-import { ToastService } from '../../../Services/toast-service.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +14,7 @@ export class AuthService {
   private isAdminLoggedInSubject = new BehaviorSubject<boolean>(!!this.getAdminToken());
   private isUserLoggedInSubject = new BehaviorSubject<boolean>(!!this.getUserToken());
 
-  constructor(private http: HttpClient, private toastService: ToastService) {
+  constructor(private http: HttpClient) {
     this.checkAuthStatus();
   }
 
@@ -30,7 +29,6 @@ export class AuthService {
       tap((response) => {
         this.setAdminToken(response.token);
         this.isAdminLoggedInSubject.next(true);
-        this.toastService.success('Login Successful', 'Welcome Admin');
       }),
       catchError((error) => this.handleError(error, 'Admin login failed'))
     );
@@ -42,7 +40,6 @@ export class AuthService {
       tap((response) => {
         this.setAdminToken(response.token);
         this.isAdminLoggedInSubject.next(true);
-        this.toastService.success('Registration Successful', 'Welcome Admin');
       }),
       catchError((error) => this.handleError(error, 'Admin registration failed'))
     );
@@ -54,7 +51,6 @@ export class AuthService {
       tap((response) => {
         this.setUserToken(response.token);
         this.isUserLoggedInSubject.next(true);
-        this.toastService.success('Login Successful', 'Welcome User');
       }),
       catchError((error) => this.handleError(error, 'User login failed'))
     );
@@ -66,7 +62,6 @@ export class AuthService {
       tap((response) => {
         this.setUserToken(response.token);
         this.isUserLoggedInSubject.next(true);
-        this.toastService.success('Registration Successful', 'Welcome User');
       }),
       catchError((error) => this.handleError(error, 'User registration failed'))
     );
@@ -75,7 +70,6 @@ export class AuthService {
   /** ✅ Logout Admin */
   logoutAdmin(): void {
     this.clearAdminSession();
-    this.toastService.success('Logged Out', 'Goodbye Admin');
   }
 
   clearAdminSession(): void {
@@ -86,10 +80,9 @@ export class AuthService {
   /** ✅ Logout User */
   logoutUser(): void {
     this.clearUserSession();
-    this.toastService.success('Logged Out', 'Goodbye User');
   }
 
-  /** Drop the user token without a toast (used when the server rejects it) */
+  /** Drop the user token (also used when the server rejects it) */
   clearUserSession(): void {
     this.removeToken('userAuthToken');
     this.isUserLoggedInSubject.next(false);
@@ -104,15 +97,13 @@ export class AuthService {
 
   resetPassword(token: string, password: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.authApiURL}/user/reset-password`, { token, password }).pipe(
-      tap((res) => this.toastService.success('Password updated', res.message)),
       catchError((error) => this.handleError(error, 'Could not reset password'))
     );
   }
 
-  /** ✅ Handle Errors */
-  private handleError(error: any, message: string): Observable<never> {
-    const detail = error.error?.error || error.error?.message || 'An error occurred';
-    this.toastService.error(message, detail);
+  /** Rejects with the server's message so the form can show it inline */
+  private handleError(error: any, fallback: string): Observable<never> {
+    const detail = error.error?.error || error.error?.message || (error.status === 0 ? 'Could not reach the server. Check your connection.' : fallback);
     return throwError(() => new Error(detail));
   }
 
@@ -172,8 +163,7 @@ export class AuthService {
     try {
       const decoded: any = jwtDecode(token);
       return decoded.role || null;
-    } catch (error) {
-      this.toastService.error('Invalid Token', 'Admin authentication error');
+    } catch {
       return null;
     }
   }
@@ -185,8 +175,7 @@ export class AuthService {
     try {
       const decoded: any = jwtDecode(token);
       return { role: decoded.role || null, id: decoded.id || null };
-    } catch (error) {
-      this.toastService.error('Invalid Token', 'User authentication error');
+    } catch {
       return { role: null, id: null };
     }
   }

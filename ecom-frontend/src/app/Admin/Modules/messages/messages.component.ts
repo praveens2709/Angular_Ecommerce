@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { StoreService } from '../../../Services/store.service';
-import { ToastService } from '../../../Services/toast-service.service';
 
 /** Contact-form messages from shoppers */
 @Component({
@@ -16,7 +15,7 @@ export class MessagesComponent implements OnInit {
   loading = true;
   expanded: string | null = null;
 
-  constructor(private storeService: StoreService, private toastService: ToastService) {}
+  constructor(private storeService: StoreService) {}
 
   ngOnInit(): void {
     this.load();
@@ -43,12 +42,13 @@ export class MessagesComponent implements OnInit {
     this.expanded = this.expanded === message._id ? null : message._id;
   }
 
+  rowError: { id: string; message: string } | null = null;
+
   setStatus(message: any, status: 'New' | 'Resolved'): void {
+    this.rowError = null;
     this.storeService.updateMessage(message._id, status).subscribe({
-      next: () => {
-        this.toastService.success('Updated', status === 'Resolved' ? 'Marked as resolved' : 'Moved back to new');
-        this.load();
-      },
+      next: () => this.load(),
+      error: (err) => (this.rowError = { id: message._id, message: err.error?.message || 'Could not update. Please try again.' }),
     });
   }
 

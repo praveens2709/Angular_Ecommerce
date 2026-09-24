@@ -1,7 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CartService } from '../../Modules/cart/cart.service';
 import { Coupon, CouponService, describeCoupon } from '../../../Services/coupon.service';
-import { ToastService } from '../../../Services/toast-service.service';
 
 @Component({
   selector: 'app-price-details',
@@ -31,7 +30,6 @@ export class PriceDetailsComponent implements OnInit {
   constructor(
     private cartService: CartService,
     private couponService: CouponService,
-    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -61,7 +59,6 @@ export class PriceDetailsComponent implements OnInit {
         this.isApplying = false;
         this.couponCode = '';
         this.cartService.applyCoupon(coupon);
-        this.toastService.success('Coupon applied', `You saved ₹${coupon.discount}`);
       },
       error: (err) => {
         this.isApplying = false;

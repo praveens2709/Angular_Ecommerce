@@ -13,6 +13,7 @@ import { AuthService } from '../../../../Admin/auth/Services/auth-service.servic
 export class DeleteAccountComponent {
   isAgreed: boolean = false;
   isDialogVisible: boolean = false;
+  error = '';
 
   constructor(
     private usersService: UsersService,
@@ -31,10 +32,14 @@ export class DeleteAccountComponent {
   confirmDelete(): void {
     const { id } = this.authService.getUserRoleAndId();
     if (!id) return;
-    this.usersService.deleteUser(id).subscribe(() => {
-      this.isDialogVisible = false;
-      this.authService.clearUserSession();
-      this.router.navigate(['/home']);
+    this.error = '';
+    this.usersService.deleteUser(id).subscribe({
+      next: () => {
+        this.isDialogVisible = false;
+        this.authService.clearUserSession();
+        this.router.navigate(['/home']);
+      },
+      error: (err) => (this.error = err.message),
     });
   }
 }

@@ -13,6 +13,8 @@ export class CommonDialogComponent {
   @Input() message: string = 'Are you sure you want to proceed?';
   @Input() confirmButtonText: string = 'Confirm';
   @Input() cancelButtonText: string = 'Cancel';
+  /** Shown under the message when the action fails, so the dialog stays open with the reason */
+  @Input() error: string = '';
 
   @Output() confirm = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();

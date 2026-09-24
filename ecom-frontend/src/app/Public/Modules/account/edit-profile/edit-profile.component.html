@@ -104,6 +104,7 @@
   message="Are you sure you want to save your profile details?"
   confirmButtonText="Save"
   cancelButtonText="Cancel"
+  [error]="saveError"
   (confirm)="confirmSave()"
   (cancel)="isDialogVisible = false"
   (close)="isDialogVisible = false"

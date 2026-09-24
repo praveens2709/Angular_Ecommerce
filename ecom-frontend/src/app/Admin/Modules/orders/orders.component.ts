@@ -3,7 +3,6 @@ import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { ADMIN_TRANSITIONS, Order, OrderService, OrderStatus } from './order.service';
-import { ToastService } from '../../../Services/toast-service.service';
 
 interface StatusAction {
   status: OrderStatus;
@@ -44,7 +43,7 @@ export class OrdersComponent {
   pendingAction: StatusAction | null = null;
   actionOrder: Order | null = null;
 
-  constructor(private orderService: OrderService, private toastService: ToastService) {
+  constructor(private orderService: OrderService) {
     this.search$.pipe(debounceTime(350)).subscribe(() => {
       this.first = 0;
       this.fetchOrders();
@@ -58,8 +57,13 @@ export class OrdersComponent {
   }
 
   /** Fetch one page from the API */
+  loadError = '';
+  invoiceError = '';
+  actionError = '';
+
   fetchOrders(): void {
     this.loading = true;
+    this.loadError = '';
     const page = Math.floor(this.first / this.rows) + 1;
     this.orderService.getOrders(page, this.rows, { status: this.statusFilter, q: this.search.trim() }).subscribe({
       next: (res) => {
@@ -69,7 +73,7 @@ export class OrdersComponent {
       },
       error: () => {
         this.loading = false;
-        this.toastService.error('Error', 'Could not load orders');
+        this.loadError = 'Could not load orders. Please refresh the page.';
       },
     });
   }
@@ -114,35 +118,39 @@ export class OrdersComponent {
 
   downloadInvoice(order: Order): void {
     if (!order._id) return;
+    this.invoiceError = '';
     this.orderService.downloadInvoice(order._id).subscribe({
-      error: () => this.toastService.error('Invoice unavailable', 'Cancelled or free replacement orders have no invoice.'),
+      error: () => (this.invoiceError = 'Invoice unavailable. Cancelled or free replacement orders have no invoice.'),
     });
   }
 
   /** View order details */
   viewOrderDetails(order: Order): void {
     this.selectedOrder = order;
+    this.invoiceError = '';
     this.viewDialogVisible = true;
   }
 
   askAction(order: Order, action: StatusAction): void {
     this.actionOrder = order;
+    this.actionError = '';
     this.pendingAction = action;
   }
 
   confirmAction(): void {
     const order = this.actionOrder;
     const action = this.pendingAction;
-    this.pendingAction = null;
     if (!order?._id || !action) return;
+    this.actionError = '';
 
     this.orderService.updateOrder(order._id, action.status).subscribe({
       next: (updated) => {
-        this.toastService.success('Order updated', `Order is now ${updated.status}`);
+        this.pendingAction = null;
         this.fetchOrders();
         if (this.selectedOrder?._id === updated._id) this.selectedOrder = { ...this.selectedOrder, ...updated };
       },
-      error: (error) => this.toastService.error('Could not update', error.error?.message || 'Please try again'),
+      // The confirm dialog stays open with the reason
+      error: (error) => (this.actionError = error.error?.message || 'Could not update the order. Please try again.'),
     });
   }
 }

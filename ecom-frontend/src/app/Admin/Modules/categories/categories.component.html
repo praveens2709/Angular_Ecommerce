@@ -118,6 +118,8 @@
         </select>
       </div>
 
+      <p *ngIf="saveError" class="form-error mb-0" role="alert">{{ saveError }}</p>
+
       <!-- Action Buttons -->
       <div class="d-flex gap-3 justify-content-end">
         <button
@@ -150,6 +152,7 @@
       Are you sure you want to delete <strong>{{ currentCategory.name }}</strong
       >?
     </p>
+    <p *ngIf="deleteError" class="form-error" role="alert">{{ deleteError }}</p>
     <div class="d-flex justify-content-end mt-3 gap-2">
       <button
         class="btn btn-danger"

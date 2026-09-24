@@ -13,6 +13,7 @@
       </button>
     </div>
   </div>
+  <p *ngIf="pageError" class="form-error mx-3" role="alert">{{ pageError }}</p>
 
   <div>
     <p-table
@@ -167,6 +168,7 @@
             accept="image/png,image/jpeg,image/webp,image/gif" [disabled]="uploading || gallery.length >= 7" />
           <small class="text-muted">Up to 5 MB each; large photos are resized automatically.</small>
           <small *ngIf="uploading" class="d-block text-primary">Uploading…</small>
+          <p *ngIf="uploadError" class="form-error mb-0" role="alert">{{ uploadError }}</p>
         </div>
         <div class="image-preview d-flex justify-content-center align-items-center">
           <img [src]="productForm.value.image || 'assets/images/placeholder.png'" alt="Main image" class="w-100 h-100" />
@@ -179,6 +181,7 @@
         </div>
       </div>
 
+      <p *ngIf="saveError" class="form-error mb-0" role="alert">{{ saveError }}</p>
       <div class="d-flex justify-content-end gap-3">
         <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid || uploading || isSaving">Save Product</button>
         <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
@@ -189,6 +192,7 @@
   <!-- Delete Confirmation Dialog -->
   <p-dialog [(visible)]="deleteDialogVisible" [modal]="true" [closable]="false" header="Confirm Deletion" [style]="{ width: '500px' }">
     <p>Are you sure you want to delete <strong>{{ currentProduct.name }}</strong>? Its reviews will be removed too.</p>
+    <p *ngIf="deleteError" class="form-error" role="alert">{{ deleteError }}</p>
     <div class="d-flex justify-content-end mt-3 gap-2">
       <button class="btn btn-danger" (click)="deleteProduct()">Delete</button>
       <button class="btn btn-secondary" (click)="deleteDialogVisible = false">Cancel</button>

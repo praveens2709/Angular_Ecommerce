@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { CategoriesService } from './categories.service';
-import { MessageService } from 'primeng/api';
 
 interface Category {
   _id?: string;
@@ -22,10 +21,10 @@ export class CategoriesComponent implements OnInit {
   deleteDialogVisible = false;
   dialogMode: 'add' | 'edit' = 'add';
 
-  constructor(
-    private categoryService: CategoriesService,
-    private messageService: MessageService
-  ) {}
+  saveError = '';
+  deleteError = '';
+
+  constructor(private categoryService: CategoriesService) {}
 
   ngOnInit(): void {
     this.loadCategories();
@@ -45,49 +44,45 @@ export class CategoriesComponent implements OnInit {
     } else {
       this.currentCategory = { name: '', status: 'ACTIVE', productCount: 0 };
     }
+    this.saveError = '';
     this.dialogVisible = true;
   }
 
   saveCategory() {
-    if (!this.currentCategory.name) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Category name is required' });
+    if (!this.currentCategory.name?.trim()) {
+      this.saveError = 'Category name is required';
       return;
     }
-    if (this.dialogMode === 'add') {
-      this.categoryService.addCategory(this.currentCategory).subscribe((category) => {
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Category added successfully' });
+    this.saveError = '';
+    const request =
+      this.dialogMode === 'edit' && this.currentCategory._id
+        ? this.categoryService.updateCategory(this.currentCategory._id, this.currentCategory)
+        : this.categoryService.addCategory(this.currentCategory);
+    request.subscribe({
+      next: () => {
         this.dialogVisible = false;
         this.loadCategories();
-      });
-    } else if (this.dialogMode === 'edit' && this.currentCategory._id) {
-      this.categoryService.updateCategory(this.currentCategory._id, this.currentCategory).subscribe(() => {
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Category updated successfully' });
-        this.dialogVisible = false;
-        this.loadCategories();
-      });
-    }
+      },
+      error: (error) => (this.saveError = error.error?.message || 'Could not save the category. Please try again.'),
+    });
   }
 
   openDeleteDialog(category: Category) {
     this.currentCategory = { ...category };
+    this.deleteError = '';
     this.deleteDialogVisible = true;
   }
 
   deleteCategory() {
-    if (!this.currentCategory._id) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Invalid category ID' });
-      return;
-    }
+    if (!this.currentCategory._id) return;
+    this.deleteError = '';
     this.categoryService.deleteCategory(this.currentCategory._id).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Category deleted successfully' });
         this.deleteDialogVisible = false;
         this.loadCategories();
       },
-      error: (error) => {
-        this.deleteDialogVisible = false;
-        this.messageService.add({ severity: 'error', summary: 'Cannot delete', detail: error.error?.message || 'Please try again' });
-      },
+      // e.g. products still use this category; the dialog stays open with the reason
+      error: (error) => (this.deleteError = error.error?.message || 'Could not delete the category. Please try again.'),
     });
   }
 

@@ -34,10 +34,12 @@
     </small>
   </div>
 
+  <p *ngIf="error" class="form-error" role="alert">{{ error }}</p>
+
   <p class="text-end forgot-link mb-2"><a (click)="forgotPassword.emit()" class="text-orange">Forgot password?</a></p>
 
-  <button type="submit" [disabled]="loginForm.invalid" class="btn border-0 text-white fw-semibold rounded-2">
-    Login
+  <button type="submit" [disabled]="loginForm.invalid || submitting" class="btn border-0 text-white fw-semibold rounded-2">
+    {{ submitting ? 'Logging in…' : 'Login' }}
   </button>
 
   <p class="text-center mt-3">

@@ -67,9 +67,11 @@
     </small>
   </div>
 
+  <p *ngIf="error" class="form-error" role="alert">{{ error }}</p>
+
   <!-- Submit Button -->
-  <button type="submit" [disabled]="registerForm.invalid" class="btn border-0 text-white fw-semibold rounded-2">
-    Register
+  <button type="submit" [disabled]="registerForm.invalid || submitting" class="btn border-0 text-white fw-semibold rounded-2">
+    {{ submitting ? 'Creating account…' : 'Register' }}
   </button>
 
   <!-- Toggle to Login -->

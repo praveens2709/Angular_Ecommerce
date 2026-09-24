@@ -5,7 +5,6 @@ import { BehaviorSubject } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { AuthService } from '../Admin/auth/Services/auth-service.service';
-import { ToastService } from './toast-service.service';
 
 @Injectable({ providedIn: 'root' })
 export class WishlistService {
@@ -18,7 +17,6 @@ export class WishlistService {
   constructor(
     private http: HttpClient,
     private authService: AuthService,
-    private toastService: ToastService,
     private router: Router
   ) {
     this.authService.isUserLoggedIn$.pipe(distinctUntilChanged()).subscribe((loggedIn) => {
@@ -41,7 +39,6 @@ export class WishlistService {
   /** Adds or removes; optimistic so the heart flips instantly */
   toggle(product: any): void {
     if (!this.authService.isUserLoggedIn()) {
-      this.toastService.error('Please sign in', 'Sign in to save items to your wishlist.');
       this.router.navigate(['/public/auth']);
       return;
     }
@@ -51,10 +48,7 @@ export class WishlistService {
       this.http.delete(`${this.apiUrl}/${product._id}`).subscribe({ error: () => this.itemsSubject.next(current) });
     } else {
       this.itemsSubject.next([product, ...current]);
-      this.http.post(`${this.apiUrl}/${product._id}`, {}).subscribe({
-        next: () => this.toastService.success('Saved', `${product.name} added to your wishlist`),
-        error: () => this.itemsSubject.next(current),
-      });
+      this.http.post(`${this.apiUrl}/${product._id}`, {}).subscribe({ error: () => this.itemsSubject.next(current) });
     }
   }
 }

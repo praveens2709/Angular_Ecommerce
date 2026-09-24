@@ -11,7 +11,6 @@ import { DeliveryCheck, StoreService, addDeliveryDays } from '../../../Services/
 import { CartService } from '../cart/cart.service';
 import { AuthService } from '../../../Admin/auth/Services/auth-service.service';
 import { AddressesService } from '../account/addresses/addresses.service';
-import { ToastService } from '../../../Services/toast-service.service';
 
 interface SizeChartRow {
   size: string;
@@ -43,6 +42,10 @@ export class ProductDetailsComponent implements OnInit {
   reviewRating = 0;
   reviewComment = '';
   isSavingReview = false;
+  reviewError = '';
+  reviewDeleteError = '';
+  /** Why the last add-to-bag failed (e.g. stock ran out), shown under the buttons */
+  bagError = '';
   showReviewForm = false;
 
   readonly sizeChart: SizeChartRow[] = [
@@ -72,7 +75,6 @@ export class ProductDetailsComponent implements OnInit {
     private cartService: CartService,
     private authService: AuthService,
     private addressesService: AddressesService,
-    private toastService: ToastService,
     private wishlistService: WishlistService,
     private storeService: StoreService,
     private viewportScroller: ViewportScroller,
@@ -221,39 +223,38 @@ export class ProductDetailsComponent implements OnInit {
 
   openReviewForm(): void {
     if (!this.isLoggedIn) {
-      this.toastService.error('Please sign in', 'Sign in to write a review.');
       this.router.navigate(['/public/auth']);
       return;
     }
     this.reviewRating = this.myReview?.rating ?? 0;
     this.reviewComment = this.myReview?.comment ?? '';
+    this.reviewError = '';
     this.showReviewForm = true;
   }
 
   submitReview(): void {
     if (!this.product || this.reviewRating < 1 || this.isSavingReview) return;
     this.isSavingReview = true;
+    this.reviewError = '';
     this.productService.saveReview(this.product._id, this.reviewRating, this.reviewComment.trim()).subscribe({
       next: () => {
         this.isSavingReview = false;
         this.showReviewForm = false;
-        this.toastService.success('Thanks!', 'Your review has been posted.');
         this.refreshRatings();
       },
       error: (err) => {
         this.isSavingReview = false;
-        this.toastService.error('Could not post review', err.error?.message || 'Please try again');
+        this.reviewError = err.error?.message || 'Could not post your review. Please try again.';
       },
     });
   }
 
   deleteReview(): void {
     if (!this.product) return;
+    this.reviewDeleteError = '';
     this.productService.deleteMyReview(this.product._id).subscribe({
-      next: () => {
-        this.toastService.success('Deleted', 'Your review was removed.');
-        this.refreshRatings();
-      },
+      next: () => this.refreshRatings(),
+      error: (err) => (this.reviewDeleteError = err.error?.message || 'Could not delete your review. Please try again.'),
     });
   }
 
@@ -271,19 +272,23 @@ export class ProductDetailsComponent implements OnInit {
     if (this.isSizeSoldOut(size)) return;
     this.selectedSize = size;
     this.showSizeError = false;
+    this.bagError = '';
   }
 
   addToBag(goToBag = false): void {
     if (!this.product || this.isOutOfStock) return;
+    this.bagError = '';
     if (!this.selectedSize) {
       this.showSizeError = true;
-      this.toastService.error('Select a size', 'Please choose a size before adding to bag.');
       return;
     }
     this.isSizeChartVisible = false;
-    this.cartService.addToCart(this.product, this.selectedSize, () => {
-      if (goToBag) this.router.navigate(['/cart']);
-    });
+    this.cartService.addToCart(
+      this.product,
+      this.selectedSize,
+      () => goToBag && this.router.navigate(['/cart']),
+      (message) => (this.bagError = message)
+    );
   }
 
   scrollToReviews(): void {

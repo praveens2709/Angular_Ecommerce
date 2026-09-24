@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Order, OrderService, OrderStatus, RETURN_WINDOW_DAYS } from '../../../../Admin/Modules/orders/order.service';
 import { SIZES } from '../../../../Admin/Modules/products/product.service';
-import { ToastService } from '../../../../Services/toast-service.service';
 
 interface TimelineStep {
   label: string;
@@ -39,7 +38,6 @@ export class OrderDetailsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private orderService: OrderService,
-    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -56,6 +54,10 @@ export class OrderDetailsComponent implements OnInit {
     });
   }
 
+  invoiceError = '';
+  cancelError = '';
+  returnError = '';
+
   /** Invoices exist for everything except cancelled or free replacement orders */
   get canDownloadInvoice(): boolean {
     return !!this.order && this.order.status !== 'Cancelled' && (this.order.totalAmount ?? 0) > 0;
@@ -64,11 +66,12 @@ export class OrderDetailsComponent implements OnInit {
   downloadInvoice(): void {
     if (this.downloadingInvoice) return;
     this.downloadingInvoice = true;
+    this.invoiceError = '';
     this.orderService.downloadInvoice(this.orderId).subscribe({
       next: () => (this.downloadingInvoice = false),
       error: () => {
         this.downloadingInvoice = false;
-        this.toastService.error('Invoice unavailable', 'Please try again in a moment.');
+        this.invoiceError = 'The invoice is not available right now. Please try again in a moment.';
       },
     });
   }
@@ -128,6 +131,7 @@ export class OrderDetailsComponent implements OnInit {
   }
 
   showCancelDialog() {
+    this.cancelError = '';
     this.isDialogVisible = true;
   }
 
@@ -142,11 +146,10 @@ export class OrderDetailsComponent implements OnInit {
       next: (updatedOrder) => {
         this.order = updatedOrder;
         this.closeDialog();
-        this.toastService.success('Order cancelled', 'Your order has been cancelled.');
       },
       error: (error) => {
-        this.closeDialog();
-        this.toastService.error('Could not cancel', error.error?.message || 'Please try again');
+        // Keep the dialog open with the reason (e.g. it has already shipped)
+        this.cancelError = error.error?.message || 'Could not cancel this order. Please try again.';
       },
     });
   }
@@ -155,6 +158,7 @@ export class OrderDetailsComponent implements OnInit {
     this.returnType = 'Return';
     this.returnReason = '';
     this.exchangeSize = '';
+    this.returnError = '';
     this.isReturnDialogVisible = true;
   }
 
@@ -166,6 +170,7 @@ export class OrderDetailsComponent implements OnInit {
   submitReturn(): void {
     if (!this.canSubmitReturn || this.isSubmitting) return;
     this.isSubmitting = true;
+    this.returnError = '';
     this.orderService
       .requestReturn(this.orderId, {
         type: this.returnType,
@@ -177,11 +182,10 @@ export class OrderDetailsComponent implements OnInit {
           this.isSubmitting = false;
           this.order = order;
           this.isReturnDialogVisible = false;
-          this.toastService.success('Request sent', `We've received your ${this.returnType.toLowerCase()} request.`);
         },
         error: (error) => {
           this.isSubmitting = false;
-          this.toastService.error('Could not submit', error.error?.message || 'Please try again');
+          this.returnError = error.error?.message || 'Could not submit your request. Please try again.';
         },
       });
   }

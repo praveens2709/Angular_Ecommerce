@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Coupon, CouponService, describeCoupon } from '../../../Services/coupon.service';
-import { ToastService } from '../../../Services/toast-service.service';
 
 @Component({
   selector: 'app-coupons',
@@ -18,7 +17,7 @@ export class CouponsComponent implements OnInit {
   form: FormGroup;
   readonly describe = describeCoupon;
 
-  constructor(private couponService: CouponService, private toastService: ToastService, private fb: FormBuilder) {
+  constructor(private couponService: CouponService, private fb: FormBuilder) {
     this.form = this.fb.group({
       code: ['', [Validators.required, Validators.pattern(/^[A-Za-z0-9_-]{3,20}$/)]],
       description: [''],
@@ -50,8 +49,13 @@ export class CouponsComponent implements OnInit {
     return !!coupon.expiresAt && new Date(coupon.expiresAt) < new Date();
   }
 
+  saveError = '';
+  deleteError = '';
+  rowError: { id: string; message: string } | null = null;
+
   openDialog(coupon?: Coupon): void {
     this.editingId = coupon?._id ?? null;
+    this.saveError = '';
     this.form.reset({
       code: coupon?.code ?? '',
       description: coupon?.description ?? '',
@@ -78,33 +82,39 @@ export class CouponsComponent implements OnInit {
       expiresAt: value.expiresAt ? new Date(`${value.expiresAt}T23:59:59`).toISOString() : null,
     };
     const request = this.editingId ? this.couponService.update(this.editingId, body) : this.couponService.create(body);
+    this.saveError = '';
     request.subscribe({
       next: () => {
         this.dialogVisible = false;
-        this.toastService.success('Saved', `Coupon ${body.code} saved`);
         this.load();
       },
-      error: (err) => this.toastService.error('Could not save', err.error?.message || 'Please check the form'),
+      error: (err) => (this.saveError = err.error?.message || 'Could not save. Please check the form.'),
     });
   }
 
   toggleActive(coupon: Coupon): void {
+    this.rowError = null;
     this.couponService.update(coupon._id!, { active: !coupon.active }).subscribe({
       next: () => (coupon.active = !coupon.active),
-      error: (err) => this.toastService.error('Could not update', err.error?.message || 'Please try again'),
+      error: (err) => (this.rowError = { id: coupon._id!, message: err.error?.message || 'Could not update. Please try again.' }),
     });
+  }
+
+  openDelete(coupon: Coupon): void {
+    this.deleteError = '';
+    this.deleteTarget = coupon;
   }
 
   confirmDelete(): void {
     const target = this.deleteTarget;
-    this.deleteTarget = null;
     if (!target?._id) return;
+    this.deleteError = '';
     this.couponService.remove(target._id).subscribe({
       next: () => {
-        this.toastService.success('Deleted', `Coupon ${target.code} deleted`);
+        this.deleteTarget = null;
         this.load();
       },
-      error: (err) => this.toastService.error('Could not delete', err.error?.message || 'Please try again'),
+      error: (err) => (this.deleteError = err.error?.message || 'Could not delete. Please try again.'),
     });
   }
 }

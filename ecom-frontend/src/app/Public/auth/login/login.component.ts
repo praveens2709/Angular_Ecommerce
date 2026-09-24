@@ -17,6 +17,8 @@ export class LoginComponent implements OnInit {
   @Output() forgotPassword = new EventEmitter<void>();
 
   loginForm!: FormGroup;
+  error = '';
+  submitting = false;
 
   constructor(
     private fb: FormBuilder, 
@@ -33,25 +35,22 @@ export class LoginComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
     });
+    // A new attempt clears the previous server error
+    this.loginForm.valueChanges.subscribe(() => (this.error = ''));
   }
 
   formSubmit(): void {
-    if (this.loginForm.valid) {
-      const { email, password } = this.loginForm.value;
-  
-      this.authService.publicLogin(email, password).subscribe({
-        next: (user) => {
-          console.log('Login Successful:', user);
-          this.router.navigate(['home']);
-        },
-        error: (error) => {
-          console.error('Login failed:', error);
-        }
-      });
-    } else {
-      console.warn('Login form is invalid:', this.loginForm.value);
-    }
-  }  
+    if (this.loginForm.invalid || this.submitting) return;
+    const { email, password } = this.loginForm.value;
+    this.submitting = true;
+    this.authService.publicLogin(email, password).subscribe({
+      next: () => this.router.navigate(['home']),
+      error: (error) => {
+        this.submitting = false;
+        this.error = error.message;
+      },
+    });
+  }
 
   goToRegister(): void {
     this.switchToRegister.emit();
