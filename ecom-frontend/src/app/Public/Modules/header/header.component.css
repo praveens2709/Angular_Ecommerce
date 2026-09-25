@@ -1,3 +1,9 @@
+/* Wrapper reserves the pinned header's height (set exactly by appPinnedHeader) */
+:host {
+  display: block;
+  min-height: 70px;
+}
+
 /* Header Styles */
 .dopeshope-navbar {
   z-index: 999;

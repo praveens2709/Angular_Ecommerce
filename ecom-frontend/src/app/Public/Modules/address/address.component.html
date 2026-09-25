@@ -1,6 +1,6 @@
 <app-cart-header></app-cart-header>
 
-<div class="address-section w-100">
+<div class="address-section checkout-address w-100">
   <div class="cart-body animate three fadeInUp">
     <app-back-button></app-back-button>
     <div class="container-fluid">
@@ -18,7 +18,18 @@
               </div>
 
               <span class="fw-semibold" *ngIf="addresses.length > 0">DEFAULT ADDRESS</span>
-              <div *ngFor="let address of addresses" class="profile-box pt-2 px-2">
+              <!-- Nothing saved yet: say so, and point to the button (Continue stays disabled) -->
+              <div *ngIf="addressesLoaded && addresses.length === 0" class="empty-address text-center py-5 px-3">
+                <i class="pi pi-map-marker"></i>
+                <p class="fw-semibold mt-3 mb-1">Where should we deliver?</p>
+                <p class="text-secondary mb-3">Add a delivery address to continue to payment.</p>
+                <button type="button" class="empty-add-btn" (click)="openAddDialog()">
+                  <i class="pi pi-plus me-1"></i>Add address
+                </button>
+              </div>
+              <!-- The whole card selects the address, not just the small radio -->
+              <div *ngFor="let address of addresses" class="profile-box pt-2 px-2 cursor-pointer"
+                [class.selected-address]="selectedAddress === address._id" (click)="selectedAddress = address._id">
                 <div class="d-flex gap-2 align-items-center mb-2">
                   <p-radioButton name="address" [(ngModel)]="selectedAddress" [value]="address._id"></p-radioButton>
                   <p class="fw-semibold mb-0">{{ address.fullName }}</p>

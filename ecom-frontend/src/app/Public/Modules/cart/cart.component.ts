@@ -22,6 +22,7 @@ export class CartComponent implements OnInit, OnDestroy {
   cartCount: number = 0;
   currentItem: any = null;
   itemError: { id: string; message: string } | null = null;
+  loaded = false;
   selectedQuantity: number = 1;
   priceDetails: any = {
     totalMRP: 0,
@@ -54,6 +55,7 @@ export class CartComponent implements OnInit, OnDestroy {
     });
 
     this.itemErrorSub = this.cartService.itemError$.subscribe((error) => (this.itemError = error));
+    this.itemErrorSub.add(this.cartService.loaded$.subscribe((loaded) => (this.loaded = loaded)));
   }
 
   ngOnDestroy(): void {

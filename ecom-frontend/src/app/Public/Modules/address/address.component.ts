@@ -40,18 +40,22 @@ export class AddressComponent implements OnInit {
     });
   }
 
+  /** False until the first list arrives, so the empty state doesn't flash while loading */
+  addressesLoaded = false;
+
   loadAddresses(): void {
     if (!this.userId) return;
 
     this.addressService.getAddresses().subscribe({
       next: (data) => {
         this.addresses = data;
+        this.addressesLoaded = true;
         // Keep the current choice if it still exists, else default to the first address
         if (!this.addresses.some((a) => a._id === this.selectedAddress)) {
           this.selectedAddress = this.addresses[0]?._id ?? null;
         }
       },
-      error: (err) => (this.deleteError = err.message),
+      error: () => (this.addressesLoaded = true),
     });
   }
 
@@ -111,7 +115,7 @@ export class AddressComponent implements OnInit {
         this.isDeleteDialogVisible = false;
         this.addressToDeleteId = null;
       },
-      error: (err) => console.error('Error', err),
+      error: (err) => (this.deleteError = err.message),
     });
   }
 

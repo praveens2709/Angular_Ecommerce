@@ -63,3 +63,35 @@
     color: #dc3545;
     border: 1px solid #dc3545;
 }
+
+/* No saved address yet */
+.empty-address {
+  border: 1px dashed #e6d3cd;
+  border-radius: 12px;
+  background: #fdf8f6;
+
+  .pi-map-marker {
+    font-size: 1.8rem;
+    color: #992603;
+  }
+}
+
+/* Scoped like `.address-section button` above, which would otherwise turn the label red on red */
+.address-section .empty-add-btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 9px 22px;
+  background: #992603;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.address-section .empty-add-btn:hover {
+  background: #7a1f05;
+}
+
+/* Chosen address stands out */
+.selected-address {
+  border-color: #992603 !important;
+  box-shadow: 0 0 0 1px #992603;
+}

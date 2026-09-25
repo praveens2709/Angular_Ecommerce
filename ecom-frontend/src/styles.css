@@ -318,6 +318,27 @@ body {
   border-color: #992603 !important;
 }
 
+/* PrimeNG 19 marks selection with *-checked on the host (the .p-highlight rules above are v17):
+   brand-filled box with a white dot/tick, so a chosen address, gender or size is obvious */
+.p-radiobutton-checked .p-radiobutton-box,
+.p-checkbox-checked .p-checkbox-box {
+  background: #992603 !important;
+  border-color: #992603 !important;
+}
+
+.p-radiobutton-checked .p-radiobutton-box .p-radiobutton-icon {
+  background: #ffffff !important;
+  visibility: visible;
+  /* Small dot, so the brand fill around it shows (a large dot read as an empty ring) */
+  width: 8px !important;
+  height: 8px !important;
+  transform: none !important;
+}
+
+.p-checkbox-checked .p-checkbox-box .p-checkbox-icon {
+  color: #ffffff !important;
+}
+
 
 /* Cart Body */
 .cart-body {
@@ -602,6 +623,18 @@ label,
 .common-modal {
   width: 100%;
   max-width: 860px;
+}
+
+/* The checkout address page reuses .address-section for its whole two-column layout:
+   it must use the full width (the cap above is for the account pages' boxes) */
+.address-section.checkout-address {
+  max-width: none;
+}
+
+.address-section,
+.cards-section,
+.delete-account,
+.common-modal {
 
   h6 {
     color: #992603;
@@ -1058,4 +1091,13 @@ label,
 .navbar .burger .pi {
   line-height: 1;
   display: block;
+}
+
+/* Headers pinned by appPinnedHeader (see pinned-header.directive.ts) */
+.pinned-header {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
 }

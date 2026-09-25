@@ -60,6 +60,7 @@ import { AddressFormComponent } from './Public/shared/address-dialog/address-for
 import { OrderDetailsComponent } from './Public/Modules/account/order-details/order-details.component';
 import { CommonDialogComponent } from './Public/shared/common-dialog/common-dialog.component';
 import { RevealDirective } from './Public/shared/directives/reveal.directive';
+import { PinnedHeaderDirective } from './Public/shared/directives/pinned-header.directive';
 import { CouponsComponent } from './Admin/Modules/coupons/coupons.component';
 import { SearchBarComponent } from './Public/shared/search-bar/search-bar.component';
 import { MobileMenuComponent } from './Public/shared/mobile-menu/mobile-menu.component';
@@ -133,6 +134,7 @@ const DopeShopeTheme = definePreset(Lara, {
     OrderDetailsComponent,
     CommonDialogComponent,
     RevealDirective,
+    PinnedHeaderDirective,
     CouponsComponent,
     SearchBarComponent,
     MobileMenuComponent,

@@ -119,6 +119,12 @@ const findOverflow = () => {
     const [order] = await call('POST', '/orders', { addressId: address._id, paymentMethod: 'COD', items: [{ productId: ids.black, size: 'L', quantity: 1 }] }, userToken);
     await call('POST', '/cards', { cardHolderName: 'Test User', cardNumber: '4111111111111111', expiryMonth: '12', expiryYear: '30', cardType: 'VISA' }, userToken);
     await call('POST', `/wishlist/${ids.black}`, {}, userToken);
+    // Empty states: a shopper with nothing saved, and one with a bag item but no address yet
+    const register = async (email) =>
+      (await call('POST', '/auth/user/register', { firstName: 'New', lastName: 'Shopper', email, password: 'user123', mobile: '9876500000', gender: 'Female' })).token;
+    const blankToken = await register('blank@test.com');
+    const noAddressToken = await register('noaddress@test.com');
+    await call('POST', '/cart', { _id: ids.white, size: 'M' }, noAddressToken);
     await call('POST', '/store/contact', { name: 'A Customer', email: 'a@example.com', subject: 'Sizing question', message: 'Does the tee run small or true to size?' });
 
     const pages = [
@@ -129,6 +135,8 @@ const findOverflow = () => {
       ['acc-overview', '/account/overview', 'user'], ['acc-orders', '/account/orders', 'user'], ['acc-order', `/account/order-details/${order._id}`, 'user'],
       ['acc-wishlist', '/account/wishlist', 'user'], ['acc-profile', '/account/profile', 'user'], ['acc-edit', '/account/profile/edit', 'user'],
       ['acc-addresses', '/account/addresses', 'user'], ['acc-cards', '/account/cards', 'user'], ['acc-delete', '/account/delete', 'user'],
+      ['empty-cart', '/cart', 'blank'], ['empty-address', '/address', 'noaddress'], ['empty-orders', '/account/orders', 'blank'],
+      ['empty-wishlist', '/account/wishlist', 'blank'], ['empty-addresses', '/account/addresses', 'blank'], ['empty-cards', '/account/cards', 'blank'],
       ['admin-login', '/admin/auth'], ['admin-dashboard', '/admin/dashboard', 'admin'], ['admin-products', '/admin/products', 'admin'],
       ['admin-categories', '/admin/categories', 'admin'], ['admin-orders', '/admin/orders', 'admin'], ['admin-users', '/admin/users', 'admin'],
       ['admin-coupons', '/admin/coupons', 'admin'], ['admin-messages', '/admin/messages', 'admin'],
@@ -138,14 +146,16 @@ const findOverflow = () => {
       const page = await browser.newPage();
       await page.setViewport({ width, height: width < 768 ? 800 : 900, isMobile: width < 768, hasTouch: width < 768, deviceScaleFactor: 1 });
       await page.goto(WEB + '/home');
-      for (const [name, url, who] of pages) {
+      // ONLY=name1,name2 limits the run to some pages (handy while fixing one)
+      const only = (process.env.ONLY || '').split(',').filter(Boolean);
+      for (const [name, url, who] of pages.filter(([n]) => !only.length || only.includes(n))) {
         await page.evaluate(
           (u, a) => {
             localStorage.clear();
             if (u) localStorage.setItem('userAuthToken', u);
             if (a) localStorage.setItem('adminAuthToken', a);
           },
-          who === 'user' ? userToken : null,
+          { user: userToken, blank: blankToken, noaddress: noAddressToken }[who] || null,
           who === 'admin' ? adminToken : null
         );
         if (url === 'payment') {
@@ -156,7 +166,8 @@ const findOverflow = () => {
         } else {
           await page.goto(WEB + url, { waitUntil: 'networkidle0' });
         }
-        await sleep(900);
+        // Charts animate in; give the dashboard time to finish drawing
+        await sleep(name === 'admin-dashboard' ? 2500 : 900);
         await page.evaluate(async () => {
           for (let y = 0; y < document.body.scrollHeight; y += 400) {
             window.scrollTo(0, y);
@@ -166,6 +177,17 @@ const findOverflow = () => {
         });
         await sleep(500);
         const result = await page.evaluate(findOverflow);
+        if (process.env.DEBUG_RADIO && name === 'address') {
+          console.log(await page.evaluate(() => { const r = document.querySelector('p-radiobutton, p-radiobutton-button, [class*=radiobutton]'); return r ? r.outerHTML.slice(0, 900) : 'none'; }));
+        }
+        if (process.env.DEBUG_CHARTS && name === 'admin-dashboard') {
+          console.log(width, 'chart canvases:', await page.evaluate(() => [...document.querySelectorAll('p-chart canvas')].map((c) => {
+            const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+            let inked = 0;
+            for (let i = 3; i < d.length; i += 4) if (d[i] > 0) inked++;
+            return `${c.width}x${c.height} inked=${inked}`;
+          }).join(' | ')));
+        }
         if (result.scrollWidth > result.vw + 1 || result.offenders.length) {
           problems.push({ width, name, ...result });
         }

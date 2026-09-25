@@ -42,7 +42,12 @@
     </div>
 
     <ng-template #noOrders>
-      <p *ngIf="!loading" class="text-center mt-3">You haven’t placed any orders yet.</p>
+      <div *ngIf="!loading" class="empty-orders text-center py-5">
+        <i class="pi pi-box fs-1"></i>
+        <p class="fw-semibold mt-3 mb-1">No orders yet</p>
+        <p class="text-secondary mb-3">When you place an order, you can track, cancel or return it here.</p>
+        <a routerLink="/shop" class="text-orange fw-semibold">Start shopping</a>
+      </div>
     </ng-template>
   </ng-container>
 

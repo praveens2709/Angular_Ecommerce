@@ -144,3 +144,29 @@
   font-weight: 600;
   font-size: 13px;
 }
+
+/* Empty bag */
+.empty-bag {
+    max-width: 440px;
+    padding: 56px 20px 64px;
+
+    .pi-shopping-bag {
+        font-size: 2.6rem;
+        color: #992603;
+    }
+}
+
+.empty-bag-btn {
+    display: inline-block;
+    padding: 12px 30px;
+    border-radius: 999px;
+    background: #992603;
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.empty-bag-btn:hover {
+    background: #7a1f05;
+    color: #ffffff;
+}

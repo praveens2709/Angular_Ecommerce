@@ -22,6 +22,9 @@ export class CartService {
     itemsCount: 0,
   });
   private couponSubject = new BehaviorSubject<Coupon | null>(null);
+  /** True once the bag has been fetched at least once (so pages can tell "empty" from "loading") */
+  private loadedSubject = new BehaviorSubject<boolean>(false);
+  readonly loaded$ = this.loadedSubject.asObservable();
   /** Last failed quantity change, shown under that item in the bag */
   private itemErrorSubject = new BehaviorSubject<{ id: string; message: string } | null>(null);
   readonly itemError$ = this.itemErrorSubject.asObservable();
@@ -66,6 +69,7 @@ export class CartService {
     }));
     this.cartItemsSubject.next(updatedData);
     this.cartCountSubject.next(updatedData.length);
+    this.loadedSubject.next(true);
     this.updatePriceDetails(updatedData);
   }
 

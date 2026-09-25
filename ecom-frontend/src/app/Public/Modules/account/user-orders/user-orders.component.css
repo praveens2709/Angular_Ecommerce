@@ -65,3 +65,7 @@
 .status-shipped {
   color: #0288d1;
 }
+
+.empty-orders i {
+  color: #992603;
+}
