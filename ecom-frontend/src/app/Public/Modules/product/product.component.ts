@@ -6,6 +6,7 @@ import { debounceTime, switchMap, tap } from 'rxjs/operators';
 import { ProductQuery, ProductService } from '../../../Admin/Modules/products/product.service';
 import { CategoriesService } from '../../../Admin/Modules/categories/categories.service';
 import { WishlistService } from '../../../Services/wishlist.service';
+import { PrerenderRefreshService } from '../../../Services/prerender-refresh.service';
 
 interface PriceFilter {
   min: number;
@@ -57,7 +58,8 @@ export class ProductComponent implements OnInit {
     private wishlistService: WishlistService,
     private route: ActivatedRoute,
     private router: Router,
-    private destroyRef: DestroyRef
+    private destroyRef: DestroyRef,
+    private prerenderRefresh: PrerenderRefreshService
   ) { }
 
   ngOnInit(): void {
@@ -76,6 +78,15 @@ export class ProductComponent implements OnInit {
           this.paginatedProducts = res.items;
           this.totalProducts = res.total;
           this.loading = false;
+          // A pre-rendered list's stock labels and prices are from build time: swap in live ones quietly
+          this.prerenderRefresh.afterStartup(() =>
+            this.productService.getProductsPage(this.query, this.currentPage + 1, this.rowsPerPage).subscribe({
+              next: (live) => {
+                this.paginatedProducts = live.items;
+                this.totalProducts = live.total;
+              },
+            })
+          );
         },
         error: () => (this.loading = false),
       });

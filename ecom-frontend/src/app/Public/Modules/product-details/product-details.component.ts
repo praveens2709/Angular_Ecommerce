@@ -8,6 +8,7 @@ import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
 import { ProductService, Review, isStockTracked, stockFor } from '../../../Admin/Modules/products/product.service';
 import { WishlistService } from '../../../Services/wishlist.service';
 import { DeliveryCheck, StoreService, addDeliveryDays } from '../../../Services/store.service';
+import { PrerenderRefreshService } from '../../../Services/prerender-refresh.service';
 import { CartService } from '../cart/cart.service';
 import { AuthService } from '../../../Admin/auth/Services/auth-service.service';
 import { AddressesService } from '../account/addresses/addresses.service';
@@ -80,7 +81,8 @@ export class ProductDetailsComponent implements OnInit {
     private viewportScroller: ViewportScroller,
     private title: Title,
     private meta: Meta,
-    private destroyRef: DestroyRef
+    private destroyRef: DestroyRef,
+    private prerenderRefresh: PrerenderRefreshService
   ) {}
 
   ngOnInit(): void {
@@ -117,9 +119,25 @@ export class ProductDetailsComponent implements OnInit {
         this.notFound = !product;
         this.showSizeError = false;
         this.variants = variants;
-        if (product) this.showProduct(product);
-        else this.title.setTitle('Product not found | DopeShope');
+        if (product) {
+          this.showProduct(product);
+          // A pre-rendered page's stock and price are from build time: fetch the live ones
+          this.prerenderRefresh.afterStartup(() => this.refreshLiveData(product._id));
+        } else this.title.setTitle('Product not found | DopeShope');
       });
+  }
+
+  /** Updates stock, price and ratings in place (the page and the shopper's choices stay as they are) */
+  private refreshLiveData(id: string): void {
+    forkJoin({
+      product: this.productService.getProductById(id).pipe(catchError(() => of(null))),
+      variants: this.productService.getVariants(id).pipe(catchError(() => of(null))),
+    }).subscribe(({ product, variants }) => {
+      if (!product || this.product?._id !== id) return;
+      this.product = { ...this.product, ...product, images: this.product.images };
+      if (variants) this.variants = variants;
+      if (this.selectedSize && this.isSizeSoldOut(this.selectedSize)) this.selectedSize = null;
+    });
   }
 
   get isOutOfStock(): boolean {

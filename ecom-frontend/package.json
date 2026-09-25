@@ -8,7 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadless",
-    "serve:ssr": "node dist/ecom/server/server.mjs"
+    "serve:ssr": "node dist/ecom/server/server.mjs",
+    "build:cloudflare": "node scripts/build-cloudflare.mjs"
   },
   "private": true,
   "dependencies": {

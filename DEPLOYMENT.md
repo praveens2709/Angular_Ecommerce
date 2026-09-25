@@ -5,6 +5,42 @@ A free setup that fits this project:
 | Piece | Service | Free tier (check current limits before relying on them) |
 |---|---|---|
 | Database | **MongoDB Atlas** M0 | 512 MB, already in use |
+| API (`ecom-backend`) | **Render** web service, kept awake by **UptimeRobot** | 750 h/month covers one always-on service |
+| Storefront (`ecom-frontend`) | **Cloudflare Pages** (pre-rendered) | Unlimited static bandwidth, 500 builds/month, never sleeps |
+| Email | **Brevo** SMTP | ~300 emails/day |
+| Product images | **Cloudinary** | ~25 GB storage+bandwidth credits/month |
+
+Why this split: Render's free plan sleeps after ~15 idle minutes (the next visit waits 30-60 s) and its free CPU is slow, so the
+storefront is pre-rendered to plain HTML on Cloudflare instead of being rendered on a server per visit. Public pages (home, shop,
+every product, policies) are built with their data; account, bag, checkout and admin load as a normal single-page app. Live stock
+and prices are fetched right after a pre-rendered page loads, and product/category changes in admin trigger a rebuild
+(`SITE_REBUILD_HOOK_URL`). Render's disk is wiped on every deploy, which is why images must go to Cloudinary.
+
+The Render storefront service (`dopeshope-web` in `render.yaml`) still works as a server-rendered alternative, but running it and
+the API on the free plan means both sleep.
+
+### Storefront on Cloudflare Pages
+
+1. Cloudflare dashboard -> **Workers & Pages -> Create -> Pages -> Connect to Git** -> this repo, branch `main`.
+2. Build settings: **Root directory** `ecom-frontend`, **Build command** `npm run build:cloudflare`,
+   **Build output directory** `dist/ecom/browser`.
+3. Environment variables: `API_URL` = `https://dopeshope-api.onrender.com/api`, `NODE_VERSION` = `22`.
+4. After the first deploy: **Settings -> Builds -> Deploy hooks** -> create one, and put its URL in the API's
+   `SITE_REBUILD_HOOK_URL` on Render.
+5. Add the storefront's addresses (e.g. `https://dopeshope.pages.dev` and your domain) to the API's `CLIENT_ORIGINS`.
+6. Custom domain: **Custom domains -> Set up a domain**. A root domain (`dopeshope.co.in`) needs the domain's DNS on Cloudflare
+   (change the nameservers at your registrar; check that the imported MX/TXT/DKIM email records are all there).
+
+Local check of the static build: `API_URL=http://localhost:4000/api npm run build:cloudflare`, then
+`npx wrangler pages dev dist/ecom/browser` (applies `_redirects`, `_headers` and `functions/` like Cloudflare does).
+
+### Keep the API awake
+
+UptimeRobot (free): new **HTTP(s)** monitor for `https://dopeshope-api.onrender.com/api/health`, every 5 minutes.
+Don't do this for two Render services: two always-on services need ~1,440 h/month, more than the free 750 h.
+
+---|---|---|
+| Database | **MongoDB Atlas** M0 | 512 MB, already in use |
 | API (`ecom-backend`) | **Render** web service | Sleeps after ~15 min idle; first request then takes ~30–60 s |
 | Storefront (`ecom-frontend`, server-rendered) | **Render** web service | Same as above |
 | Email | **Brevo** SMTP | ~300 emails/day |

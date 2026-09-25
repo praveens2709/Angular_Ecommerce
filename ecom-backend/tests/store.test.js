@@ -116,3 +116,38 @@ test("health check", async () => {
   const res = await api().get("/api/health");
   expect(res.body).toEqual({ ok: true, db: true });
 });
+
+test("catalogue changes trigger one storefront rebuild; reviews and failures don't", async () => {
+  const http = require("http");
+  const hits = [];
+  const hookServer = http.createServer((req, res) => {
+    hits.push(req.method);
+    res.end("ok");
+  });
+  await new Promise((resolve) => hookServer.listen(0, resolve));
+  process.env.SITE_REBUILD_HOOK_URL = `http://127.0.0.1:${hookServer.address().port}/hook`;
+  process.env.SITE_REBUILD_DELAY_MS = "150";
+  const waitForHook = () => new Promise((resolve) => setTimeout(resolve, 600));
+
+  try {
+    const admin = await registerAdmin();
+    const user = await registerUser();
+    // A burst of admin edits -> a single rebuild
+    const tee = await createProduct(admin);
+    await api().put(`/api/products/${tee._id}`).set(auth(admin)).send({ ...tee, price: 450 });
+    await api().post("/api/categories").set(auth(admin)).send({ name: "Hoodies", status: "ACTIVE" });
+    await waitForHook();
+    expect(hits).toEqual(["POST"]);
+
+    // Reviews and rejected requests don't rebuild
+    hits.length = 0;
+    await api().post(`/api/products/${tee._id}/reviews`).set(auth(user.token)).send({ rating: 5, comment: "Great" });
+    await api().post("/api/products").set(auth(user.token)).send({ name: "Not allowed" });
+    await waitForHook();
+    expect(hits).toEqual([]);
+  } finally {
+    delete process.env.SITE_REBUILD_HOOK_URL;
+    delete process.env.SITE_REBUILD_DELAY_MS;
+    await new Promise((resolve) => hookServer.close(resolve));
+  }
+});

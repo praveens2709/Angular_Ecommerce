@@ -84,6 +84,12 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "cloudflare": {
+              "prerender": {
+                "routesFile": "prerender-routes.txt",
+                "discoverRoutes": false
+              }
             }
           },
           "defaultConfiguration": "production"

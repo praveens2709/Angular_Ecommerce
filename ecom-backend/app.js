@@ -31,6 +31,16 @@ app.use("/uploads", express.static(UPLOAD_DIR, { maxAge: "7d", index: false }));
 // Uptime checks from the host
 app.get("/api/health", (req, res) => res.json({ ok: true, db: require("mongoose").connection.readyState === 1 }));
 
+// Catalogue changes by the admin refresh the pre-rendered storefront (see utils/siteRebuild.js).
+// Reviews are left out: pages fetch live ratings after they load.
+const { scheduleSiteRebuild } = require("./utils/siteRebuild");
+app.use(["/api/products", "/api/categories"], (req, res, next) => {
+  if (["POST", "PUT", "PATCH", "DELETE"].includes(req.method) && !/\/reviews/.test(req.path)) {
+    res.on("finish", () => res.statusCode < 400 && scheduleSiteRebuild(`${req.method} ${req.baseUrl}${req.path}`));
+  }
+  next();
+});
+
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/categories", require("./routes/categoryRoutes"));
