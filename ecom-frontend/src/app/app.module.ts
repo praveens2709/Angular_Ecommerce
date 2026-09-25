@@ -71,6 +71,7 @@ import { ContactComponent } from './Public/Modules/contact/contact.component';
 import { MessagesComponent } from './Admin/Modules/messages/messages.component';
 import { OptImgPipe } from './Public/shared/pipes/opt-img.pipe';
 import { authInterceptor } from './Admin/auth/Services/auth.intercepter';
+import { ssrApiLogInterceptor } from './Services/ssr-api-log.interceptor';
 import { providePrimeNG } from 'primeng/config';
 import { TitleStrategy } from '@angular/router';
 import { SeoTitleStrategy } from './seo-title.strategy';
@@ -174,7 +175,7 @@ const DopeShopeTheme = definePreset(Lara, {
   ],
   providers: [
     { provide: TitleStrategy, useClass: SeoTitleStrategy },
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor, ssrApiLogInterceptor])),
     // PrimeNG 19 ships no CSS files; the theme is injected at runtime.
     // Dark mode is keyed to a class we never set, so the OS theme doesn't flip components dark.
     providePrimeNG({ theme: { preset: DopeShopeTheme, options: { darkModeSelector: '.app-dark' } } }),

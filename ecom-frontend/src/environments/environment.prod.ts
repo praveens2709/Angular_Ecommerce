@@ -4,10 +4,16 @@
  *   API_URL            public API base, e.g. https://dopeshope-api.onrender.com/api
  *   API_URL_INTERNAL   optional faster URL the server itself uses to reach the API
  */
-const runtime: { apiUrl?: string; apiUrlInternal?: string } = (globalThis as any).__APP_CONFIG__ ?? {};
 const isServer = typeof window === 'undefined';
 
 export const environment = {
   production: true,
-  apiUrl: (isServer && runtime.apiUrlInternal) || runtime.apiUrl || 'http://localhost:4000/api',
+  /**
+   * Read on use, not when this file loads: in the server bundle this module can load before
+   * runtime-config.ts has set __APP_CONFIG__, which silently fell back to localhost.
+   */
+  get apiUrl(): string {
+    const runtime: { apiUrl?: string; apiUrlInternal?: string } = (globalThis as any).__APP_CONFIG__ ?? {};
+    return (isServer && runtime.apiUrlInternal) || runtime.apiUrl || 'http://localhost:4000/api';
+  },
 };
