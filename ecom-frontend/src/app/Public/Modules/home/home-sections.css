@@ -10,7 +10,9 @@
 }
 
 .home-section {
-    padding: 90px 0 30px;
+    /* Vertical only: these sections are also .container, whose side padding the rows rely on */
+    padding-top: 90px;
+    padding-bottom: 30px;
 }
 
 .eyebrow {
@@ -435,20 +437,60 @@
     }
 
     .deal-content {
-        padding: 32px 24px;
+        padding: 32px 20px;
     }
 
     .deal-logo {
-        font-size: 4rem;
+        font-size: 3.5rem;
+    }
+
+    .deal-visual {
+        min-height: 240px;
+    }
+
+    .deal-img {
+        max-height: 220px;
+    }
+
+    .time-box {
+        width: 64px;
+        padding: 8px 0;
+    }
+
+    .time-box span {
+        font-size: 1.4rem;
     }
 
     .cta {
         background-attachment: scroll;
+        padding: 60px 16px;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .deal-img {
         animation: none;
+    }
+}
+
+/* Small phones: two category cards per row leave little room for the name beside the arrow */
+@media (max-width: 575px) {
+    .category-info {
+        gap: 6px;
+        padding: 12px 12px 14px;
+    }
+
+    .category-info > div {
+        min-width: 0;
+    }
+
+    .category-info h5 {
+        font-size: 1rem;
+    }
+
+    .category-info .arrow {
+        width: 30px;
+        height: 30px;
+        flex-shrink: 0;
     }
 }

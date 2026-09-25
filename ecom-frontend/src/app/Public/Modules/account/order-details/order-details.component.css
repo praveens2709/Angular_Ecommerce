@@ -17,7 +17,8 @@
 .order-box {
     background-color: #f3f3f3c2;
     border: 1px solid #e0e0e0;
-    width: 80%;
+    width: 100%;
+    max-width: 860px;
 }
 
 .order-status {
@@ -176,3 +177,44 @@
   background: #992603;
   color: #ffffff;
 }
+
+@media (max-width: 767px) {
+  .order-box {
+    padding: 1rem 0.75rem !important;
+  }
+
+  .timeline {
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+
+  .timeline-step {
+    min-width: 68px;
+  }
+
+  .timeline-step .dot {
+    width: 26px;
+    height: 26px;
+    font-size: 10px;
+  }
+
+  .timeline-step .dot i {
+    font-size: 10px;
+  }
+
+  .timeline-step .line {
+    top: 13px;
+    left: calc(50% + 13px);
+    width: calc(100% - 26px);
+    height: 2px;
+  }
+
+  .timeline-step p {
+    font-size: 11px;
+  }
+
+  .timeline-step small {
+    font-size: 9px;
+  }
+}
+

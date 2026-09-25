@@ -46,7 +46,7 @@
               (click)="openDeleteDialog('single', item._id)"
             ></button>
             <!-- Product Image -->
-            <div class="col-lg-3 cl-2-img position-relative">
+            <div class="cl-2-img position-relative">
               <div class="product-img2">
                 <img [src]="item.image | optImg : 160" [alt]="item.name" class="w-100 h-100" loading="lazy" decoding="async" />
                 <p-checkbox
@@ -58,18 +58,13 @@
               </div>
             </div>
             <!-- Product Info -->
-            <div class="col-lg-8 cl-2-content d-flex flex-column">
+            <div class="cl-2-content d-flex flex-column">
               <p class="fw-bold">{{ item.brand }}</p>
               <p class="fw-medium fs-7">{{ item.name }}</p>
               <p *ngIf="item.size" class="light-color">Size: <span class="fw-semibold text-dark">{{ item.size }}</span></p>
               <p *ngIf="item.maxQuantity !== undefined && item.maxQuantity <= 3 && item.maxQuantity > 0" class="stock-warn">Only {{ item.maxQuantity }} left</p>
               <p *ngIf="item.maxQuantity === 0 || item.inventoryStatus === 'OUTOFSTOCK'" class="stock-warn">Out of stock: remove it to check out</p>
-              <p class="light-color d-flex gap-1">
-                Sold by:
-                <span class="light-color text-uppercase">{{
-                  item.seller
-                }}</span>
-              </p>
+              <p class="light-color">Sold by: <span class="light-color text-uppercase">{{ item.seller }}</span></p>
               <button
                 pButton
                 type="button"
@@ -79,7 +74,7 @@
                 class="p-button-text mb-1"
               ></button>
               <p *ngIf="itemError?.id === item.id" class="form-error" role="alert">{{ itemError?.message }}</p>
-              <div class="d-flex gap-1 pt-1">
+              <div class="d-flex flex-wrap column-gap-1 pt-1">
                 <p class="fw-bold">{{ item.price | currency : "INR" }}</p>
                 <span class="fw-normal text-decoration-line-through">{{
                   item.mrp | currency : "INR"
@@ -88,13 +83,9 @@
               </div>
               <div class="d-flex align-items-center gap-1">
                 <img src="assets/images/return.png" alt="return" />
-                <p class="fw-normal d-flex gap-1 fw-medium">
-                  7 days <span class="fw-normal">return available</span>
-                </p>
+                <p class="fw-medium">7 days <span class="fw-normal">return available</span></p>
               </div>
-              <p class="d-flex gap-1">
-                Delivery in <span class="fw-medium">3-5 days</span>
-              </p>
+              <p>Delivery in <span class="fw-medium">3-5 days</span></p>
             </div>
           </div>
         </div>

@@ -1,0 +1,37 @@
+<button type="button" class="burger" [class.light]="light" (click)="toggle()" [attr.aria-expanded]="open" aria-controls="mobile-menu" aria-label="Menu">
+  <i class="pi pi-bars"></i>
+</button>
+
+<div #drawer class="mobile-menu-root" [class.open]="open">
+  <div class="mm-overlay" (click)="close()"></div>
+  <!-- Any link closes it, including one to the page already open (no navigation happens then) -->
+  <nav id="mobile-menu" class="mm-panel" (click)="onPanelClick($event)" aria-label="Menu" [attr.aria-hidden]="!open" [attr.inert]="open ? null : ''">
+    <div class="mm-head d-flex align-items-center justify-content-between">
+      <a routerLink="/home" class="mm-logo">DopeShope</a>
+      <button type="button" class="mm-close" (click)="close()" aria-label="Close menu">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <div class="mm-body">
+      <a *ngFor="let link of links" [routerLink]="link.path" routerLinkActive="active" class="mm-link">
+        <i class="pi" [ngClass]="link.icon"></i>{{ link.label }}
+      </a>
+
+      <p class="mm-group">Account</p>
+      <ng-container *ngIf="isLoggedIn; else signIn">
+        <a *ngFor="let link of accountLinks" [routerLink]="link.path" routerLinkActive="active" class="mm-link">
+          <i class="pi" [ngClass]="link.icon"></i>{{ link.label }}
+        </a>
+      </ng-container>
+      <ng-template #signIn>
+        <a routerLink="/public/auth" class="mm-signin">Sign in / Register</a>
+      </ng-template>
+
+      <p class="mm-group">Help</p>
+      <a *ngFor="let link of helpLinks" [routerLink]="link.path" routerLinkActive="active" class="mm-link small-link">{{ link.label }}</a>
+    </div>
+
+    <p class="mm-foot">Free shipping · Cash on delivery · 7-day returns</p>
+  </nav>
+</div>

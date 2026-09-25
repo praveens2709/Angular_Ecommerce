@@ -100,3 +100,24 @@
     margin: 0 6px;
   }
 }
+
+@media (max-width: 400px) {
+  .container {
+    gap: 8px !important;
+  }
+
+  .logo {
+    font-size: 1.3rem;
+  }
+
+  .num {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+
+  .bar {
+    width: 16px;
+    margin: 0 4px;
+  }
+}

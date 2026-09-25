@@ -123,3 +123,42 @@
     height: 40px;
     object-fit: contain;
 }
+
+@media (max-width: 767px) {
+    /* All four methods visible as a 2 x 2 grid (a sideways scroller hid "Cash on Delivery") */
+    .payment-left {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .payment-left .payment-option {
+        padding: 10px 12px !important;
+        border-top: 0 !important;
+        border-left: 0 !important;
+        border-right: 1px solid #eee !important;
+        border-bottom: 3px solid transparent;
+        line-height: 1.25;
+    }
+
+    .payment-left .payment-option:nth-child(-n + 2) {
+        border-bottom-color: transparent;
+        box-shadow: inset 0 -1px 0 #eee;
+    }
+
+    .payment-left .payment-option.active {
+        border-left: 0 !important;
+        border-right: 1px solid #eee !important;
+        border-bottom: 3px solid #992603 !important;
+        background-color: #fff;
+    }
+
+    .payment-left .payment-option img {
+        flex-shrink: 0;
+    }
+
+    .captcha-box div {
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+}

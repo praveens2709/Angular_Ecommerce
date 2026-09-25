@@ -110,3 +110,35 @@
     background: #ffe5e9;
     color: #d6334d;
   }
+
+/* Phones: grid minimums (200/300px) are wider than the screen once padding is counted */
+@media (max-width: 575px) {
+  .card-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .card {
+    padding: 10px 12px;
+  }
+
+  .chart-container {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .chart-card {
+    padding: 14px;
+    min-width: 0;
+  }
+
+  .chart-box {
+    height: 240px;
+  }
+}
+
+@media (max-width: 359px) {
+  .card-container {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

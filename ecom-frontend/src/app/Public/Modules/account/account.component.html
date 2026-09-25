@@ -28,7 +28,7 @@
 <div class="container acc-layout">
   <div class="row g-4">
     <aside class="col-lg-3">
-      <nav class="acc-nav" aria-label="Account menu">
+      <nav #accNav class="acc-nav" aria-label="Account menu">
         <ng-container *ngFor="let group of menu">
           <p class="group">{{ group.heading }}</p>
           <a *ngFor="let item of group.items" [routerLink]="item.path" [class.active]="isActive(item.path)">

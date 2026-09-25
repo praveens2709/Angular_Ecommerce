@@ -1,10 +1,12 @@
-<div class="search-wrap position-relative">
+<!-- Not positioned: the field is placed against the whole nav row, not this icon -->
+<div class="search-wrap">
   <button type="button" class="icon-btn" [class.light]="light" (click)="toggle()" [attr.aria-expanded]="open" aria-label="Search products">
     <i class="pi" [ngClass]="open ? 'pi-times' : 'pi-search'"></i>
   </button>
 
-  <div *ngIf="open" class="search-panel position-absolute">
-    <form (ngSubmit)="submit()" class="d-flex align-items-center gap-2" role="search">
+  <!-- Grows leftwards inside the nav row (up to the menu button on phones, over the links on desktop) -->
+  <div *ngIf="open" class="search-panel position-absolute" [style.top.px]="panelTop" [style.left.px]="panelLeft" [style.right.px]="panelRight">
+    <form (ngSubmit)="submit()" class="search-field d-flex align-items-center gap-2" role="search">
       <i class="pi pi-search text-secondary"></i>
       <input
         #input
@@ -20,7 +22,8 @@
       <i *ngIf="searching" class="pi pi-spin pi-spinner text-secondary"></i>
     </form>
 
-    <ul *ngIf="suggestions.length" class="list-unstyled mb-0 mt-2" role="listbox">
+    <div *ngIf="suggestions.length || (!searching && query.trim().length >= 2)" class="search-results" [style.left.px]="resultsLeft" [style.right.px]="resultsRight">
+    <ul *ngIf="suggestions.length" class="list-unstyled mb-0" role="listbox">
       <li
         *ngFor="let p of suggestions; let i = index"
         role="option"
@@ -32,8 +35,9 @@
       >
         <img [src]="p.image | optImg : 40" alt="" decoding="async" />
         <div class="flex-grow-1 overflow-hidden">
-          <div class="name">{{ p.name }}<span *ngIf="p.color" class="text-secondary"> · {{ p.color }}</span></div>
-          <small class="text-secondary">{{ p.category }}</small>
+          <div class="name">{{ p.name }}</div>
+          <!-- Colour here, not after the name, so it isn't cut off on narrow screens -->
+          <small class="text-secondary">{{ p.category }}<ng-container *ngIf="p.color"> · {{ p.color }}</ng-container></small>
         </div>
         <span class="price">{{ p.price | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
       </li>
@@ -41,8 +45,9 @@
         See all results for "{{ query.trim() }}" <i class="pi pi-arrow-right ms-1"></i>
       </li>
     </ul>
-    <p *ngIf="!searching && query.trim().length >= 2 && !suggestions.length" class="mb-0 mt-2 small text-secondary">
+    <p *ngIf="!searching && query.trim().length >= 2 && !suggestions.length" class="mb-0 small text-secondary">
       No matches. Press Enter to search anyway.
     </p>
+    </div>
   </div>
 </div>

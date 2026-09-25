@@ -12,7 +12,10 @@ a {
 
 .banner:before {
     content: '';
-    background-image: linear-gradient(-20deg, #000000 0%, #00000000 100%);
+    /* Darker on the left, where the text sits, so it stays readable over the centred photo */
+    background-image:
+        linear-gradient(90deg, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.45) 45%, rgba(0, 0, 0, 0) 75%),
+        linear-gradient(-20deg, #000000 0%, #00000000 100%);
     position: absolute;
     opacity: 0.7;
     width: 100%;
@@ -22,6 +25,8 @@ a {
 .about-banner {
     background-image: url(../../../../assets/images/vivid-detailed-high-concept-photo-realistic-hip-hop-urban-banner.jpg);
     background-size: cover;
+    /* Keeps the jacket in the middle at every screen width (the default anchors to the top-left) */
+    background-position: center;
 }
 
 /* ---------- Fixed home menu ---------- */
@@ -81,16 +86,128 @@ a {
     left: 0;
 }
 
+.content-row {
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+/* Laptops and up: the photo is centred, so pin the text to the left edge of the screen
+   (not the centred page container) and keep it narrow enough to stay clear of the jacket */
+@media (min-width: 1200px) {
+    .banner > .container {
+        max-width: none;
+        padding-left: 6vw;
+        padding-right: 6vw;
+    }
+
+    .content {
+        max-width: 40vw;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    /* Buttons and the trust row stay on one line even though the text column is narrow */
+    .hero-actions,
+    .hero-trust {
+        width: max-content;
+        max-width: 88vw;
+    }
+}
+
+/* Below that the text has to cross the photo, so darken it evenly (as on phones) */
+@media (max-width: 1199px) {
+    .banner:before {
+        background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.72) 100%);
+        opacity: 1;
+    }
+
+    .content {
+        max-width: 680px;
+    }
+}
+
 .content {
-    padding: 190px 50px 0 50px;
+    padding: 120px 50px 70px;
     z-index: 99;
+}
+
+.eyebrow-hero {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    opacity: 0.9;
+}
+
+.content h1 {
+    /* Height counts too, so a short laptop screen doesn't push the content into the menu */
+    font-size: clamp(2.8rem, min(4.6vw, 7.6vh), 5rem);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.5px;
+    margin: 24px 0 0;
+}
+
+.lead-hero {
+    max-width: 560px;
+    margin: 34px 0 0;
+    font-size: 1.12rem;
+    line-height: 1.65;
+    opacity: 0.92;
+}
+
+.hero-actions {
+    margin-top: 38px;
+}
+
+/* Short laptop screens (e.g. 1280 x 800): tighten the vertical rhythm */
+@media (max-height: 860px) and (min-width: 768px) {
+    .content h1 {
+        margin-top: 20px;
+    }
+
+    .lead-hero {
+        margin-top: 26px;
+        font-size: 1.02rem;
+    }
+
+    .hero-actions {
+        margin-top: 28px;
+    }
+
+    .hero-trust {
+        margin-top: 26px;
+        padding-top: 18px;
+    }
+}
+
+.hero-trust {
+    gap: 10px 26px;
+    margin-top: 34px;
+    padding-top: 22px;
+    border-top: 1px solid rgba(255, 255, 255, 0.22);
+    max-width: 560px;
+    font-size: 0.95rem;
+    opacity: 0.9;
+
+    li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    i {
+        font-size: 1rem;
+    }
 }
 
 .shop-now-btn {
     /* font-family: 'Comfortaa', sans-serif; */
-    font-size: 16px;
+    display: inline-block;
+    font-size: 15px;
     font-weight: 700;
-    padding: 12px 30px;
+    letter-spacing: 1px;
+    padding: 14px 30px;
     background: transparent;
     border: 1px solid #ffffff;
     color: #ffffff;
@@ -101,6 +218,18 @@ a {
 .shop-now-btn:hover {
     background-color: #ffffff;
     color: #034146;
+}
+
+/* Main action: filled, so it reads first */
+.shop-now-btn.primary {
+    background: #ffffff;
+    color: #1d1411;
+}
+
+.shop-now-btn.primary:hover {
+    background: #992603;
+    border-color: #992603;
+    color: #ffffff;
 }
 
 /* Scroll hint */
@@ -130,4 +259,79 @@ a {
     .scroll-hint i {
         animation: none;
     }
+}
+
+@media (max-width: 767px) {
+    .banner,
+    .banner:before {
+        min-height: 100vh;
+        min-height: 100dvh;
+        height: auto;
+    }
+
+    .content {
+        padding: 118px 18px 76px;
+    }
+
+    .eyebrow-hero {
+        font-size: 12px;
+        letter-spacing: 3px;
+    }
+
+    .content h1 {
+        font-size: clamp(2.3rem, 10.5vw, 3.2rem);
+        line-height: 1.05;
+    }
+
+    .content h1 {
+        margin-top: 16px;
+    }
+
+    .lead-hero {
+        margin-top: 22px;
+        font-size: 0.98rem;
+    }
+
+    .hero-actions {
+        margin-top: 26px;
+        gap: 10px !important;
+    }
+
+    .shop-now-btn {
+        padding: 12px 20px;
+        font-size: 13px;
+    }
+
+    .hero-trust {
+        margin-top: 26px;
+        padding-top: 16px;
+        gap: 8px 18px;
+        font-size: 0.85rem;
+    }
+
+
+}
+
+/* Phones: menu button on the left, icons on the right (text links live in the menu) */
+@media (max-width: 767px) {
+    .home-nav .navbar {
+        flex-wrap: nowrap;
+        justify-content: space-between !important;
+        padding: 2px 4px 6px !important;
+    }
+
+    .home-nav .navbar .nav-text-link {
+        display: none;
+    }
+
+    .home-nav .nav-icons {
+        gap: 18px !important;
+        margin-right: 8px;
+    }
+}
+
+
+/* Room for the script logo's tall letters at the top of the screen */
+.home-nav .dopeshope {
+    line-height: 1.6;
 }

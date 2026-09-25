@@ -29,7 +29,7 @@
 
 .acc-heading h5,
 .acc-heading p {
-    font-family: "Josefin Sans", serif;
+    font-family: inherit; /* was an unloaded web font, which fell back to Times */
     letter-spacing: 1px;
 }
 
@@ -38,7 +38,7 @@
 }
 
 .product-topbar p {
-    font-family: "Josefin Sans", serif;
+    font-family: inherit; /* was an unloaded web font, which fell back to Times */
     font-size: 18px;
 }
 
@@ -146,3 +146,49 @@
 .rating-pill i {
   font-size: 8px;
 }
+
+@media (max-width: 767px) {
+  .product-topbar {
+    padding: 0;
+  }
+
+  .product-topbar p {
+    font-size: 14px;
+  }
+
+  .product-img {
+    height: 180px;
+    border-radius: 8px;
+  }
+
+  .product-content {
+    padding: 6px 4px;
+  }
+
+  .product-name {
+    font-size: 0.8rem;
+  }
+
+  .price {
+    font-size: 0.85rem;
+  }
+
+  .wish-btn {
+    width: 28px;
+    height: 28px;
+    top: 6px;
+    right: 6px;
+    font-size: 11px;
+  }
+
+  .wish-btn i {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .product-img {
+    height: 155px;
+  }
+}
+

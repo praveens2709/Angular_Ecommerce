@@ -5,8 +5,8 @@
         <div class="col-lg-8 border-end">
             <div class="payment-section">
                 <h6 class="py-1">Choose Payment Mode</h6>
-                <div class="d-flex payment-methods border rounded-1">
-                    <div class="col-lg-5 bg-grey">
+                <div class="d-flex flex-column flex-md-row payment-methods border rounded-1">
+                    <div class="col-12 col-md-5 bg-grey">
                         <div class="payment-left d-flex flex-column">
                             <div *ngFor="let method of paymentMethods" (click)="handlePaymentMethodChange(method.key)"
                                 [class.active]="selectedPaymentMethod === method.key"
@@ -16,7 +16,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-7">
+                    <div class="col-12 col-md-7">
                         <div *ngIf="selectedPaymentMethod === 'recommended'"
                             class="payment-right d-flex flex-column p-3">
                             <p class="red mb-2 fw-semibold">Recommended Payment Options</p>

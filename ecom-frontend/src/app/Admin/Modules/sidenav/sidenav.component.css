@@ -119,17 +119,54 @@
 
 @media (max-width: 767px) {
   .header {
+    left: 0 !important;
+    width: 100% !important;
+    height: 56px;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  /* Phones: the sidebar becomes a bottom tab bar, so the page gets the full width */
+  .sidenav,
+  .sidenav-collapsed {
+    top: auto;
+    bottom: 0;
     left: 0;
     width: 100%;
+    height: calc(60px + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 3;
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.18);
   }
 
-  .sidenav {
-    position: absolute;
-    height: auto;
+  .logo-container {
+    display: none !important;
   }
 
-  .sidenav-collapsed {
-    position: absolute;
-    height: auto;
+  .sidenav-nav {
+    flex-direction: row !important;
+    justify-content: space-around;
+    height: 60px;
+    padding: 6px 4px;
+  }
+
+  .sidenav-nav .sidenav-nav-item {
+    width: auto !important;
+    flex: 1 1 0;
+    margin-bottom: 0;
+  }
+
+  .sidenav-nav .sidenav-nav-item .sidenav-nav-link {
+    height: 48px;
+    justify-content: center;
+  }
+
+  .sidenav-nav .sidenav-nav-item .sidenav-nav-link .sidenav-link-icon {
+    font-size: 19px;
+    margin-left: 0;
+  }
+
+  .sidenav-link-text {
+    display: none;
   }
 }

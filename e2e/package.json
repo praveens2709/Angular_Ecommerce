@@ -5,9 +5,12 @@
   "scripts": {
     "test": "node run.js",
     "test:shop": "node run.js shop",
-    "test:admin": "node run.js admin"
+    "test:admin": "node run.js admin",
+    "test:responsive": "node responsive.js"
   },
-  "engines": { "node": ">=20.19" },
+  "engines": {
+    "node": ">=20.19"
+  },
   "dependencies": {
     "mongodb": "^6.10.0",
     "mongodb-memory-server": "^10.4.3",

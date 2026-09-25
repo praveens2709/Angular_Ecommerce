@@ -19,3 +19,16 @@
     width: calc(100% - 5rem);
     margin-left: 5rem;
 }
+
+/* Phones: full width; the nav is a bottom bar (see sidenav), so leave room under the content */
+@media (max-width: 767px) {
+    .body,
+    .body-trimmed,
+    .body-md-screen {
+        width: 100%;
+        margin-left: 0;
+        height: auto;
+        min-height: 100vh;
+        padding: 12px 10px calc(84px + env(safe-area-inset-bottom));
+    }
+}

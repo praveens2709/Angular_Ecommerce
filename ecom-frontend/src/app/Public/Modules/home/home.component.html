@@ -7,10 +7,12 @@
           DopeShope
         </div>
         <nav class="u-hover d-flex justify-content-evenly m-auto navbar animate two fadeInUp">
-          <a routerLink="/home" routerLinkActive="active" class="px-2 position-relative">Home</a>
-          <a routerLink="/shop" class="px-2 position-relative">Products</a>
-          <a routerLink="/account" class="px-2 position-relative">Account</a>
-          <div class="d-flex align-items-center gap-4">
+          <!-- Phones: the menu button replaces the text links -->
+          <app-mobile-menu [light]="!navScrolled"></app-mobile-menu>
+          <a routerLink="/home" routerLinkActive="active" class="nav-text-link px-2 position-relative">Home</a>
+          <a routerLink="/shop" class="nav-text-link px-2 position-relative">Products</a>
+          <a routerLink="/account" class="nav-text-link px-2 position-relative">Account</a>
+          <div class="nav-icons d-flex align-items-center gap-2 gap-sm-3 gap-md-4">
             <app-search-bar [light]="!navScrolled"></app-search-bar>
             <a routerLink="/account/wishlist" class="position-relative icon-link" aria-label="Wishlist">
               <i class="pi pi-heart"></i>
@@ -24,22 +26,29 @@
           </div>
         </nav>
       </div>
+      <!-- Scroll progress along the nav's bottom edge, so it moves with the nav -->
+      <app-scroll-progress></app-scroll-progress>
     </header>
-    <div class="row content-row">
-      <div class="col-lg-8 col-xs-12 col-sm-10 content">
-        <h5 class="animate three fadeInUp">Let's Dope Shope</h5>
-        <h1 class="pt-lg-3 animate four fadeInUp">
+    <!-- Vertically centred over the photo so the hero doesn't feel top-heavy -->
+    <div class="row content-row align-items-center">
+      <div class="col-12 col-md-10 col-lg-7 content">
+        <h5 class="eyebrow-hero animate three fadeInUp">Let's Dope Shope</h5>
+        <h1 class="animate four fadeInUp">
           WHERE STYLE<br /> MEETS ELEGANCE
         </h1>
-        <p class="pt-lg-5 animate five fadeInUp">
-          DopeShope, Where style meets substance. Elevate your wardrobe with our carefully curated
+        <p class="lead-hero animate five fadeInUp">
+          DopeShope, where style meets substance. Elevate your wardrobe with our carefully curated
           collection of must-have apparel, accessories, and footwear to elevate your style game effortlessly.
         </p>
-        <a routerLink="/shop">
-          <button type="button" (click)="scrollUp()" class="shop-now-btn mt-5 shadow-lg animate six fadeInUp">
-            SHOP NOW
-          </button>
-        </a>
+        <div class="hero-actions d-flex flex-wrap align-items-center gap-3 animate six fadeInUp">
+          <a routerLink="/shop" (click)="scrollUp()" class="shop-now-btn primary">SHOP NOW</a>
+          <button type="button" class="shop-now-btn" (click)="scrollToContent()">EXPLORE COLLECTIONS</button>
+        </div>
+        <ul class="hero-trust list-unstyled d-flex flex-wrap mb-0 animate six fadeInUp">
+          <li><i class="pi pi-truck"></i>Free shipping</li>
+          <li><i class="pi pi-wallet"></i>Cash on delivery</li>
+          <li><i class="pi pi-replay"></i>7-day returns</li>
+        </ul>
       </div>
     </div>
   </div>

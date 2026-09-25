@@ -1,0 +1,159 @@
+.burger {
+  display: none;
+  background: transparent;
+  border: 0;
+  padding: 4px 6px 4px 0;
+  color: #992603;
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.burger.light {
+  color: #ffffff;
+}
+
+@media (max-width: 767px) {
+  .burger {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* Moved under <body> at runtime (see component), so these styles must not rely on the host */
+.mobile-menu-root {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  pointer-events: none;
+}
+
+.mobile-menu-root.open {
+  pointer-events: auto;
+}
+
+.mm-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(38, 20, 14, 0.45);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.open .mm-overlay {
+  opacity: 1;
+}
+
+.mm-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: min(84vw, 320px);
+  background: #fdf8f6;
+  box-shadow: 8px 0 30px rgba(0, 0, 0, 0.18);
+  transform: translateX(-100%);
+  transition: transform 0.28s ease;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.open .mm-panel {
+  transform: none;
+}
+
+.mm-head {
+  padding: 14px 16px;
+  border-bottom: 1px solid #eee4e1;
+}
+
+.mm-logo {
+  font-family: 'La Belle Aurore', cursive;
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: #992603;
+  text-decoration: none;
+}
+
+.mm-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #eee4e1;
+  background: #ffffff;
+  color: #992603;
+}
+
+.mm-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 10px 16px;
+}
+
+.mm-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px;
+  border-radius: 10px;
+  color: #3a2c28;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.mm-link i {
+  color: #992603;
+  font-size: 1rem;
+  width: 18px;
+}
+
+.mm-link.active {
+  background: #992603;
+  color: #ffffff;
+}
+
+.mm-link.active i {
+  color: #ffffff;
+}
+
+.mm-link.small-link {
+  padding: 9px 12px;
+  font-size: 0.92rem;
+  color: #6b5a55;
+}
+
+.mm-group {
+  margin: 18px 12px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #a08f8a;
+}
+
+.mm-signin {
+  display: block;
+  margin: 4px 12px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: #992603;
+  color: #ffffff;
+  text-align: center;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.mm-foot {
+  margin: 0;
+  padding: 12px 16px;
+  font-size: 12px;
+  color: #8a7d78;
+  border-top: 1px solid #eee4e1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mm-overlay,
+  .mm-panel {
+    transition: none;
+  }
+}

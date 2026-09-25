@@ -1,7 +1,8 @@
-import { Component, DestroyRef, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, ElementRef, Inject, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
 import { UsersService } from '../../../Admin/Modules/users/users.service';
 import { AuthService } from '../../../Admin/auth/Services/auth-service.service';
 
@@ -11,7 +12,8 @@ import { AuthService } from '../../../Admin/auth/Services/auth-service.service';
   templateUrl: './account.component.html',
   styleUrl: './account.component.css'
 })
-export class AccountComponent implements OnInit {
+export class AccountComponent implements OnInit, AfterViewInit {
+  @ViewChild('accNav') accNav?: ElementRef<HTMLElement>;
   currentRoute: string = '';
   userName: string | null = null;
   userEmail: string | null = null;
@@ -55,6 +57,9 @@ export class AccountComponent implements OnInit {
     this.router.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.currentRoute = this.router.url;
     });
+    this.router.events
+      .pipe(filter((e) => e instanceof NavigationEnd), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.revealActiveTab());
 
     const userData = this.authService.getUserRoleAndId();
     this.isLoggedIn = !!userData.id;
@@ -71,6 +76,27 @@ export class AccountComponent implements OnInit {
         }
       });
     }
+  }
+
+  ngAfterViewInit(): void {
+    this.revealActiveTab(false);
+  }
+
+  /**
+   * On phones the menu is a sideways-scrolling row; keep the selected tab in view.
+   * Scrolls only the row (scrollIntoView would also move the page).
+   */
+  private revealActiveTab(smooth = true): void {
+    if (!this.isBrowser) return;
+    setTimeout(() => {
+      const nav = this.accNav?.nativeElement;
+      const active = nav?.querySelector<HTMLElement>('a.active');
+      if (!nav || !active || nav.scrollWidth <= nav.clientWidth) return;
+      const tab = active.getBoundingClientRect();
+      const row = nav.getBoundingClientRect();
+      const left = nav.scrollLeft + (tab.left - row.left) - (nav.clientWidth - tab.width) / 2;
+      nav.scrollTo({ left: Math.max(0, left), behavior: smooth ? 'smooth' : 'auto' });
+    });
   }
 
   /** Highlights parents too, e.g. Orders for /account/order-details/... */

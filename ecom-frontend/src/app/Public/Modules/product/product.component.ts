@@ -27,6 +27,7 @@ export class ProductComponent implements OnInit {
   searchQuery: string = '';
   maxPrice: number = Infinity;
   loading = true;
+  mobileFiltersOpen: boolean = false;
 
   priceFilters: PriceFilter[] = [
     { min: 0, max: 500 },

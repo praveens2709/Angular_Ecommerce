@@ -14,9 +14,10 @@
 }
 
 .container{
-    width: 850px;
+    width: 100%;
+    max-width: 850px;
     height: 550px;
-    margin: 20px;
+    margin: 20px auto;
     border-radius: 30px;
     box-shadow: 0 0 30px rgba(0, 0, 0, .2);
     overflow: hidden;
@@ -100,35 +101,56 @@
 }
 
 @media screen and (max-width: 767px){
-    .container{ height: calc(100vh - 40px); }
+    .container{
+        width: calc(100% - 24px);
+        max-width: 440px;
+        height: auto;
+        min-height: 520px;
+        margin: 16px auto;
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+    }
 
     .form-box{
-        bottom: 0;
+        position: relative !important;
         width: 100%;
-        height: 70%;
+        height: auto;
+        padding: 24px 20px;
+        order: 2;
+    }
+
+    .left-box {
+        position: relative !important;
+        width: 100% !important;
+        height: auto !important;
+        order: 1;
     }
 
     .left-box::before{
-        left: 0;
-        top: -270%;
-        width: 100%;
-        height: 300%;
-        border-radius: 20vw;
+        display: none;
     }
 
     .left-panel{ 
+        position: relative !important;
         width: 100%;
-        height: 30%;
+        height: auto;
+        padding: 24px 16px;
+        background: #ba6708;
+        text-align: center;
     }
 
     .left-panel.left{
         left: 0;
-        top: -30%;
+        top: 0;
+    }
+
+    .left-panel h1{
+        font-size: 26px;
+        margin: 0;
     }
 }
 
 @media screen and (max-width: 400px){
-    .form-box { padding: 20px; }
-
-    .left-panel h1{font-size: 30px; }
+    .form-box { padding: 18px 14px; }
 }

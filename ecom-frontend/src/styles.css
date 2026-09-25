@@ -27,12 +27,16 @@ a {
 html,
 body {
   width: 100%;
-  height: 100%;
+  min-height: 100%;
   line-height: 1.5;
 }
 
+/* `clip` hides stray sideways overflow without turning <body> into its own scroll container.
+   (With `hidden` + a fixed 100% height, mobile Safari scrolls the body instead of the window,
+   so anything listening to window scroll, like the progress bar, never moves.) */
+html,
 body {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .cursor-pointer {
@@ -201,6 +205,40 @@ body {
   padding: 0.2rem 0.5rem;
 }
 
+/* Sort box: same size and look as the "Show Filters & Search" button (Bootstrap btn-sm) */
+.product-topbar .sort-select {
+  height: 31px;
+  align-items: center;
+  border: 1px solid #dc3545;
+  border-radius: 0.25rem;
+  background: #ffffff;
+}
+
+.product-topbar .sort-select .p-select-label,
+.product-topbar .sort-select .p-dropdown-label {
+  padding: 0 0.5rem;
+  font-size: 14px;
+  line-height: 29px;
+  color: #dc3545;
+}
+
+.product-topbar .sort-select .p-select-dropdown,
+.product-topbar .sort-select .p-dropdown-trigger {
+  width: 2rem;
+  color: #dc3545;
+}
+
+.product-topbar .sort-select .p-select-dropdown svg,
+.product-topbar .sort-select .p-dropdown-trigger svg {
+  width: 12px;
+  height: 12px;
+}
+
+.product-topbar > p,
+.product-topbar p {
+  font-size: 14px;
+}
+
 .product-topbar .p-dropdown:not(.p-disabled).p-focus {
   box-shadow: none;
   border-color: #992603;
@@ -284,6 +322,30 @@ body {
 /* Cart Body */
 .cart-body {
   padding: 3rem 10rem !important;
+}
+
+@media (max-width: 1200px) {
+  .cart-body {
+    padding: 2.5rem 4rem !important;
+  }
+
+  /* No side gutter left to float in: sit above the content instead of over the titles */
+  .cart-body .back-button-container {
+    position: static;
+    margin: 0 0 12px;
+  }
+}
+
+@media (max-width: 991px) {
+  .cart-body {
+    padding: 2rem 1.5rem !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .cart-body {
+    padding: 1.25rem 0.75rem !important;
+  }
 }
 
 .cl-2-content {
@@ -538,7 +600,8 @@ label,
 .cards-section,
 .delete-account,
 .common-modal {
-  width: 80%;
+  width: 100%;
+  max-width: 860px;
 
   h6 {
     color: #992603;
@@ -607,7 +670,8 @@ label,
 
 .profile-box2 {
   background-color: #f3f3f3c2;
-  width: 80%;
+  width: 100%;
+  max-width: 860px;
   h6{
     color: #992603;
     border-bottom: 1px solid #a12d099a;
@@ -853,3 +917,145 @@ label,
 /* Page body between the header and the footer: at least one screen tall, so the footer
    never shows in the first viewport while a page is still loading its content */
 .page-fill { min-height: calc(100vh - 65px); min-height: calc(100dvh - 65px); }
+
+/* =====================================================================
+   Mobile Responsiveness Global Utilities & Overrides
+   ===================================================================== */
+@media (max-width: 768px) {
+  /* Dialog responsiveness: prevent inline width blowout */
+  .p-dialog {
+    width: min(94vw, 540px) !important;
+    max-width: 94vw !important;
+    margin: 0 auto !important;
+  }
+
+  .address-section .p-dialog,
+  .cards-section .p-dialog {
+    height: auto !important;
+    max-height: 88vh !important;
+  }
+
+  .p-dialog .p-dialog-content {
+    padding: 1rem 0.85rem 4.5rem !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dialog-footer.fixed-footer,
+  .fixed-footer {
+    position: sticky !important;
+    bottom: 0 !important;
+    margin-top: 1rem;
+    background: #ffffff;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Prevent automatic mobile browser zoom on form focus (iOS Safari) */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="search"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* PrimeNG DataTable responsive wrapper */
+  .p-datatable .p-datatable-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Responsive Back Button */
+  .back-button-container {
+    top: 0.6rem;
+    left: 0.6rem;
+  }
+
+  .back-button {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Account cards horizontal padding reduction */
+  .account-content .profile-box,
+  .account-content .profile-box2 {
+    padding: 16px 14px !important;
+  }
+
+  .profile-box2.p-5,
+  .profile-box2.px-5 {
+    padding: 18px 14px !important;
+  }
+
+  .profile-box.px-5 {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+}
+
+
+/* =====================================================================
+   Admin on phones
+   ===================================================================== */
+@media (max-width: 575px) {
+  /* Page title, filters and search stack instead of running off the screen */
+  app-body .card-header {
+    padding: 12px !important;
+  }
+
+  app-body .card-header > div {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  app-body .card-header .search-input,
+  app-body .card-header select,
+  app-body .card-header .p-dropdown {
+    flex: 1 1 140px;
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0;
+  }
+
+  /* Tables keep readable columns and scroll sideways inside their card */
+  app-body .p-datatable-table {
+    min-width: 640px;
+  }
+
+  app-body .p-paginator {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+  }
+}
+
+/* Nav icons (menu, search, wishlist, bag) share one 28px-tall centred box, so they line up
+   with each other and with the search field when it opens */
+.navbar .nav-icons,
+.navbar .nav-icons > * {
+  display: flex;
+  align-items: center;
+}
+
+.navbar .nav-icons a,
+.navbar .nav-icons button,
+.navbar .burger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  line-height: 1;
+}
+
+.navbar .nav-icons .pi,
+.navbar .burger .pi {
+  line-height: 1;
+  display: block;
+}

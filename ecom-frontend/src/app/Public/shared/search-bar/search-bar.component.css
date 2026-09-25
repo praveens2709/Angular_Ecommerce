@@ -12,23 +12,57 @@
 }
 
 .search-panel {
-  top: calc(100% + 14px);
-  right: -12px;
-  width: min(380px, 90vw);
-  background: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
-  padding: 12px;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 1000;
-  animation: drop 0.18s ease-out;
 }
 
-@keyframes drop {
-  from { opacity: 0; transform: translateY(-6px); }
+.search-field {
+  height: 40px;
+  padding: 0 14px;
+  background: #ffffff;
+  border: 1px solid #eadbd6;
+  /* Same corners as the hero buttons (.shop-now-btn) */
+  border-radius: 5px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  transform-origin: right center;
+  animation: grow 0.2s ease-out;
+}
+
+/* Suggestions drop down under the field, same width */
+.search-results {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  max-height: min(60vh, 420px);
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 5px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+  padding: 8px;
+}
+
+@keyframes grow {
+  from { opacity: 0; transform: scaleX(0.15); }
   to { opacity: 1; transform: none; }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .search-field {
+    animation: none;
+  }
+}
+
+/* The icon button already turns into a close button; drop the browser's own clear (x) */
+input::-webkit-search-cancel-button,
+input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 input {
+  min-width: 0;
   border: 0;
   outline: none;
   font-size: 15px;

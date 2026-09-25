@@ -62,6 +62,7 @@ import { CommonDialogComponent } from './Public/shared/common-dialog/common-dial
 import { RevealDirective } from './Public/shared/directives/reveal.directive';
 import { CouponsComponent } from './Admin/Modules/coupons/coupons.component';
 import { SearchBarComponent } from './Public/shared/search-bar/search-bar.component';
+import { MobileMenuComponent } from './Public/shared/mobile-menu/mobile-menu.component';
 import { WishlistComponent } from './Public/Modules/account/wishlist/wishlist.component';
 import { ScrollProgressComponent } from './Public/shared/scroll-progress/scroll-progress.component';
 import { SiteFooterComponent } from './Public/shared/site-footer/site-footer.component';
@@ -133,6 +134,7 @@ const DopeShopeTheme = definePreset(Lara, {
     RevealDirective,
     CouponsComponent,
     SearchBarComponent,
+    MobileMenuComponent,
     WishlistComponent,
     ScrollProgressComponent,
     SiteFooterComponent,

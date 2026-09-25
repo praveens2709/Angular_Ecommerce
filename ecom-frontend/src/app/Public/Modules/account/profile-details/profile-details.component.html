@@ -1,21 +1,27 @@
-<div class="profile-box2 px-5 py-4 mt-3">
+<div class="profile-box2 px-3 px-sm-5 py-4 mt-3">
   <h6 class="pb-2 fw-semibold">Profile Details</h6>
 
   <div *ngIf="user; else (userId ? loading : notLoggedIn)">
-    <div class="d-flex gap-5">
-      <div>
-        <p class="pt-2">Full Name:</p>
-        <p class="pt-2">Mobile Number:</p>
-        <p class="pt-2">Email ID:</p>
-        <p class="pt-2">Gender:</p>
-        <p class="pt-2">Date of Birth:</p>
+    <div class="d-flex flex-column gap-1 mt-2">
+      <div class="d-flex flex-column flex-sm-row justify-content-between border-bottom py-2">
+        <span class="text-secondary">Full Name</span>
+        <span class="fw-semibold text-dark">{{ user?.fullName || 'Not Provided' }}</span>
       </div>
-      <div>
-        <p class="pt-2">{{ user?.fullName }}</p>
-        <p class="pt-2">{{ user?.mobile }}</p>
-        <p class="pt-2">{{ user?.email }}</p>
-        <p class="pt-2">{{ user?.gender || 'Not Provided' }}</p>
-        <p class="pt-2">{{ user?.dateOfBirth ? (user.dateOfBirth | date: 'dd/MM/yyyy') : 'Not Provided' }}</p>
+      <div class="d-flex flex-column flex-sm-row justify-content-between border-bottom py-2">
+        <span class="text-secondary">Mobile Number</span>
+        <span class="fw-semibold text-dark">{{ user?.mobile || 'Not Provided' }}</span>
+      </div>
+      <div class="d-flex flex-column flex-sm-row justify-content-between border-bottom py-2">
+        <span class="text-secondary">Email ID</span>
+        <span class="fw-semibold text-dark text-break">{{ user?.email || 'Not Provided' }}</span>
+      </div>
+      <div class="d-flex flex-column flex-sm-row justify-content-between border-bottom py-2">
+        <span class="text-secondary">Gender</span>
+        <span class="fw-semibold text-dark">{{ user?.gender || 'Not Provided' }}</span>
+      </div>
+      <div class="d-flex flex-column flex-sm-row justify-content-between border-bottom py-2">
+        <span class="text-secondary">Date of Birth</span>
+        <span class="fw-semibold text-dark">{{ user?.dateOfBirth ? (user.dateOfBirth | date: 'dd/MM/yyyy') : 'Not Provided' }}</span>
       </div>
     </div>
     <button class="mt-3 py-2 w-100" [routerLink]="'/account/profile/edit'">Edit Profile</button>

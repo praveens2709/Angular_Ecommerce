@@ -54,3 +54,28 @@ a.active .pi-shopping-bag {
   align-items: center;
   justify-content: center;
 }
+
+/* Phones: menu button on the left, icons on the right (text links live in the menu) */
+@media (max-width: 767px) {
+  .navbar {
+    flex-wrap: nowrap;
+    justify-content: space-between !important;
+    padding: 2px 4px 6px !important;
+  }
+
+  .navbar .nav-text-link {
+    display: none;
+  }
+
+  .nav-icons {
+    gap: 18px !important;
+    margin-right: 8px;
+  }
+}
+
+/* The script logo's tall letters rise above its line box; give them room so they aren't clipped
+   at the top of the screen once the header is pinned */
+.dopeshope-navbar .dopeshope {
+  padding-top: 8px !important;
+  line-height: 1.6;
+}

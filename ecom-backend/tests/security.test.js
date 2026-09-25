@@ -63,6 +63,22 @@ test("tokens expire and forged tokens are rejected", async () => {
   expect((await api().get("/api/dashboard").set(auth(fakeAdmin))).status).toBe(403);
 });
 
+test("a logged-in shopper can't use admin endpoints", async () => {
+  const { token } = await registerUser("shopper@test.com");
+  const asShopper = (req) => req.set(auth(token));
+
+  expect((await asShopper(api().get("/api/dashboard"))).status).toBe(403);
+  expect((await asShopper(api().get("/api/orders"))).status).toBe(403);
+  expect((await asShopper(api().get("/api/users"))).status).toBe(403);
+  expect((await asShopper(api().get("/api/coupons"))).status).toBe(403);
+  expect((await asShopper(api().get("/api/store/messages"))).status).toBe(403);
+  expect((await asShopper(api().post("/api/products").send({ name: "X", price: 1 }))).status).toBe(403);
+  expect((await asShopper(api().post("/api/categories").send({ name: "X" }))).status).toBe(403);
+  // Nor create an admin account for themselves once one exists
+  await api().post("/api/auth/admin/register").send({ name: "A", email: "owner@test.com", password: "admin123" });
+  expect((await asShopper(api().post("/api/auth/admin/register").send({ name: "S", email: "s@test.com", password: "admin123" }))).status).toBe(403);
+});
+
 test("users can only read and edit their own account", async () => {
   const alice = await registerUser("alice@test.com");
   const bob = await registerUser("bob@test.com");
