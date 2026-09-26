@@ -1,7 +1,7 @@
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import { Component, DestroyRef, ElementRef, HostListener, Inject, NgZone, OnDestroy, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ViewportScroller } from '@angular/common';
+import { ViewportScroller, isPlatformBrowser } from '@angular/common';
 import { Meta, Title } from '@angular/platform-browser';
 import { forkJoin, of } from 'rxjs';
 import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
@@ -12,6 +12,8 @@ import { PrerenderRefreshService } from '../../../Services/prerender-refresh.ser
 import { CartService } from '../cart/cart.service';
 import { AuthService } from '../../../Admin/auth/Services/auth-service.service';
 import { AddressesService } from '../account/addresses/addresses.service';
+import { BagDrawerService } from '../../../Services/bag-drawer.service';
+import { colourFamilies } from '../../shared/product-card/product-card.component';
 
 interface SizeChartRow {
   size: string;
@@ -20,15 +22,24 @@ interface SizeChartRow {
 }
 
 const PINCODE_KEY = 'deliveryPincode';
+const SWIPE_PX = 40;
+/** "Fabric: … Fit: … Care: …" at the end of a description becomes a spec list */
+const SPEC_LABELS = ['Fabric', 'Material', 'GSM', 'Fit', 'Care', 'Wash', 'Neck', 'Sleeve', 'Pattern', 'Occasion'];
+const SPEC_RE = new RegExp(`\\b(${SPEC_LABELS.join('|')}):\\s*`, 'g');
+
+interface Slide {
+  image: string;
+  variant?: any;
+}
 
 @Component({
   selector: 'app-product-details',
   standalone: false,
 
   templateUrl: './product-details.component.html',
-  styleUrl: './product-details.component.css'
+  styleUrls: ['./product-details.component.css', './product-details-extras.css']
 })
-export class ProductDetailsComponent implements OnInit {
+export class ProductDetailsComponent implements OnInit, OnDestroy {
   product: any = null;
   /** Products with the same name + category, shown as colour options */
   variants: any[] = [];
@@ -71,11 +82,61 @@ export class ProductDetailsComponent implements OnInit {
   /** Product id from the URL currently being loaded */
   private requestedId: string | null = null;
 
+  /** Photo viewer (tap the main image) */
+  zoomOpen = false;
+  zoomed = false;
+  zoomOrigin = '50% 50%';
+  /** Phones: add-to-bag bar pinned to the bottom once the main buttons scroll away */
+  showStickyBar = false;
+  /** Accordions below the buttons */
+  openSections = new Set<string>(['details']);
+  /** Other products for "You may also like" */
+  related: any[] = [];
+  relatedColours = new Map<string, any[]>();
+  readonly skeletonThumbs = Array.from({ length: 4 });
+
+  private touchStart: { x: number; y: number } | null = null;
+  private swiped = false;
+  private stopStickyWatch?: () => void;
+  private relatedFor = '';
+  private readonly isBrowser: boolean;
+
+  @ViewChild('actionsRow') set actionsRow(ref: ElementRef<HTMLElement> | undefined) {
+    this.stopStickyWatch?.();
+    this.stopStickyWatch = undefined;
+    if (!ref || !this.isBrowser) return;
+    const actions = ref.nativeElement;
+    let frame = 0;
+    // A scroll listener rather than an IntersectionObserver: a fast fling can jump from
+    // "buttons below the screen" to "above it" in one frame, which an observer never reports
+    const check = () => {
+      frame = 0;
+      const footer = document.querySelector('app-site-footer > *');
+      const pastActions = actions.getBoundingClientRect().bottom < 0;
+      // Out of the way at the bottom of the page, so it never covers the footer
+      const footerInView = !!footer && footer.getBoundingClientRect().top < window.innerHeight;
+      const show = pastActions && !footerInView;
+      if (show !== this.showStickyBar) this.zone.run(() => (this.showStickyBar = show));
+    };
+    const onScroll = () => (frame ||= requestAnimationFrame(check));
+    this.zone.runOutsideAngular(() => {
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
+    });
+    this.stopStickyWatch = () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      cancelAnimationFrame(frame);
+    };
+    check();
+  }
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private productService: ProductService,
     private cartService: CartService,
+    private bagDrawer: BagDrawerService,
     private authService: AuthService,
     private addressesService: AddressesService,
     private wishlistService: WishlistService,
@@ -84,8 +145,17 @@ export class ProductDetailsComponent implements OnInit {
     private title: Title,
     private meta: Meta,
     private destroyRef: DestroyRef,
-    private prerenderRefresh: PrerenderRefreshService
-  ) {}
+    private prerenderRefresh: PrerenderRefreshService,
+    private zone: NgZone,
+    @Inject(PLATFORM_ID) platformId: object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
+
+  ngOnDestroy(): void {
+    this.stopStickyWatch?.();
+    if (this.zoomOpen) document.body.style.overflow = '';
+  }
 
   ngOnInit(): void {
     let saved: string | null = null;
@@ -111,7 +181,7 @@ export class ProductDetailsComponent implements OnInit {
           const known = id ? this.productService.peek(id) : undefined;
           if (known) {
             this.isLoading = false;
-            this.variants = [known];
+            this.variants = this.productService.peekVariants(known);
             this.showProduct(known);
           } else {
             this.isLoading = true;
@@ -191,7 +261,170 @@ export class ProductDetailsComponent implements OnInit {
     this.activeImage = this.gallery[0] || '';
     this.updateSeo(product);
     this.loadReviews(product._id);
+    this.loadRelated(product);
   }
+
+  // ---------- Gallery: swipe, dots, zoom ----------
+
+  /** Own photos when there are several, otherwise the colour options */
+  get slides(): Slide[] {
+    if (this.gallery.length > 1) return this.gallery.map((image) => ({ image }));
+    if (this.variants.length > 1) return this.variants.map((variant) => ({ image: variant.image, variant }));
+    return [];
+  }
+
+  get activeSlide(): number {
+    if (this.gallery.length > 1) return Math.max(this.gallery.indexOf(this.activeImage), 0);
+    return Math.max(this.variants.findIndex((v) => v._id === this.product?._id), 0);
+  }
+
+  goToSlide(index: number): void {
+    const slides = this.slides;
+    if (!slides.length) return;
+    const slide = slides[(index + slides.length) % slides.length];
+    if (slide.variant) this.selectVariant(slide.variant);
+    else this.activeImage = slide.image;
+  }
+
+  onTouchStart(event: TouchEvent): void {
+    const touch = event.touches[0];
+    this.touchStart = { x: touch.clientX, y: touch.clientY };
+    this.swiped = false;
+  }
+
+  onTouchEnd(event: TouchEvent): void {
+    if (!this.touchStart) return;
+    const touch = event.changedTouches[0];
+    const dx = touch.clientX - this.touchStart.x;
+    const dy = touch.clientY - this.touchStart.y;
+    this.touchStart = null;
+    if (Math.abs(dx) < SWIPE_PX || Math.abs(dx) < Math.abs(dy)) return;
+    this.swiped = true;
+    this.zoomed = false;
+    this.goToSlide(this.activeSlide + (dx < 0 ? 1 : -1));
+  }
+
+  openZoom(): void {
+    // A swipe ends with a click on some devices; that shouldn't open the viewer
+    if (this.swiped) {
+      this.swiped = false;
+      return;
+    }
+    this.zoomOpen = true;
+    this.zoomed = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeZoom(): void {
+    this.zoomOpen = false;
+    this.zoomed = false;
+    document.body.style.overflow = '';
+  }
+
+  /** Tap to zoom in where you tapped; tap again to zoom out */
+  toggleZoom(event: MouseEvent): void {
+    if (this.swiped) {
+      this.swiped = false;
+      return;
+    }
+    this.setZoomOrigin(event);
+    this.zoomed = !this.zoomed;
+  }
+
+  /** Desktop: the zoomed photo follows the pointer */
+  panZoom(event: MouseEvent): void {
+    if (this.zoomed) this.setZoomOrigin(event);
+  }
+
+  private setZoomOrigin(event: MouseEvent): void {
+    const box = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const x = ((event.clientX - box.left) / box.width) * 100;
+    const y = ((event.clientY - box.top) / box.height) * 100;
+    this.zoomOrigin = `${x.toFixed(1)}% ${y.toFixed(1)}%`;
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onKeydown(event: KeyboardEvent): void {
+    if (!this.zoomOpen) return;
+    if (event.key === 'Escape') this.closeZoom();
+    else if (event.key === 'ArrowRight') this.goToSlide(this.activeSlide + 1);
+    else if (event.key === 'ArrowLeft') this.goToSlide(this.activeSlide - 1);
+  }
+
+  // ---------- Details ----------
+
+  private parsedFor: string | null = null;
+  private parsed = { text: '', specs: [] as { label: string; value: string }[] };
+
+  /** Description split into the story and a "Fabric / Fit / Care" list */
+  get details(): { text: string; specs: { label: string; value: string }[] } {
+    const description = String(this.product?.description || '');
+    if (description !== this.parsedFor) {
+      this.parsedFor = description;
+      const matches = [...description.matchAll(SPEC_RE)];
+      if (!matches.length) {
+        this.parsed = { text: description, specs: [] };
+      } else {
+        const specs = matches.map((m, i) => ({
+          label: m[1],
+          value: description
+            .slice(m.index! + m[0].length, matches[i + 1]?.index ?? description.length)
+            .trim()
+            .replace(/[.,;]\s*$/, ''),
+        }));
+        this.parsed = { text: description.slice(0, matches[0].index).trim(), specs: specs.filter((s) => s.value) };
+      }
+    }
+    return this.parsed;
+  }
+
+  isSectionOpen(key: string): boolean {
+    return this.openSections.has(key);
+  }
+
+  toggleSection(key: string): void {
+    if (this.openSections.has(key)) this.openSections.delete(key);
+    else this.openSections.add(key);
+  }
+
+  /** Sticky bar: without a size, take the shopper to the sizes first */
+  stickyAddToBag(): void {
+    if (this.isInBag) {
+      this.goToBag();
+      return;
+    }
+    if (!this.selectedSize) {
+      this.showSizeError = true;
+      document.getElementById('size-picker')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    this.addToBag();
+  }
+
+  // ---------- You may also like ----------
+
+  private loadRelated(product: any): void {
+    if (!this.isBrowser || this.relatedFor === product.name) return;
+    this.relatedFor = product.name;
+    this.productService
+      .getProductsPage({ sort: 'newest' }, 1, 16)
+      .pipe(catchError(() => of(null)))
+      .subscribe((page) => {
+        if (!page || this.relatedFor !== product.name) return;
+        const others = page.items.filter((p: any) => p.name !== product.name);
+        // One card per product family (its other colours show as dots)
+        this.relatedColours = colourFamilies(others);
+        const seen = new Set<any[]>();
+        this.related = others.filter((p: any) => {
+          const family = this.relatedColours.get(p._id)!;
+          if (seen.has(family)) return false;
+          seen.add(family);
+          return true;
+        }).slice(0, 8);
+      });
+  }
+
+  relatedTrackBy = (_: number, product: any) => product._id;
 
   private updateSeo(product: any): void {
     const title = `${product.name}${product.color ? ` (${product.color})` : ''} | DopeShope`;
@@ -326,7 +559,11 @@ export class ProductDetailsComponent implements OnInit {
     this.cartService.addToCart(
       this.product,
       this.selectedSize,
-      () => goToBag && this.router.navigate(['/cart']),
+      () => {
+        const added = { product: this.product, size: this.selectedSize };
+        if (goToBag) this.router.navigate(['/cart']);
+        else this.bagDrawer.open(added);
+      },
       (message) => (this.bagError = message)
     );
   }

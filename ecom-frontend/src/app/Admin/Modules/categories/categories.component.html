@@ -1,81 +1,66 @@
-<div class="card shadow-sm border-0 rounded-3">
-  <!-- Caption Section -->
-  <div
-    class="card-header bg-light d-flex justify-content-between align-items-center"
-  >
-    <h3 class="mb-0 text-primary fs-5 fw-bold">Categories</h3>
-    <button
-      class="btn btn-outline-primary btn-sm px-2 py-1 p-0"
-      (click)="openDialog('add')"
-    >
-      <i class="pi pi-plus pt-1"></i>
-    </button>
-  </div>
+<div class="admin-page">
+  <header class="page-head">
+    <div>
+      <h1 class="page-title">Categories</h1>
+      <p class="page-sub">{{ categories.length }} {{ categories.length === 1 ? 'category' : 'categories' }}. Only active ones show in the shop.</p>
+    </div>
+    <div class="page-actions">
+      <button type="button" class="btn btn-brand btn-sm" (click)="openDialog('add')"><i class="pi pi-plus"></i>Add category</button>
+    </div>
+  </header>
 
-  <!-- Data Table -->
-  <div>
+  <section class="admin-card">
     <p-table
       [value]="categories"
-      [paginator]="true"
-      [rows]="5"
-      [rowsPerPageOptions]="[5, 10, 20]"
+      [paginator]="categories.length > 10"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 20, 50]"
       [scrollable]="true"
-      [scrollHeight]="'500px'"
+      [scrollHeight]="'560px'"
       [tableStyle]="{ 'min-width': '100%' }"
-      class="table-striped table-hover align-middle mb-0"
+      styleClass="admin-table"
     >
-      <!-- Header -->
       <ng-template pTemplate="header">
-        <tr class="bg-secondary text-white">
-          <th class="py-3 px-4">Category Name</th>
-          <th class="py-3 px-4">Number of Products</th>
-          <th class="py-3 px-4">Status</th>
-          <th class="py-3 px-4">Actions</th>
+        <tr>
+          <th>Category</th>
+          <th class="col-count">Products</th>
+          <th>Status</th>
+          <th style="width: 100px">Actions</th>
         </tr>
       </ng-template>
 
-      <!-- Body -->
       <ng-template pTemplate="body" let-category>
         <tr>
-          <td class="py-3 px-4 text-dark fw-semibold">{{ category.name }}</td>
-          <td class="py-3 px-4">{{ category.productCount }}</td>
-          <td class="py-3 px-4">
-            <p-tag
-              [value]="category.status"
-              [severity]="getSeverity(category.status)"
-            ></p-tag>
+          <td>
+            <div class="d-flex align-items-center gap-3">
+              <span class="cat-icon"><i class="pi pi-tag"></i></span>
+              <div>
+                <span class="cell-strong">{{ category.name }}</span>
+                <span class="cell-sub count-inline">{{ category.productCount }} {{ category.productCount === 1 ? 'product' : 'products' }}</span>
+              </div>
+            </div>
           </td>
-          <td class="px-4">
-            <div class="d-flex gap-2">
-              <button
-                class="btn btn-sm btn-outline-primary p-0 px-2 py-1"
-                (click)="openDialog('edit', category)"
-              >
-                <i class="pi pi-pencil pt-1"></i>
-              </button>
-              <button
-                class="btn btn-sm btn-outline-danger p-0 px-2 py-1"
-                (click)="openDeleteDialog(category)"
-              >
-                <i class="pi pi-trash pt-1"></i>
-              </button>
-              <!-- <button
-                class="btn btn-sm btn-outline-secondary p-0 px-2 py-1"
-                (click)="toggleCategoryStatus(category)"
-              >
-                <i class="pi pi-ban pt-1"></i>
-              </button> -->
+          <td class="col-count">
+            <span class="cell-strong">{{ category.productCount }}</span>
+            <span class="text-muted"> {{ category.productCount === 1 ? 'product' : 'products' }}</span>
+          </td>
+          <td>
+            <span class="pill" [ngClass]="category.status === 'ACTIVE' ? 'pill-success' : 'pill-muted'">{{ category.status === 'ACTIVE' ? 'Active' : category.status === 'INACTIVE' ? 'Inactive' : category.status }}</span>
+          </td>
+          <td>
+            <div class="row-actions">
+              <button type="button" class="icon-btn" title="Edit" aria-label="Edit" (click)="openDialog('edit', category)"><i class="pi pi-pencil"></i></button>
+              <button type="button" class="icon-btn danger" title="Delete" aria-label="Delete" (click)="openDeleteDialog(category)"><i class="pi pi-trash"></i></button>
             </div>
           </td>
         </tr>
       </ng-template>
-    </p-table>
-  </div>
 
-  <!-- Summary -->
-  <div class="card-footer bg-light text-secondary text-center py-3">
-    In total, there are {{ categories ? categories.length : 0 }} categories.
-  </div>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="4">No categories yet. Add one to start listing products.</td></tr>
+      </ng-template>
+    </p-table>
+  </section>
 
   <!-- Add/Edit Dialog -->
   <p-dialog

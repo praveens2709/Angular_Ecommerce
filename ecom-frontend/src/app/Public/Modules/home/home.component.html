@@ -100,28 +100,14 @@
       </div>
     </div>
     <div #arrivalsTrack class="arrivals-track d-flex gap-4">
-      <a
-        *ngFor="let product of newArrivals; let i = index"
-        [routerLink]="['/product-detail', product._id]"
+      <div
+        *ngFor="let product of newArrivals; let i = index; trackBy: trackById"
         class="arrival-card flex-shrink-0"
         appReveal="left"
         [revealDelay]="i * 70"
       >
-        <div class="arrival-img position-relative d-flex align-items-center justify-content-center">
-          <span *ngIf="product.discount" class="discount-badge position-absolute">-{{ product.discount }}%</span>
-          <span *ngIf="product.inventoryStatus === 'OUTOFSTOCK'" class="soldout-badge position-absolute">Sold out</span>
-          <img [src]="product.image | optImg : 260" [alt]="product.name" loading="lazy" decoding="async" />
-          <span class="quick-view position-absolute">View product <i class="pi pi-arrow-right ms-1"></i></span>
-        </div>
-        <div class="pt-3">
-          <small class="text-uppercase brand">{{ product.brand }}</small>
-          <h6 class="mb-1 name">{{ product.name }}</h6>
-          <div class="d-flex gap-2 align-items-baseline">
-            <span class="price fw-semibold">{{ product.price | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
-            <span class="mrp">{{ product.mrp | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
-          </div>
-        </div>
-      </a>
+        <app-product-card [product]="product" [colours]="coloursFor(product)" [imageWidth]="260"></app-product-card>
+      </div>
     </div>
   </div>
 </section>

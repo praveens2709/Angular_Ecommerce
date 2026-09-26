@@ -1,62 +1,63 @@
-<div class="card shadow-sm border-0 rounded-3">
-  <div class="card-header bg-light d-flex justify-content-between align-items-center">
-    <h3 class="mb-0 text-primary fs-5 fw-bold">Coupons</h3>
-    <button class="btn btn-outline-primary btn-sm px-2 py-1" title="Add coupon" (click)="openDialog()">
-      <i class="pi pi-plus pt-1"></i>
-    </button>
-  </div>
+<div class="admin-page">
+  <header class="page-head">
+    <div>
+      <h1 class="page-title">Coupons</h1>
+      <p class="page-sub">Discount codes shoppers can apply at checkout.</p>
+    </div>
+    <div class="page-actions">
+      <button type="button" class="btn btn-brand btn-sm" (click)="openDialog()"><i class="pi pi-plus"></i>Add coupon</button>
+    </div>
+  </header>
 
-  <p-table [value]="coupons" [loading]="loading" [paginator]="coupons.length > 10" [rows]="10" class="align-middle">
-    <ng-template pTemplate="header">
-      <tr>
-        <th class="py-3 px-4">Code</th>
-        <th class="py-3 px-4">Offer</th>
-        <th class="py-3 px-4">Valid</th>
-        <th class="py-3 px-4">Status</th>
-        <th class="py-3 px-4">Actions</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-coupon>
-      <tr>
-        <td class="py-3 px-4"><span class="code-chip">{{ coupon.code }}</span></td>
-        <td class="py-3 px-4">
-          {{ describe(coupon) }}
-          <div *ngIf="rules(coupon).length" class="d-flex flex-wrap gap-1 mt-1">
-            <span *ngFor="let rule of rules(coupon)" class="rule-chip">{{ rule }}</span>
-          </div>
-        </td>
-        <td class="py-3 px-4 text-nowrap">
-          {{ coupon.startsAt ? (coupon.startsAt | date : 'd MMM') + ' – ' : '' }}{{ coupon.expiresAt ? (coupon.expiresAt | date : 'd MMM y') : (coupon.startsAt ? 'no end' : 'Always') }}
-        </td>
-        <td class="py-3 px-4">
-          <p-tag *ngIf="isExpired(coupon); else scheduledTag" value="Expired" severity="secondary"></p-tag>
-          <ng-template #scheduledTag>
-            <p-tag *ngIf="isScheduled(coupon) && coupon.active; else liveTag" value="Scheduled" severity="info"></p-tag>
-          </ng-template>
-          <ng-template #liveTag>
-            <p-tag [value]="coupon.active ? 'Active' : 'Paused'" [severity]="coupon.active ? 'success' : 'warn'"></p-tag>
-          </ng-template>
-        </td>
-        <td class="px-4">
-          <div class="d-flex gap-2">
-            <button class="btn btn-sm btn-outline-primary p-0 px-2 py-1" title="Edit" (click)="openDialog(coupon)">
-              <i class="pi pi-pencil pt-1"></i>
-            </button>
-            <button class="btn btn-sm btn-outline-secondary p-0 px-2 py-1" [title]="coupon.active ? 'Pause' : 'Activate'" (click)="toggleActive(coupon)">
-              <i class="pi pt-1" [ngClass]="coupon.active ? 'pi-pause' : 'pi-play'"></i>
-            </button>
-            <button class="btn btn-sm btn-outline-danger p-0 px-2 py-1" title="Delete" (click)="openDelete(coupon)">
-              <i class="pi pi-trash pt-1"></i>
-            </button>
-          </div>
-          <p *ngIf="rowError?.id === coupon._id" class="form-error mb-0" role="alert">{{ rowError?.message }}</p>
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="emptymessage">
-      <tr><td colspan="5" class="text-center py-4">No coupons yet. Create one to offer discounts at checkout.</td></tr>
-    </ng-template>
-  </p-table>
+  <section class="admin-card">
+    <p-table [value]="coupons" [loading]="loading" [paginator]="coupons.length > 10" [rows]="10" [tableStyle]="{ 'min-width': '720px' }" styleClass="admin-table">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Code</th>
+          <th>Offer</th>
+          <th>Valid</th>
+          <th>Status</th>
+          <th style="width: 140px">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-coupon>
+        <tr>
+          <td><span class="code-chip">{{ coupon.code }}</span></td>
+          <td class="offer">
+            {{ describe(coupon) }}
+            <div *ngIf="rules(coupon).length" class="d-flex flex-wrap gap-1 mt-1">
+              <span *ngFor="let rule of rules(coupon)" class="rule-chip">{{ rule }}</span>
+            </div>
+          </td>
+          <td class="nowrap text-muted">
+            {{ coupon.startsAt ? (coupon.startsAt | date : 'd MMM') + ' – ' : '' }}{{ coupon.expiresAt ? (coupon.expiresAt | date : 'd MMM y') : (coupon.startsAt ? 'no end' : 'Always') }}
+          </td>
+          <td>
+            <span *ngIf="isExpired(coupon); else scheduledTag" class="pill pill-muted">Expired</span>
+            <ng-template #scheduledTag>
+              <span *ngIf="isScheduled(coupon) && coupon.active; else liveTag" class="pill pill-info">Scheduled</span>
+            </ng-template>
+            <ng-template #liveTag>
+              <span class="pill" [ngClass]="coupon.active ? 'pill-success' : 'pill-warn'">{{ coupon.active ? 'Active' : 'Paused' }}</span>
+            </ng-template>
+          </td>
+          <td>
+            <div class="row-actions">
+              <button type="button" class="icon-btn" title="Edit" aria-label="Edit" (click)="openDialog(coupon)"><i class="pi pi-pencil"></i></button>
+              <button type="button" class="icon-btn warn" [title]="coupon.active ? 'Pause' : 'Activate'" [attr.aria-label]="coupon.active ? 'Pause' : 'Activate'" (click)="toggleActive(coupon)">
+                <i class="pi" [ngClass]="coupon.active ? 'pi-pause' : 'pi-play'"></i>
+              </button>
+              <button type="button" class="icon-btn danger" title="Delete" aria-label="Delete" (click)="openDelete(coupon)"><i class="pi pi-trash"></i></button>
+            </div>
+            <p *ngIf="rowError?.id === coupon._id" class="form-error mb-0 mx-0" role="alert">{{ rowError?.message }}</p>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="5">No coupons yet. Create one to offer discounts at checkout.</td></tr>
+      </ng-template>
+    </p-table>
+  </section>
 
   <p-dialog [(visible)]="dialogVisible" [modal]="true" [header]="editingId ? 'Edit Coupon' : 'Add Coupon'" [style]="{ width: '560px' }">
     <form [formGroup]="form" (ngSubmit)="save()" class="d-flex flex-column gap-3">

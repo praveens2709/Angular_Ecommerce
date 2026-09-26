@@ -112,6 +112,28 @@ export class ProductsComponent implements OnInit, OnDestroy {
     return SIZES.reduce((sum, size) => sum + (Number(product.stock?.[size]) || 0), 0);
   }
 
+  /** Stock bar: total units against 10 per size, coloured by the same thresholds as derivedStatus */
+  readonly stockBarMax = SIZES.length * 10;
+
+  stockLevel(product: any): 'out' | 'low' | 'ok' {
+    const total = this.totalStock(product);
+    return total === 0 ? 'out' : total <= 10 ? 'low' : 'ok';
+  }
+
+  stockPercent(product: any): number {
+    const total = this.totalStock(product);
+    return total === 0 ? 0 : Math.max(4, Math.min(100, Math.round((total / this.stockBarMax) * 100)));
+  }
+
+  /** Pill style for an inventory status */
+  statusPill(status: string): string {
+    return status === 'INSTOCK' ? 'pill-success' : status === 'LOWSTOCK' ? 'pill-warn' : status === 'OUTOFSTOCK' ? 'pill-danger' : 'pill-muted';
+  }
+
+  statusLabel(status: string): string {
+    return status === 'INSTOCK' ? 'In stock' : status === 'LOWSTOCK' ? 'Low stock' : status === 'OUTOFSTOCK' ? 'Out of stock' : status || 'Unknown';
+  }
+
   getSeverity(status: string): 'success' | 'info' | 'warn' | 'danger' {
     switch (status) {
       case 'INSTOCK':

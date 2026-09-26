@@ -5,6 +5,7 @@ import { Subscription, forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ProductService } from '../../../Admin/Modules/products/product.service';
 import { CategoriesService } from '../../../Admin/Modules/categories/categories.service';
+import { colourFamilies } from '../../shared/product-card/product-card.component';
 
 interface CategoryCard {
   name: string;
@@ -133,6 +134,21 @@ export class HomeComponent implements OnInit, OnDestroy {
   private updateArrivalsOverflow(): void {
     const track = this.arrivalsTrack?.nativeElement;
     this.canScrollArrivals = !!track && track.scrollWidth > track.clientWidth + 4;
+  }
+
+  /** Keeps cards in place when fresh data arrives, so an open quick-add survives */
+  trackById = (_: number, product: any) => product._id;
+
+  private familiesFor: any[] | null = null;
+  private families = new Map<string, any[]>();
+
+  /** Other colours among the new arrivals, for the card's colour dots */
+  coloursFor(product: any): any[] {
+    if (this.familiesFor !== this.newArrivals) {
+      this.familiesFor = this.newArrivals;
+      this.families = colourFamilies(this.newArrivals);
+    }
+    return this.families.get(product._id) || [];
   }
 
   scrollArrivals(direction: 1 | -1): void {

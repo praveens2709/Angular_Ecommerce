@@ -58,6 +58,9 @@ module.exports = async (s, { data, apiLogs }) => {
   await s.click('.bag-btn', 'ADD TO BAG');
   await s.sleep(1500);
   s.check('added to bag', (await s.text()).includes('GO TO BAG'));
+  s.check('bag drawer opens', await page().$eval('.bag-drawer-root', (e) => e.classList.contains('open')));
+  await s.click('.bd-close');
+  await s.sleep(400);
   await s.click('.wish-toggle');
   await s.sleep(1000);
   s.check('wishlist saved', (await authed('/wishlist'))?.length === 1);
@@ -111,7 +114,9 @@ module.exports = async (s, { data, apiLogs }) => {
   await s.sleep(500);
   await s.click('.payment-right button', 'PLACE ORDER');
   await s.sleep(2500);
-  s.check('order placed', page().url().endsWith('/account/orders'));
+  s.check('order placed', page().url().endsWith('/order-success'));
+  s.check('success page lists the order', (await s.text()).includes('Order placed!') && (await s.text()).includes('₹898'));
+  await s.shot('shop-success');
   const [order] = await authed('/orders/my');
   s.check('server-side total with coupon', order?.totalAmount === 898 && order?.couponCode === 'WELCOME10', `${order?.totalAmount}`);
   s.check('stock reserved', (await s.call('GET', `/products/${ids.white}`)).body.stock.M === 6);

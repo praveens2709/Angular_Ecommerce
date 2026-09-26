@@ -1,0 +1,62 @@
+<app-cart-header></app-cart-header>
+
+<main class="success-page page-fill">
+  <div class="container">
+    <section class="success-card text-center mx-auto">
+      <!-- Drawn check mark -->
+      <div class="check-wrap mx-auto" aria-hidden="true">
+        <svg viewBox="0 0 52 52" class="check">
+          <circle class="check-circle" cx="26" cy="26" r="24" fill="none" />
+          <path class="check-mark" fill="none" d="M15 27 l7 7 l15 -16" />
+        </svg>
+      </div>
+      <h1 class="success-title">Order placed!</h1>
+      <p class="success-sub mb-0">
+        Thanks{{ address?.fullName ? ', ' + address.fullName.split(' ')[0] : '' }}! We've emailed you the order details.
+      </p>
+
+      <div *ngIf="orders.length" class="summary-grid text-start">
+        <div class="summary-box">
+          <span class="summary-label">{{ orders.length === 1 ? 'Order ID' : 'Order IDs' }}</span>
+          <span class="summary-value">
+            <a *ngFor="let order of orders; let last = last" [routerLink]="['/account/order-details', order._id]" class="order-id">#{{ shortId(order._id) }}<ng-container *ngIf="!last">, </ng-container></a>
+          </span>
+        </div>
+        <div class="summary-box">
+          <span class="summary-label">Total</span>
+          <span class="summary-value">{{ total | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
+          <small *ngIf="paymentLabel" class="summary-note">{{ paymentLabel }}</small>
+        </div>
+        <div *ngIf="address" class="summary-box wide">
+          <span class="summary-label">Delivering to</span>
+          <span class="summary-value">{{ address.fullName }}</span>
+          <small class="summary-note">{{ address.street }}, {{ address.city }}, {{ address.state }} {{ address.postalCode }}</small>
+        </div>
+      </div>
+
+      <ul *ngIf="items.length" class="success-items list-unstyled text-start mb-0">
+        <li *ngFor="let item of items" class="d-flex align-items-center gap-3">
+          <img *ngIf="item.image" [src]="item.image | optImg : 120" [alt]="item.productName" />
+          <div class="flex-grow-1 min-w-0">
+            <p class="item-name mb-0">{{ item.productName }}</p>
+            <small class="text-secondary">{{ item.size ? 'Size ' + item.size + ' · ' : '' }}Qty {{ item.quantity }}</small>
+          </div>
+          <span class="item-price">{{ item.price * item.quantity | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
+        </li>
+      </ul>
+
+      <ol class="next-steps list-unstyled text-start">
+        <li><i class="pi pi-envelope"></i><span><strong>Confirmation email</strong> with your order details</span></li>
+        <li><i class="pi pi-box"></i><span><strong>We pack and ship</strong> — you'll get an update when it's on the way</span></li>
+        <li><i class="pi pi-home"></i><span><strong>Delivered</strong> in 3–7 days, with 7-day easy returns</span></li>
+      </ol>
+
+      <div class="success-actions d-flex flex-column flex-sm-row gap-2 justify-content-center">
+        <a routerLink="/account/orders" class="success-btn primary">Track my orders</a>
+        <a routerLink="/shop" class="success-btn">Continue shopping</a>
+      </div>
+    </section>
+  </div>
+</main>
+
+<app-site-footer></app-site-footer>

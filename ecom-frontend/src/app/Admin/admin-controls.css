@@ -1,0 +1,119 @@
+/* Admin controls: buttons, form fields and dialogs. Global like admin-theme.css (see
+   AdminComponent), and likewise scoped under .ds-admin. Colours match the tokens there. */
+/* ---------- Buttons ---------- */
+.ds-admin .btn { border-radius: 10px; font-weight: 600; transition: background-color var(--ad-ease), border-color var(--ad-ease), color var(--ad-ease), box-shadow var(--ad-ease); }
+.ds-admin .btn-primary,
+.ds-admin .btn-brand {
+  --bs-btn-bg: var(--ad-brand);
+  --bs-btn-border-color: var(--ad-brand);
+  --bs-btn-hover-bg: var(--ad-brand-hover);
+  --bs-btn-hover-border-color: var(--ad-brand-hover);
+  --bs-btn-active-bg: var(--ad-brand-hover);
+  --bs-btn-active-border-color: var(--ad-brand-hover);
+  --bs-btn-disabled-bg: var(--ad-brand);
+  --bs-btn-disabled-border-color: var(--ad-brand);
+  --bs-btn-color: #fff;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-color: #fff;
+  --bs-btn-focus-shadow-rgb: 153, 38, 3;
+  color: #fff;
+  background-color: var(--bs-btn-bg);
+  border-color: var(--bs-btn-border-color);
+}
+.ds-admin .btn-brand { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; box-shadow: 0 2px 8px rgba(153, 38, 3, 0.18); }
+.ds-admin .btn-outline-primary {
+  --bs-btn-color: var(--ad-brand);
+  --bs-btn-border-color: #e6cfc8;
+  --bs-btn-hover-bg: var(--ad-tint);
+  --bs-btn-hover-color: var(--ad-brand-hover);
+  --bs-btn-hover-border-color: var(--ad-brand);
+  --bs-btn-active-bg: var(--ad-tint);
+  --bs-btn-active-color: var(--ad-brand-hover);
+  --bs-btn-active-border-color: var(--ad-brand);
+  --bs-btn-focus-shadow-rgb: 153, 38, 3;
+}
+.ds-admin .btn-secondary,
+.ds-admin .btn-outline-secondary {
+  --bs-btn-color: var(--ad-text);
+  --bs-btn-bg: #fff;
+  --bs-btn-border-color: var(--ad-border);
+  --bs-btn-hover-color: var(--ad-text);
+  --bs-btn-hover-bg: var(--ad-soft);
+  --bs-btn-hover-border-color: #e2d5d1;
+  --bs-btn-active-bg: var(--ad-soft);
+  --bs-btn-active-color: var(--ad-text);
+  --bs-btn-active-border-color: #e2d5d1;
+}
+.ds-admin .btn:focus-visible { box-shadow: 0 0 0 3px rgba(153, 38, 3, 0.2); }
+
+/* Square icon buttons in table rows */
+.ds-admin .icon-btn {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  border: 1px solid var(--ad-border);
+  background: #fff;
+  color: var(--ad-muted);
+  transition: background-color var(--ad-ease), color var(--ad-ease), border-color var(--ad-ease);
+}
+.ds-admin .icon-btn:hover { background: var(--ad-tint); color: var(--ad-brand); border-color: #ecd3cb; }
+.ds-admin .icon-btn.danger:hover { background: #fdecea; color: #b3261e; border-color: #f3c7c2; }
+.ds-admin .icon-btn.success:hover { background: #e8f6ee; color: #1e7b4a; border-color: #bfe3cd; }
+.ds-admin .icon-btn.warn:hover { background: #fff5e0; color: #9a6200; border-color: #f2d9a6; }
+.ds-admin .icon-btn .pi { font-size: 0.9rem; }
+.ds-admin .row-actions { display: flex; gap: 6px; }
+
+/* Search / selects */
+.ds-admin .search-field { position: relative; display: inline-block; }
+.ds-admin .search-field .pi {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ad-muted);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+.ds-admin .search-field input { padding-left: 32px; width: 260px; max-width: 100%; }
+.ds-admin .form-control,
+.ds-admin .form-select,
+.ds-admin .p-inputtext {
+  border-color: var(--ad-border);
+  border-radius: 10px;
+  color: var(--ad-text);
+  transition: border-color var(--ad-ease), box-shadow var(--ad-ease);
+}
+.ds-admin .form-control-sm,
+.ds-admin .form-select-sm { min-height: 36px; font-size: 0.875rem; }
+.ds-admin .form-control:focus,
+.ds-admin .form-select:focus,
+.ds-admin .p-inputtext:enabled:focus {
+  border-color: #d9a898;
+  box-shadow: 0 0 0 3px rgba(153, 38, 3, 0.1);
+  outline: 0;
+}
+.ds-admin .form-group label,
+.ds-admin form label { font-size: 0.85rem; font-weight: 600; color: #5c4f4a; margin-bottom: 4px; }
+.ds-admin input[type='checkbox'] { accent-color: var(--ad-brand); }
+
+/* ---------- Dialogs ---------- */
+.ds-admin .p-dialog {
+  border-radius: 14px;
+  border: 1px solid var(--ad-border);
+  box-shadow: 0 24px 60px rgba(42, 31, 28, 0.18);
+  overflow: hidden;
+}
+.ds-admin .p-dialog .p-dialog-header { padding: 18px 22px 10px; }
+.ds-admin .p-dialog .p-dialog-title { font-weight: 800; font-size: 1.1rem; color: var(--ad-text); }
+.ds-admin .p-dialog .p-dialog-content { padding: 6px 22px 22px; color: var(--ad-text); }
+.ds-admin .p-dialog-mask { background: rgba(42, 31, 28, 0.35); }
+
+
+@media (max-width: 575px) {
+  .ds-admin .search-field,
+  .ds-admin .search-field input { width: 100%; }
+}

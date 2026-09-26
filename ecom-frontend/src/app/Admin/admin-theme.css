@@ -1,0 +1,251 @@
+/* =====================================================================
+   DopeShope admin theme. Loaded unencapsulated by AdminComponent, so every
+   rule is scoped under .ds-admin and can never reach the storefront.
+   ===================================================================== */
+.ds-admin {
+  --ad-bg: #faf7f6;
+  --ad-card: #ffffff;
+  --ad-brand: #992603;
+  --ad-brand-hover: #7a1f05;
+  --ad-tint: #fdf4f2;
+  --ad-text: #2a1f1c;
+  --ad-muted: #8a7d78;
+  --ad-border: #eee4e1;
+  --ad-soft: #f6f0ee;
+  --ad-radius: 12px;
+  --ad-shadow: 0 1px 2px rgba(42, 31, 28, 0.04), 0 4px 16px rgba(42, 31, 28, 0.05);
+  --ad-ease: 180ms ease;
+  color: var(--ad-text);
+  font-family: 'Nunito', system-ui, sans-serif;
+  background: var(--ad-bg);
+  min-height: 100vh;
+}
+
+.ds-admin .p-component { font-size: 0.9rem; }
+.ds-admin a { color: var(--ad-brand); }
+.ds-admin a:hover { color: var(--ad-brand-hover); }
+.ds-admin .text-muted { color: var(--ad-muted) !important; }
+
+/* ---------- Page header ---------- */
+.ds-admin .page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px 16px;
+  margin-bottom: 20px;
+}
+.ds-admin .page-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--ad-text);
+}
+.ds-admin .page-sub { margin: 2px 0 0; color: var(--ad-muted); font-size: 0.9rem; }
+.ds-admin .page-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+/* ---------- Cards ---------- */
+.ds-admin .admin-card {
+  background: var(--ad-card);
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius);
+  box-shadow: var(--ad-shadow);
+  overflow: hidden;
+  min-width: 0;
+}
+.ds-admin .card-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--ad-border);
+}
+.ds-admin .card-toolbar .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ds-admin .card-foot {
+  padding: 12px 16px;
+  border-top: 1px solid var(--ad-border);
+  color: var(--ad-muted);
+  font-size: 0.85rem;
+  background: #fffdfc;
+}
+.ds-admin .form-error { margin: 10px 16px; }
+
+/* ---------- Tabs (status filters) ---------- */
+.ds-admin .status-tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--ad-border);
+}
+.ds-admin .status-tabs::-webkit-scrollbar { display: none; }
+.ds-admin .status-tab {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 13px 10px 11px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--ad-muted);
+  font-weight: 700;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  transition: color var(--ad-ease), border-color var(--ad-ease);
+}
+.ds-admin .status-tab:hover { color: var(--ad-text); }
+.ds-admin .status-tab.active { color: var(--ad-brand); border-bottom-color: var(--ad-brand); }
+.ds-admin .status-tab .count {
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--ad-soft);
+  color: var(--ad-muted);
+  font-size: 0.75rem;
+  text-align: center;
+}
+.ds-admin .status-tab.active .count { background: var(--ad-tint); color: var(--ad-brand); }
+
+/* ---------- Tables (PrimeNG) ---------- */
+.ds-admin .admin-table .p-datatable-thead > tr > th {
+  background: #fcf9f8;
+  color: var(--ad-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ad-border);
+  white-space: nowrap;
+}
+.ds-admin .admin-table .p-datatable-tbody > tr {
+  background: #fff;
+  color: var(--ad-text);
+  transition: background-color var(--ad-ease);
+}
+.ds-admin .admin-table .p-datatable-tbody > tr > td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f4ecea;
+  vertical-align: middle;
+}
+.ds-admin .admin-table .p-datatable-tbody > tr:last-child > td { border-bottom: 0; }
+.ds-admin .admin-table .p-datatable-tbody > tr:hover { background: #fdf8f6; }
+.ds-admin .admin-table .p-datatable-tbody > tr.clickable { cursor: pointer; }
+.ds-admin .admin-table .p-datatable-tbody > tr.clickable:focus-visible { outline: 2px solid rgba(153, 38, 3, 0.35); outline-offset: -2px; }
+.ds-admin .admin-table .p-datatable-emptymessage td { text-align: center; color: var(--ad-muted); padding: 40px 16px; }
+.ds-admin .admin-table .p-datatable-mask { background: rgba(255, 255, 255, 0.6); }
+.ds-admin .admin-table .p-paginator {
+  border-top: 1px solid var(--ad-border);
+  padding: 8px 12px;
+  background: #fff;
+}
+.ds-admin .admin-table .p-paginator .p-paginator-page,
+.ds-admin .admin-table .p-paginator .p-paginator-first,
+.ds-admin .admin-table .p-paginator .p-paginator-prev,
+.ds-admin .admin-table .p-paginator .p-paginator-next,
+.ds-admin .admin-table .p-paginator .p-paginator-last {
+  min-width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  color: var(--ad-muted);
+}
+.ds-admin .admin-table .p-paginator .p-paginator-page.p-paginator-page-selected {
+  background: var(--ad-tint);
+  color: var(--ad-brand);
+  font-weight: 700;
+}
+.ds-admin .admin-table .p-paginator .p-select,
+.ds-admin .admin-table .p-paginator .p-dropdown { border-color: var(--ad-border); border-radius: 9px; height: 34px; align-items: center; }
+.ds-admin .cell-strong { font-weight: 700; color: var(--ad-text); }
+.ds-admin .cell-sub { display: block; color: var(--ad-muted); font-size: 0.8rem; }
+.ds-admin .nowrap { white-space: nowrap; }
+
+/* Thumbnails */
+.ds-admin .thumb {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+  border-radius: 10px;
+  background: var(--ad-soft);
+  object-fit: contain;
+  padding: 4px;
+}
+.ds-admin .thumb.sm { width: 40px; height: 40px; flex-basis: 40px; border-radius: 8px; padding: 3px; }
+
+/* Avatar initials */
+.ds-admin .avatar {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ad-tint);
+  color: var(--ad-brand);
+  font-weight: 800;
+  font-size: 0.8rem;
+}
+
+/* ---------- Status pills ---------- */
+.ds-admin .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+  background: var(--pill-bg, #f1ecea);
+  color: var(--pill-fg, #6d615c);
+}
+.ds-admin .pill::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.85;
+}
+.ds-admin .pill-warn { --pill-bg: #fff4dc; --pill-fg: #9a6200; }
+.ds-admin .pill-info { --pill-bg: #e7f0fd; --pill-fg: #1d5fbf; }
+.ds-admin .pill-indigo { --pill-bg: #ecebfd; --pill-fg: #4b3fc4; }
+.ds-admin .pill-success { --pill-bg: #e5f5ec; --pill-fg: #1e7b4a; }
+.ds-admin .pill-danger { --pill-bg: #fdeceb; --pill-fg: #b3261e; }
+.ds-admin .pill-purple { --pill-bg: #f3eafc; --pill-fg: #7a3db8; }
+.ds-admin .pill-muted { --pill-bg: #f1ecea; --pill-fg: #7c706b; }
+
+/* ---------- Phones ---------- */
+@media (max-width: 575px) {
+  .ds-admin .page-head { margin-bottom: 14px; align-items: center; }
+  .ds-admin .page-title { font-size: 1.25rem; }
+  .ds-admin .page-sub { font-size: 0.82rem; }
+  .ds-admin .card-toolbar { padding: 12px; }
+  .ds-admin .card-toolbar .tools,
+  .ds-admin .card-toolbar .tools > *,
+  .ds-admin .search-field,
+  .ds-admin .search-field input { width: 100%; }
+  .ds-admin .card-toolbar .tools > .form-select { flex: 1 1 140px; width: auto; }
+  .ds-admin .admin-table .p-datatable-tbody > tr > td { padding: 10px 12px; white-space: nowrap; }
+  .ds-admin .admin-table .p-datatable-thead > tr > th { padding: 10px 12px; }
+  .ds-admin .thumb { width: 44px; height: 44px; flex-basis: 44px; }
+  /* Side-by-side form fields in dialogs stack */
+  .ds-admin .p-dialog form .d-flex.gap-3 { flex-wrap: wrap; }
+  .ds-admin .p-dialog form .d-flex.gap-3 > .form-group { flex: 1 1 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-admin *,
+  .ds-admin *::before,
+  .ds-admin *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

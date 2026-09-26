@@ -25,3 +25,15 @@
     gap: 5.5rem;
   }
   
+/* Banner text settles quickly so it never trails the page content */
+.animate {
+    animation-duration: 0.5s;
+}
+
+.animate.one {
+    animation-delay: 0.05s;
+}
+
+.animate.two {
+    animation-delay: 0.15s;
+}

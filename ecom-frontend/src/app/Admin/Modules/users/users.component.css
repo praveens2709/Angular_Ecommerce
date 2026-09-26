@@ -1,35 +1,13 @@
-.p-card {
-    padding: 1.5rem;
-    border-radius: 0.75rem;
-    background: #ffffff;
-  }
-  
-  .p-datatable {
-    border-radius: 0.5rem;
-  }
-  
-  .p-datatable th,
-  .p-datatable td {
-    text-align: left;
-    padding: 0.75rem 1rem;
-  }
-  
-  .p-datatable th {
-    background: #f8f9fa;
-    font-weight: 600;
-  }
-  
-  .p-datatable td {
-    vertical-align: middle;
-  }
-  
-  .p-datatable-gridlines .p-datatable-tbody > tr {
-    border-bottom: 1px solid #e9ecef;
-  }
-  
-  .p-datatable[_ngcontent-ng-c2439279038] th[_ngcontent-ng-c2439279038]{
-    padding: 0.75rem 0.5rem;
-  }
-.search-input {
-  width: 260px;
+:host ::ng-deep .gender-filter { min-width: 160px; height: 36px; align-items: center; border-radius: 10px; border-color: #eee4e1; }
+:host ::ng-deep .gender-filter .p-select-label,
+:host ::ng-deep .gender-filter .p-dropdown-label { font-size: 0.875rem; padding-top: 0; padding-bottom: 0; }
+
+tr.is-disabled .cell-strong { color: #8a7d78; }
+
+.toggle-btn { min-width: 84px; }
+.toggle-btn:hover { color: #b3261e; border-color: #f3c7c2; background: #fdecea; }
+.toggle-btn.enable:hover { color: #1e7b4a; border-color: #bfe3cd; background: #e8f6ee; }
+
+@media (max-width: 575px) {
+  :host ::ng-deep .gender-filter { width: 100%; }
 }

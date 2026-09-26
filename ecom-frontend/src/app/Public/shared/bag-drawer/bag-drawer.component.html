@@ -1,0 +1,39 @@
+<div class="bag-drawer-root" [class.open]="open" [attr.aria-hidden]="!open">
+  <div class="bd-overlay" (click)="close()"></div>
+  <aside class="bd-panel" role="dialog" aria-label="Added to bag" [attr.inert]="open ? null : ''">
+    <header class="bd-head d-flex align-items-center justify-content-between">
+      <p class="mb-0 d-flex align-items-center gap-2 fw-bold">
+        <span class="bd-tick"><i class="pi pi-check"></i></span> Added to your bag
+      </p>
+      <button type="button" class="bd-close" (click)="close()" aria-label="Close"><i class="pi pi-times"></i></button>
+    </header>
+
+    <div *ngIf="added" class="bd-added d-flex gap-3">
+      <div class="bd-img">
+        <img [src]="added.product.image | optImg : 160" [alt]="added.product.name" />
+      </div>
+      <div class="flex-grow-1 min-w-0">
+        <p class="bd-brand mb-0">{{ added.product.brand || 'DopeShope' }}</p>
+        <p class="bd-name mb-1">{{ added.product.name }}<span *ngIf="added.product.color" class="text-secondary"> · {{ added.product.color }}</span></p>
+        <p *ngIf="added.size" class="bd-meta mb-1">Size: <strong>{{ added.size }}</strong></p>
+        <p class="mb-0 d-flex gap-2 align-items-baseline">
+          <span class="bd-price">{{ added.product.price | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
+          <span *ngIf="added.product.mrp > added.product.price" class="bd-mrp">{{ added.product.mrp | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="bd-summary">
+      <div *ngIf="items.length" class="d-flex justify-content-between">
+        <span>{{ items.length }} {{ items.length === 1 ? 'item' : 'items' }} in your bag</span>
+        <strong>{{ bagTotal | currency : 'INR' : 'symbol' : '1.0-0' }}</strong>
+      </div>
+      <p class="bd-perks mb-0"><i class="pi pi-truck"></i> Free shipping · Cash on delivery · 7-day returns</p>
+    </div>
+
+    <div class="bd-actions d-flex flex-column gap-2">
+      <a routerLink="/cart" class="bd-btn primary">View bag &amp; checkout</a>
+      <button type="button" class="bd-btn" (click)="close()">Continue shopping</button>
+    </div>
+  </aside>
+</div>

@@ -7,6 +7,7 @@ import { ProductComponent } from './Modules/product/product.component';
 import { ProductDetailsComponent } from './Modules/product-details/product-details.component';
 import { AddressComponent } from './Modules/address/address.component';
 import { PaymentComponent } from './Modules/payment/payment.component';
+import { OrderSuccessComponent } from './Modules/order-success/order-success.component';
 import { OverviewComponent } from './Modules/account/overview/overview.component';
 import { UserOrdersComponent } from './Modules/account/user-orders/user-orders.component';
 import { ProfileDetailsComponent } from './Modules/account/profile-details/profile-details.component';
@@ -41,6 +42,7 @@ const routes: Routes = [
   { path: 'terms', component: InfoPageComponent, title: 'Terms & Conditions', data: { page: 'terms', description: 'The terms for using DopeShope and buying from us.' } },
   { path: 'contact', component: ContactComponent, title: 'Contact Us', data: { description: 'Get help with orders, sizing, returns and payments.' } },
   { path: 'payment', component: PaymentComponent, canActivate: [userAuthGuard], title: 'Payment' },
+  { path: 'order-success', component: OrderSuccessComponent, canActivate: [userAuthGuard], title: 'Order placed' },
 
   // Account section with child routes
   {

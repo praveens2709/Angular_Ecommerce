@@ -145,92 +145,6 @@
 .arrival-card {
     width: 260px;
     scroll-snap-align: start;
-    color: var(--ink);
-
-    &:hover .arrival-img {
-        box-shadow: 0 18px 34px rgba(0, 0, 0, 0.12);
-    }
-
-    &:hover .arrival-img img {
-        transform: scale(1.08);
-    }
-
-    &:hover .quick-view {
-        opacity: 1;
-        transform: translate(-50%, 0);
-    }
-
-    .brand {
-        color: var(--brand);
-        font-size: 11px;
-        letter-spacing: 1.5px;
-        font-weight: 700;
-    }
-
-    .name {
-        font-weight: 600;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .price {
-        color: var(--brand);
-    }
-
-    .mrp {
-        color: var(--muted);
-        text-decoration: line-through;
-        font-size: 14px;
-    }
-}
-
-.arrival-img {
-    height: 300px;
-    border-radius: 16px;
-    background: #ffffff;
-    overflow: hidden;
-    transition: box-shadow 0.35s ease;
-
-    img {
-        max-width: 78%;
-        max-height: 78%;
-        object-fit: contain;
-        transition: transform 0.5s ease;
-    }
-}
-
-.discount-badge,
-.soldout-badge {
-    top: 14px;
-    left: 14px;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 700;
-    color: #ffffff;
-    background: var(--brand);
-    z-index: 1;
-}
-
-.soldout-badge {
-    left: auto;
-    right: 14px;
-    background: #444;
-}
-
-.quick-view {
-    left: 50%;
-    bottom: 16px;
-    transform: translate(-50%, 12px);
-    opacity: 0;
-    padding: 8px 16px;
-    border-radius: 24px;
-    background: var(--ink);
-    color: #ffffff;
-    font-size: 13px;
-    white-space: nowrap;
-    transition: all 0.3s ease;
 }
 
 /* ---------- Deal ---------- */
@@ -430,10 +344,6 @@
 
     .arrival-card {
         width: 200px;
-    }
-
-    .arrival-img {
-        height: 230px;
     }
 
     .deal-content {

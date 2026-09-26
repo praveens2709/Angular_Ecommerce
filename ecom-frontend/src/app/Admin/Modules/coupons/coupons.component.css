@@ -1,19 +1,25 @@
 .code-chip {
-  font-family: monospace;
-  font-weight: 700;
-  letter-spacing: 1px;
-  padding: 3px 8px;
-  border: 1px dashed #0d6efd;
-  border-radius: 4px;
-  color: #0d6efd;
-  background: #f1f6ff;
+  display: inline-block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border: 1px dashed #d9a898;
+  border-radius: 8px;
+  color: #992603;
+  background: #fdf4f2;
+  white-space: nowrap;
 }
+
+.offer { min-width: 240px; }
 
 /* Coupon rules under the offer (first order only, once per customer...) */
 .rule-chip {
-  font-size: 11px;
+  font-size: 0.7rem;
+  font-weight: 700;
   padding: 1px 8px;
   border-radius: 999px;
-  background: #eef3ff;
-  color: #2f5bd3;
+  background: #f6f0ee;
+  color: #6d615c;
 }

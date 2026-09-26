@@ -50,6 +50,17 @@ export class ProductService {
     return this.seen.get(productId);
   }
 
+  /**
+   * Its other colours from earlier lists (same name + category, oldest first like the API),
+   * so the colour row is there from the first frame instead of popping in and moving the page
+   */
+  peekVariants(product: any): any[] {
+    const category = (p: any) => String(p?.category?._id ?? p?.category ?? '');
+    const family = [...this.seen.values()].filter((p) => p.name === product.name && category(p) === category(product));
+    if (!family.some((p) => p._id === product._id)) family.push(product);
+    return family.sort((a, b) => (a._id < b._id ? -1 : a._id > b._id ? 1 : 0));
+  }
+
   private toParams(query: ProductQuery, page?: number, limit?: number): HttpParams {
     let params = new HttpParams();
     if (query.q?.trim()) params = params.set('q', query.q.trim());
@@ -81,7 +92,9 @@ export class ProductService {
   }
 
   getVariants(productId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/${productId}/variants`);
+    return this.http
+      .get<any[]>(`${this.apiUrl}/${productId}/variants`)
+      .pipe(tap((variants) => variants?.forEach((p) => this.seen.set(p._id, p))));
   }
 
   getReviews(productId: string): Observable<Review[]> {

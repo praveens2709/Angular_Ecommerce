@@ -1,0 +1,315 @@
+/* Square tiles (house style): no rounded corners on the card or image */
+.pc-link,
+.pc-media-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.pc-media-link {
+  position: absolute;
+  inset: 0;
+}
+
+.pc-badges {
+  pointer-events: none;
+}
+
+.pc {
+  transition: transform 0.3s ease;
+}
+
+@media (hover: hover) {
+  .pc:hover {
+    transform: translateY(-4px);
+  }
+}
+
+.pc-media {
+  aspect-ratio: 4 / 5;
+  background: #e0465a36;
+  overflow: hidden;
+}
+
+.pc-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 10px;
+  transition: opacity 0.45s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pc-img.alt {
+  opacity: 0;
+}
+
+/* Hover: gentle zoom, and the second photo fades in when there is one */
+@media (hover: hover) {
+  .pc:hover .pc-img {
+    transform: scale(1.05);
+  }
+
+  .pc:hover .pc-img.alt {
+    opacity: 1;
+  }
+
+  .pc:hover .pc-img.alt ~ .pc-img.main,
+  .pc:hover .pc-img.main:has(+ .pc-img.alt) {
+    opacity: 0;
+  }
+}
+
+.sold-out .pc-img {
+  opacity: 0.55;
+}
+
+.pc-badges {
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+}
+
+.pc-badge {
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  line-height: 1.3;
+}
+
+.pc-badge.brand {
+  background: #992603;
+  color: #ffffff;
+}
+
+.pc-badge.light {
+  background: #ffffff;
+  color: #992603;
+}
+
+.pc-badge.warn {
+  background: #fff4e0;
+  color: #9a5b00;
+}
+
+.pc-badge.dark {
+  background: #2a1f1c;
+  color: #ffffff;
+}
+
+.pc-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(255, 255, 255, 0.95);
+  color: #992603;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.pc-icon:hover {
+  transform: scale(1.08);
+}
+
+.pc-icon:active {
+  transform: scale(0.92);
+}
+
+.pc-icon.wish {
+  top: 10px;
+  right: 10px;
+}
+
+.pc-icon.wish.active {
+  color: #d6334d;
+  animation: heart-pop 0.35s ease-out;
+}
+
+@keyframes heart-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+.pc-icon.quick {
+  right: 10px;
+  bottom: 10px;
+}
+
+.pc-icon.quick.active {
+  background: #992603;
+  color: #ffffff;
+}
+
+/* Desktop: the quick-add button appears on hover; touch screens always show it */
+@media (hover: hover) {
+  .pc-icon.quick {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  .pc:hover .pc-icon.quick,
+  .pc-icon.quick.active,
+  .pc-icon.quick:focus-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.pc-sizes {
+  left: 8px;
+  right: 8px;
+  bottom: 54px;
+  z-index: 4;
+  padding: 12px;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+  font-size: 13px;
+  animation: rise 0.18s ease-out;
+  cursor: default;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.pc-size {
+  min-width: 38px;
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid #d9ccc8;
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  color: #2a1f1c;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.pc-size:hover:not(:disabled) {
+  border-color: #992603;
+  background: #fdf4f2;
+  color: #992603;
+}
+
+.pc-size:disabled {
+  color: #c2b8b4;
+  text-decoration: line-through;
+  background: #faf8f7;
+}
+
+.pc-body {
+  padding: 10px 2px 4px;
+}
+
+.pc-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2a1f1c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pc-colour {
+  font-weight: 400;
+  color: #8a7d78;
+}
+
+.pc-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 6px;
+  background: #1e8e3e;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pc-rating i {
+  font-size: 8px;
+}
+
+.pc-price {
+  font-weight: 700;
+  color: #992603;
+}
+
+.pc-mrp {
+  font-size: 0.8rem;
+  color: #8a7d78;
+  text-decoration: line-through;
+}
+
+.pc-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  box-shadow: inset 0 0 0 2px #ffffff;
+  transition: transform 0.15s ease;
+}
+
+.pc-dot:hover {
+  transform: scale(1.2);
+}
+
+.pc-dot.current {
+  outline: 1px solid #992603;
+  outline-offset: 2px;
+}
+
+@media (max-width: 575px) {
+  .pc-name {
+    font-size: 0.82rem;
+  }
+
+  .pc-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
+
+  .pc-icon.wish {
+    top: 6px;
+    right: 6px;
+  }
+
+  .pc-icon.quick {
+    right: 6px;
+    bottom: 6px;
+  }
+
+  .pc-badges {
+    top: 6px;
+    left: 6px;
+  }
+
+  .pc-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .pc-sizes {
+    left: 4px;
+    right: 4px;
+    bottom: 44px;
+    padding: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pc-img,
+  .pc-icon,
+  .pc-sizes {
+    transition: none;
+    animation: none;
+  }
+}

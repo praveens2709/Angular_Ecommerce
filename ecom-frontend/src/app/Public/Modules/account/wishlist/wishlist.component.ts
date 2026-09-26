@@ -15,13 +15,9 @@ export class WishlistComponent {
     this.items$ = this.wishlistService.items$;
   }
 
+  trackById = (_: number, product: any) => product._id;
+
   get isLoggedIn(): boolean {
     return this.authService.isUserLoggedIn();
-  }
-
-  remove(event: MouseEvent, product: any): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.wishlistService.toggle(product);
   }
 }

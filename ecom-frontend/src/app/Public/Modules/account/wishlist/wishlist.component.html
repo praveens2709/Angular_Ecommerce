@@ -11,24 +11,8 @@
       </div>
 
       <div class="row g-3" *ngIf="items.length > 0">
-        <div class="col-6 col-md-4" *ngFor="let product of items">
-          <a [routerLink]="['/product-detail', product._id]" class="wish-card d-block position-relative">
-            <button type="button" class="remove position-absolute" aria-label="Remove from wishlist" (click)="remove($event, product)">
-              <i class="pi pi-times"></i>
-            </button>
-            <div class="img d-flex align-items-center justify-content-center">
-              <img [src]="product.image | optImg : 220" [alt]="product.name" loading="lazy" decoding="async" />
-            </div>
-            <div class="p-2">
-              <p class="name mb-0">{{ product.name }}<span *ngIf="product.color" class="text-secondary"> · {{ product.color }}</span></p>
-              <div class="d-flex gap-2 align-items-baseline">
-                <span class="price">{{ product.price | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
-                <span class="mrp">{{ product.mrp | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
-              </div>
-              <small *ngIf="product.inventoryStatus === 'OUTOFSTOCK'" class="text-danger fw-semibold">Out of stock</small>
-              <span class="choose d-block mt-2">Choose size <i class="pi pi-arrow-right ms-1"></i></span>
-            </div>
-          </a>
+        <div class="col-6 col-md-4" *ngFor="let product of items; trackBy: trackById">
+          <app-product-card [product]="product" [removable]="true" [imageWidth]="220"></app-product-card>
         </div>
       </div>
     </ng-container>

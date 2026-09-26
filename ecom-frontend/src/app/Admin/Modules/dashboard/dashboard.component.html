@@ -1,118 +1,171 @@
-<div class="dashboard-container">
+<div class="dashboard">
+  <header class="page-head">
+    <div>
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-sub">How the store is doing. Trends compare the last 7 days with the 7 before.</p>
+    </div>
+    <div class="page-actions">
+      <a routerLink="/admin/products" class="btn btn-outline-secondary btn-sm px-3 py-2"><i class="pi pi-box me-1"></i>Products</a>
+      <a routerLink="/admin/orders" class="btn btn-brand btn-sm"><i class="pi pi-shopping-cart"></i>View orders</a>
+    </div>
+  </header>
+
   <!-- KPI cards -->
-  <div class="card-container">
-    <div class="card purple-card">
-      <h3>Revenue</h3>
-      <div class="card-content d-flex align-items-center justify-content-between mb-2">
-        <i class="pi pi-indian-rupee"></i>
-        <h4 class="mb-0">{{ dashboardData.revenue.total | currency : 'INR' : 'symbol' : '1.0-0' }}</h4>
+  <div class="kpi-grid">
+    <div class="kpi admin-card">
+      <div class="kpi-top">
+        <span class="kpi-icon brand"><i class="pi pi-indian-rupee"></i></span>
+        <span *ngIf="revenueTrend" class="trend" [ngClass]="revenueTrend.dir" [attr.title]="'Last 7 days vs previous 7'">
+          <i class="pi" [ngClass]="revenueTrend.dir === 'down' ? 'pi-arrow-down-right' : revenueTrend.dir === 'up' ? 'pi-arrow-up-right' : 'pi-minus'"></i>{{ revenueTrend.label }}
+        </span>
       </div>
-      <div class="bottom-content d-flex align-items-center justify-content-between">
-        <small>Paid orders</small>
-        <small>{{ dashboardData.revenue.orders }}</small>
-      </div>
-      <div class="bottom-content d-flex align-items-center justify-content-between">
-        <small>Average order</small>
-        <small>{{ dashboardData.revenue.averageOrder | currency : 'INR' : 'symbol' : '1.0-0' }}</small>
-      </div>
-    </div>
-
-    <div class="card yellow-card">
-      <h3>Orders</h3>
-      <div class="card-content d-flex align-items-center justify-content-between mb-2">
-        <i class="pi pi-wallet"></i>
-        <h4 class="mb-0">{{ dashboardData.orders.total }}</h4>
-      </div>
-      <div class="bottom-content d-flex align-items-center justify-content-between">
-        <small>Pending</small>
-        <small>{{ dashboardData.orders.pending }}</small>
-      </div>
-      <div class="bottom-content d-flex align-items-center justify-content-between">
-        <small>Delivered</small>
-        <small>{{ dashboardData.orders.completed }}</small>
+      <div class="kpi-label">Revenue</div>
+      <div class="kpi-value">{{ dashboardData.revenue.total | currency : 'INR' : 'symbol' : '1.0-0' }}</div>
+      <svg *ngIf="revenueSpark" class="spark" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true">
+        <polyline [attr.points]="revenueSpark" fill="none" stroke="#992603" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linejoin="round" />
+      </svg>
+      <div class="kpi-foot">
+        <span>{{ revenueLast7 | currency : 'INR' : 'symbol' : '1.0-0' }} this week</span>
+        <span>Avg {{ dashboardData.revenue.averageOrder | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
       </div>
     </div>
 
-    <div class="card blue-card">
-      <h3>Products</h3>
-      <div class="card-content d-flex align-items-center justify-content-between mb-2">
-        <i class="pi pi-shopping-cart"></i>
-        <h4 class="mb-0">{{ dashboardData.products.total }}</h4>
+    <div class="kpi admin-card">
+      <div class="kpi-top">
+        <span class="kpi-icon amber"><i class="pi pi-shopping-bag"></i></span>
+        <span *ngIf="ordersTrend" class="trend" [ngClass]="ordersTrend.dir" [attr.title]="'Last 7 days vs previous 7'">
+          <i class="pi" [ngClass]="ordersTrend.dir === 'down' ? 'pi-arrow-down-right' : ordersTrend.dir === 'up' ? 'pi-arrow-up-right' : 'pi-minus'"></i>{{ ordersTrend.label }}
+        </span>
       </div>
-      <div class="bottom-content d-flex align-items-center justify-content-between">
-        <small>Low stock</small>
-        <small>{{ dashboardData.products.lowstock }}</small>
-      </div>
-      <div class="bottom-content d-flex align-items-center justify-content-between">
-        <small>Out of stock</small>
-        <small>{{ dashboardData.products.outOfStock }}</small>
+      <div class="kpi-label">Orders</div>
+      <div class="kpi-value">{{ dashboardData.orders.total | number }}</div>
+      <svg *ngIf="ordersSpark" class="spark" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true">
+        <polyline [attr.points]="ordersSpark" fill="none" stroke="#d08a2a" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linejoin="round" />
+      </svg>
+      <div class="kpi-foot">
+        <span>{{ ordersLast7 }} this week</span>
+        <span>{{ dashboardData.orders.pending }} pending</span>
       </div>
     </div>
 
-    <div class="card red-card">
-      <h3>Customers</h3>
-      <div class="card-content d-flex align-items-center justify-content-between mb-2">
-        <i class="pi pi-users"></i>
-        <h4 class="mb-0">{{ dashboardData.users.total }}</h4>
+    <div class="kpi admin-card">
+      <div class="kpi-top">
+        <span class="kpi-icon indigo"><i class="pi pi-box"></i></span>
       </div>
-      <div class="bottom-content d-flex align-items-center justify-content-between">
-        <small>Active</small>
-        <small>{{ dashboardData.users.active }}</small>
+      <div class="kpi-label">Products</div>
+      <div class="kpi-value">{{ dashboardData.products.total | number }}</div>
+      <div class="stock-split" *ngIf="dashboardData.products.total" aria-hidden="true">
+        <span class="ok" [style.flex-grow]="dashboardData.products.instock"></span>
+        <span class="low" [style.flex-grow]="dashboardData.products.lowstock"></span>
+        <span class="out" [style.flex-grow]="dashboardData.products.outOfStock"></span>
       </div>
-      <div class="bottom-content d-flex align-items-center justify-content-between">
-        <small>Categories</small>
-        <small>{{ dashboardData.categories.active }} active</small>
+      <div class="kpi-foot">
+        <span><i class="dot low"></i>{{ dashboardData.products.lowstock }} low</span>
+        <span><i class="dot out"></i>{{ dashboardData.products.outOfStock }} out of stock</span>
       </div>
     </div>
+
+    <div class="kpi admin-card">
+      <div class="kpi-top">
+        <span class="kpi-icon green"><i class="pi pi-users"></i></span>
+      </div>
+      <div class="kpi-label">Customers</div>
+      <div class="kpi-value">{{ dashboardData.users.total | number }}</div>
+      <div class="stock-split" *ngIf="dashboardData.users.total" [attr.title]="dashboardData.users.inactive + ' disabled'" aria-hidden="true">
+        <span class="ok" [style.flex-grow]="dashboardData.users.active"></span>
+        <span class="off" [style.flex-grow]="dashboardData.users.inactive"></span>
+      </div>
+      <div class="kpi-foot">
+        <span>{{ dashboardData.users.active | number }} active</span>
+        <span>{{ dashboardData.categories.active }} categories live</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Needs attention -->
+  <div class="attention" *ngIf="attention.length">
+    <span class="attention-title">Needs attention</span>
+    <a *ngFor="let a of attention" [routerLink]="a.link" class="attention-chip" [ngClass]="a.tone">
+      <i class="pi" [ngClass]="a.icon"></i><strong>{{ a.count }}</strong> {{ a.label }}<i class="pi pi-angle-right go"></i>
+    </a>
   </div>
 
   <!-- Charts -->
-  <div class="chart-container">
-    <div class="chart-card sales">
-      <h5 class="mb-3">Last 14 days</h5>
-      <div class="chart-box">
-        <p-chart *ngIf="salesChart" type="bar" [data]="salesChart" [options]="salesOptions" height="280px"></p-chart>
+  <div class="grid-2 wide-left">
+    <section class="admin-card panel">
+      <div class="panel-head">
+        <div>
+          <h2>Sales</h2>
+          <p>Revenue and orders, last 14 days</p>
+        </div>
       </div>
-    </div>
-    <div class="chart-card">
-      <h5 class="mb-3">Orders by status</h5>
       <div class="chart-box">
-        <p-chart *ngIf="statusChart && hasOrders" type="doughnut" [data]="statusChart" [options]="statusOptions" height="280px"></p-chart>
-        <p *ngIf="!loading && !hasOrders" class="text-muted text-center pt-5">No orders yet.</p>
+        <p-chart *ngIf="salesChart" type="bar" [data]="salesChart" [options]="salesOptions" height="100%"></p-chart>
       </div>
-    </div>
+    </section>
+    <section class="admin-card panel">
+      <div class="panel-head">
+        <div>
+          <h2>Orders by status</h2>
+          <p>All time</p>
+        </div>
+      </div>
+      <div class="status-wrap" *ngIf="statusChart && hasOrders">
+        <div class="donut-box">
+          <p-chart type="doughnut" [data]="statusChart" [options]="statusOptions" height="100%"></p-chart>
+          <div class="donut-center">
+            <strong>{{ dashboardData.orders.total | number }}</strong>
+            <span>orders</span>
+          </div>
+        </div>
+        <ul class="legend">
+          <li *ngFor="let l of statusLegend">
+            <i [style.background]="l.color"></i><span>{{ l.label }}</span><strong>{{ l.count }}</strong>
+          </li>
+        </ul>
+      </div>
+      <p *ngIf="!loading && !hasOrders" class="empty">No orders yet.</p>
+    </section>
   </div>
 
   <!-- Lists -->
-  <div class="chart-container">
-    <div class="chart-card">
-      <h5 class="mb-3">Top products</h5>
-      <p *ngIf="!dashboardData.topProducts.length" class="text-muted mb-0">Sales will show up here.</p>
-      <div *ngFor="let p of dashboardData.topProducts; let i = index" class="list-row d-flex align-items-center gap-3">
+  <div class="grid-2">
+    <section class="admin-card panel">
+      <div class="panel-head">
+        <div>
+          <h2>Top products</h2>
+          <p>By units sold</p>
+        </div>
+      </div>
+      <p *ngIf="!dashboardData.topProducts.length" class="empty">Sales will show up here.</p>
+      <div *ngFor="let p of dashboardData.topProducts; let i = index" class="list-row">
         <span class="rank">{{ i + 1 }}</span>
-        <img [src]="p.image || 'assets/images/placeholder.png'" alt="" class="thumb" />
-        <div class="flex-fill">
-          <div class="fw-semibold">{{ p.name }}</div>
+        <img [src]="p.image || 'assets/images/placeholder.png'" alt="" class="thumb sm" />
+        <div class="grow">
+          <div class="cell-strong text-truncate">{{ p.name }}</div>
           <small class="text-muted">{{ p.quantity }} sold</small>
         </div>
-        <span class="fw-semibold">{{ p.revenue | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
+        <span class="cell-strong nowrap">{{ p.revenue | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
       </div>
-    </div>
-    <div class="chart-card">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="mb-0">Low stock</h5>
-        <a routerLink="/admin/products" class="small">Manage stock</a>
+    </section>
+    <section class="admin-card panel">
+      <div class="panel-head">
+        <div>
+          <h2>Low stock</h2>
+          <p>Sizes with 5 or fewer left</p>
+        </div>
+        <a routerLink="/admin/products" class="panel-link">Manage stock <i class="pi pi-angle-right"></i></a>
       </div>
-      <p *ngIf="!dashboardData.lowStock.length" class="text-muted mb-0">No sizes are running low. Products need stock tracking turned on to appear here.</p>
-      <div *ngFor="let p of dashboardData.lowStock" class="list-row d-flex align-items-center gap-3">
-        <img [src]="p.image || 'assets/images/placeholder.png'" alt="" class="thumb" />
-        <div class="flex-fill">
-          <div class="fw-semibold">{{ p.name }}</div>
+      <p *ngIf="!dashboardData.lowStock.length" class="empty">No sizes are running low. Products need stock tracking turned on to appear here.</p>
+      <div *ngFor="let p of dashboardData.lowStock" class="list-row">
+        <img [src]="p.image || 'assets/images/placeholder.png'" alt="" class="thumb sm" />
+        <div class="grow">
+          <div class="cell-strong text-truncate">{{ p.name }}</div>
           <div class="d-flex flex-wrap gap-1 mt-1">
-            <span *ngFor="let s of p.sizes" class="size-chip" [class.out]="s.left === 0">{{ s.size }}: {{ s.left }}</span>
+            <span *ngFor="let s of p.sizes" class="size-chip" [class.out]="s.left === 0">{{ s.size }} · {{ s.left }}</span>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   </div>
 </div>

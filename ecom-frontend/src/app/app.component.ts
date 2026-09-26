@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AccountCacheReset } from './Services/account-cache-reset';
 import { ScrollManager } from './Services/scroll-manager';
+import { PageTransition } from './Services/page-transition';
 
 @Component({
   selector: 'app-root',
@@ -11,6 +12,6 @@ import { ScrollManager } from './Services/scroll-manager';
 export class AppComponent {
   title = 'Ecom';
 
-  // Injected once so they start listening (sign-out, navigation scroll)
-  constructor(_cacheReset: AccountCacheReset, _scroll: ScrollManager) {}
+  // Injected once so they start listening (sign-out, navigation scroll, page fade)
+  constructor(_cacheReset: AccountCacheReset, _scroll: ScrollManager, _transition: PageTransition) {}
 }

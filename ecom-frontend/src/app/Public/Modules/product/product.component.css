@@ -1,102 +1,304 @@
-.shop-left input {
-    border: 1px solid #992603;
-    color: #992603;
-    box-shadow: none;
+/* ---------- Filters (sidebar + bottom sheet share the markup) ---------- */
+.filter-panel {
+    position: sticky;
+    top: 110px;
+    padding: 18px;
+    background: #ffffff;
+    border: 1px solid #eee4e1;
 }
 
-.shop-left input::placeholder {
-    color: #992603;
-    opacity: 0.6;
+.filter-search i {
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #8a7d78;
+    font-size: 14px;
 }
 
-.shop-left .p-button.p-button-text {
-    background-color: #992603;
-    color: #fff;
+.filter-search input {
+    width: 100%;
+    height: 42px;
+    padding: 0 12px 0 36px;
+    border: 1px solid #e3d6d2;
+    border-radius: 999px;
+    background: #faf7f6;
+    color: #2a1f1c;
+    outline: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.filter-search input:focus {
     border-color: #992603;
+    background: #ffffff;
 }
 
-.shop-left .acc-heading {
-    color: #ffffff;
-    background: #992603;
-    padding: 0.5rem;
+.filter-head {
+    margin: 18px 0 4px;
+    padding-top: 14px;
+    border-top: 1px solid #eee4e1;
 }
 
-.search-btn {
-    width: 40px;
-    min-width: 40px;
-    height: 40px;
+.filter-head h6 {
+    font-weight: 700;
+    letter-spacing: 0.5px;
 }
 
-.acc-heading h5,
-.acc-heading p {
-    font-family: inherit; /* was an unloaded web font, which fell back to Times */
+.link-btn {
+    border: 0;
+    background: none;
+    padding: 0;
+    color: #992603;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.link-btn:disabled {
+    color: #c2b8b4;
+}
+
+.filter-group {
+    margin-top: 14px;
+}
+
+.group-title {
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 700;
     letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #8a7d78;
+}
+
+/* Pills: filters and sort */
+.pill {
+    padding: 6px 14px;
+    border: 1px solid #e3d6d2;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #3a2c28;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.1s ease;
+}
+
+.pill:hover {
+    border-color: #992603;
+    color: #992603;
+}
+
+.pill:active {
+    transform: scale(0.95);
+}
+
+.pill.active {
+    background: #992603;
+    border-color: #992603;
+    color: #ffffff;
+}
+
+.sort-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #8a7d78;
+}
+
+/* Active filter chips */
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px 5px 12px;
+    border: 0;
+    border-radius: 999px;
+    background: #fbe4de;
+    color: #7a1f05;
+    font-size: 13px;
+    font-weight: 600;
+    animation: chip-in 0.2s ease-out;
+}
+
+.chip i {
+    font-size: 10px;
+}
+
+.chip:hover {
+    background: #f5c4b8;
+}
+
+.chip-clear {
+    border: 0;
+    background: none;
+    color: #992603;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+@keyframes chip-in {
+    from { opacity: 0; transform: scale(0.85); }
+    to { opacity: 1; transform: none; }
+}
+
+/* Phones/tablets toolbar */
+.mobile-toolbar {
+    min-width: 0;
+}
+
+.mobile-toolbar .sort-pills {
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 2px;
+    min-width: 0;
+}
+
+.mobile-toolbar .sort-pills::-webkit-scrollbar {
+    display: none;
+}
+
+.filter-trigger {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border: 1px solid #992603;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #992603;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.filter-count {
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: #992603;
+    color: #ffffff;
+    font-size: 11px;
+    line-height: 18px;
+    text-align: center;
+}
+
+/* Bottom sheet */
+.filter-sheet-root {
+    position: fixed;
+    inset: 0;
+    z-index: 2050;
+    pointer-events: none;
+}
+
+.filter-sheet-root.open {
+    pointer-events: auto;
+}
+
+.sheet-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(38, 20, 14, 0.4);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.open .sheet-overlay {
+    opacity: 1;
+}
+
+.filter-sheet {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -10px 34px rgba(0, 0, 0, 0.16);
+    transform: translateY(100%);
+    /* Hidden once it has slid away, so its shadow can't show along the bottom */
+    visibility: hidden;
+    transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.32s;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.open .filter-sheet {
+    transform: none;
+    visibility: visible;
+    transition-delay: 0s;
+}
+
+.sheet-handle {
+    width: 40px;
+    height: 4px;
+    margin: 8px auto 0;
+    border-radius: 4px;
+    background: #e3d6d2;
+}
+
+.sheet-head {
+    padding: 10px 18px 12px;
+    border-bottom: 1px solid #eee4e1;
+}
+
+.sheet-head h5 {
+    font-weight: 700;
+}
+
+.sheet-close {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid #eee4e1;
+    background: #ffffff;
+}
+
+.sheet-body {
+    padding: 16px 18px;
+    overflow-y: auto;
+}
+
+.sheet-foot {
+    padding: 12px 18px;
+    border-top: 1px solid #eee4e1;
+}
+
+.sheet-btn {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #992603;
+    background: #ffffff;
+    color: #992603;
+    font-weight: 700;
+}
+
+.sheet-btn.primary {
+    flex: 2;
+    background: #992603;
+    color: #ffffff;
+}
+
+.sheet-btn:disabled {
+    border-color: #e3d6d2;
+    color: #c2b8b4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .filter-sheet,
+    .sheet-overlay,
+    .chip {
+        transition: none;
+        animation: none;
+    }
 }
 
 .product-topbar {
-    padding: 0 12px 0 20px;
+    padding: 0 2px;
 }
 
-.product-topbar p {
-    font-family: inherit; /* was an unloaded web font, which fell back to Times */
-    font-size: 18px;
-}
-
-.product {
-    overflow: hidden;
-    transition: transform 0.3s ease-in-out;
-}
-
-.product-img {
-    height: 250px;
-    background: #e0465a36;
-}
-
-.product-img img {
-    object-fit: contain;
-}
-
-.product-content {
-    padding: 5px 45px 5px 5px;
-}
-
-.product-name {
-    font-size: 0.7rem;
-    font-weight: bold;
-    color: #333;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
-}
-
-.price {
-    font-size: 0.8rem;
-    color: #992603;
-}
-
-.stock-label {
-    bottom: 10px;
-    left: 0px;
-    padding: 2px 7px;
-    font-size: 0.5rem;
-    z-index: 10;
-}
-
-.bg-green {
-    background-color: #28a745;
-}
-
-.bg-yellow {
-    background-color: #ffc107;
-}
-
-.bg-red {
-    background-color: #dc3545;
-}
-
-.product:hover {
-    transform: translateY(-5px);
+.result-count {
+    font-size: 14px;
+    color: #8a7d78;
 }
 
 .divider3 {
@@ -109,86 +311,15 @@
 .mt--3 {
     margin-top: -3px;
 }
-.wish-btn {
-  top: 8px;
-  right: 8px;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 0;
-  background: rgba(255, 255, 255, 0.92);
-  color: #992603;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-  z-index: 2;
-  transition: transform 0.2s ease;
+
+.card-skeleton-img {
+    aspect-ratio: 4 / 5;
 }
 
-.wish-btn:hover {
-  transform: scale(1.1);
+.shop-grid {
+    transition: opacity 0.2s ease;
 }
 
-.wish-btn.active {
-  color: #d6334d;
+.shop-grid.refreshing {
+    opacity: 0.5;
 }
-
-.rating-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 0 6px;
-  border-radius: 4px;
-  background: #1e8e3e;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.rating-pill i {
-  font-size: 8px;
-}
-
-@media (max-width: 767px) {
-  .product-topbar {
-    padding: 0;
-  }
-
-  .product-topbar p {
-    font-size: 14px;
-  }
-
-  .product-img {
-    height: 180px;
-    border-radius: 8px;
-  }
-
-  .product-content {
-    padding: 6px 4px;
-  }
-
-  .product-name {
-    font-size: 0.8rem;
-  }
-
-  .price {
-    font-size: 0.85rem;
-  }
-
-  .wish-btn {
-    width: 28px;
-    height: 28px;
-    top: 6px;
-    right: 6px;
-    font-size: 11px;
-  }
-
-  .wish-btn i {
-    font-size: 12px;
-  }
-}
-
-@media (max-width: 420px) {
-  .product-img {
-    height: 155px;
-  }
-}
-

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 
 interface SideNavToggle {
   screenWidth: number;
@@ -10,7 +10,10 @@ interface SideNavToggle {
   standalone: false,
 
   templateUrl: './admin.component.html',
-  styleUrl: './admin.component.css',
+  // The shared admin theme is global so it can style PrimeNG internals and every admin page;
+  // all of its rules are scoped under .ds-admin, so nothing reaches the storefront.
+  styleUrls: ['./admin.component.css', './admin-theme.css', './admin-controls.css'],
+  encapsulation: ViewEncapsulation.None,
 
 })
 export class AdminComponent {

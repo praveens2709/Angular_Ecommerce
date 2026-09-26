@@ -1,0 +1,80 @@
+<div class="pc position-relative" [class.sold-out]="isSoldOut">
+  <div class="pc-media position-relative">
+    <a [routerLink]="['/product-detail', product._id]" class="pc-media-link" tabindex="-1" aria-hidden="true">
+      <img class="pc-img main" [src]="product.image | optImg : imageWidth" [alt]="product.name" loading="lazy" decoding="async" />
+      <img *ngIf="hoverImage" class="pc-img alt" [src]="hoverImage | optImg : imageWidth" alt="" loading="lazy" decoding="async" />
+    </a>
+
+    <div class="pc-badges position-absolute d-flex flex-column align-items-start gap-1">
+      <span *ngIf="isSoldOut" class="pc-badge dark">Sold out</span>
+      <ng-container *ngIf="!isSoldOut">
+        <span *ngIf="isNew" class="pc-badge brand">New</span>
+        <span *ngIf="discount" class="pc-badge light">-{{ discount }}%</span>
+        <span *ngIf="fewLeft" class="pc-badge warn">Only {{ fewLeft }} left</span>
+      </ng-container>
+    </div>
+
+    <button
+      type="button"
+      class="pc-icon wish position-absolute"
+      [class.active]="isWishlisted && !removable"
+      [attr.aria-label]="removable ? 'Remove from wishlist' : isWishlisted ? 'Remove from wishlist' : 'Save to wishlist'"
+      (click)="toggleWishlist($event)"
+    >
+      <i class="pi" [ngClass]="removable ? 'pi-times' : isWishlisted ? 'pi-heart-fill' : 'pi-heart'"></i>
+    </button>
+
+    <button
+      *ngIf="!isSoldOut"
+      type="button"
+      class="pc-icon quick position-absolute"
+      [class.active]="quickAddOpen"
+      aria-label="Quick add to bag"
+      [attr.aria-expanded]="quickAddOpen"
+      (click)="openQuickAdd($event)"
+    >
+      <i class="pi" [ngClass]="quickAddOpen ? 'pi-times' : 'pi-shopping-bag'"></i>
+    </button>
+
+    <!-- Quick add: pick a size without leaving the page -->
+    <div *ngIf="quickAddOpen" class="pc-sizes position-absolute">
+      <p class="mb-2 fw-semibold">Select size</p>
+      <div class="d-flex flex-wrap gap-1">
+        <button
+          *ngFor="let size of sizes"
+          type="button"
+          class="pc-size"
+          [disabled]="!sizeAvailable(size) || adding"
+          (click)="quickAdd($event, size)"
+        >{{ size }}</button>
+      </div>
+      <p *ngIf="quickAddError" class="form-error mb-0 mt-2">{{ quickAddError }}</p>
+    </div>
+  </div>
+
+  <div class="pc-body">
+    <a [routerLink]="['/product-detail', product._id]" class="pc-link d-block">
+      <p class="pc-name mb-1">{{ product.name }}<span *ngIf="product.color" class="pc-colour"> · {{ product.color }}</span></p>
+      <div *ngIf="product.ratingCount" class="d-flex align-items-center gap-1 mb-1">
+        <span class="pc-rating">{{ product.ratingAvg | number : '1.1-1' }} <i class="pi pi-star-fill"></i></span>
+        <small class="text-muted">({{ product.ratingCount }})</small>
+      </div>
+      <p class="mb-0 d-flex gap-2 align-items-baseline">
+        <span class="pc-price">{{ product.price | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
+        <span *ngIf="product.mrp > product.price" class="pc-mrp">{{ product.mrp | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
+      </p>
+    </a>
+    <div *ngIf="colours.length > 1" class="pc-dots d-flex align-items-center gap-1 mt-2">
+      <a
+        *ngFor="let colour of colours.slice(0, 5)"
+        [routerLink]="['/product-detail', colour._id]"
+        class="pc-dot"
+        [class.current]="colour._id === product._id"
+        [style.background]="swatch(colour)"
+        [attr.aria-label]="colour.color || 'Colour option'"
+        [title]="colour.color"
+      ></a>
+      <small *ngIf="colours.length > 5" class="text-muted">+{{ colours.length - 5 }}</small>
+    </div>
+  </div>
+</div>

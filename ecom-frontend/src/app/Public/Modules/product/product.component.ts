@@ -1,11 +1,11 @@
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import { Component, DestroyRef, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
 import { debounceTime, switchMap, tap } from 'rxjs/operators';
 import { ProductQuery, ProductService } from '../../../Admin/Modules/products/product.service';
 import { CategoriesService } from '../../../Admin/Modules/categories/categories.service';
-import { WishlistService } from '../../../Services/wishlist.service';
+import { colourFamilies } from '../../shared/product-card/product-card.component';
 import { PrerenderRefreshService } from '../../../Services/prerender-refresh.service';
 
 interface PriceFilter {
@@ -20,7 +20,7 @@ interface PriceFilter {
   templateUrl: './product.component.html',
   styleUrl: './product.component.css'
 })
-export class ProductComponent implements OnInit {
+export class ProductComponent implements OnInit, OnDestroy {
   categories: any[] = [];
   paginatedProducts: any[] = [];
   selectedCategories: string[] = [];
@@ -28,7 +28,8 @@ export class ProductComponent implements OnInit {
   searchQuery: string = '';
   maxPrice: number = Infinity;
   loading = true;
-  mobileFiltersOpen: boolean = false;
+  readonly skeletonCards = Array.from({ length: 8 });
+  filterSheetOpen = false;
 
   priceFilters: PriceFilter[] = [
     { min: 0, max: 500 },
@@ -39,12 +40,12 @@ export class ProductComponent implements OnInit {
   ];
 
   sortOptions = [
-    { label: 'Price: Low to High', value: 'price_asc' },
-    { label: 'Price: High to Low', value: 'price_desc' },
-    { label: 'Newest', value: 'newest' },
-    { label: 'Top Rated', value: 'rating' },
-    { label: 'Biggest Discount', value: 'discount' },
-  ];
+    { label: 'Price: Low to High', short: 'Price ↑', value: 'price_asc' },
+    { label: 'Price: High to Low', short: 'Price ↓', value: 'price_desc' },
+    { label: 'Newest', short: 'Newest', value: 'newest' },
+    { label: 'Top Rated', short: 'Top rated', value: 'rating' },
+    { label: 'Biggest Discount', short: 'Discount', value: 'discount' },
+  ] as const;
   selectedSort: ProductQuery['sort'] = 'price_asc';
 
   rowsPerPage: number = 12;
@@ -55,7 +56,6 @@ export class ProductComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private categoriesService: CategoriesService,
-    private wishlistService: WishlistService,
     private route: ActivatedRoute,
     private router: Router,
     private destroyRef: DestroyRef,
@@ -182,17 +182,61 @@ export class ProductComponent implements OnInit {
     this.applyFilters();
   }
 
-  onSearchClick(): void {
+  get activeFilterCount(): number {
+    return this.selectedCategories.length + this.selectedPriceFilters.length + (this.searchQuery.trim() ? 1 : 0);
+  }
+
+  priceLabel(filter: PriceFilter): string {
+    const rupees = (n: number) => '₹' + n.toLocaleString('en-IN');
+    if (filter.min === 0) return `Under ${rupees(filter.max)}`;
+    if (filter.max === Infinity) return `${rupees(filter.min)}+`;
+    return `${rupees(filter.min)} – ${rupees(filter.max)}`;
+  }
+
+  setSort(sort: ProductQuery['sort']): void {
+    if (sort === this.selectedSort) return;
+    this.selectedSort = sort;
     this.applyFilters();
   }
 
-  isWishlisted(product: any): boolean {
-    return this.wishlistService.has(product._id);
+  clearSearch(): void {
+    this.searchQuery = '';
+    // A ?q= in the URL is dropped via navigation, which reloads through the query-param subscription
+    if (this.route.snapshot.queryParamMap.has('q')) {
+      this.router.navigate([], { relativeTo: this.route, queryParams: { q: null }, queryParamsHandling: 'merge' });
+    } else {
+      this.applyFilters();
+    }
   }
 
-  toggleWishlist(event: MouseEvent, product: any): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.wishlistService.toggle(product);
+  openFilterSheet(): void {
+    this.filterSheetOpen = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  @HostListener('document:keydown.escape')
+  closeFilterSheet(): void {
+    if (!this.filterSheetOpen) return;
+    this.filterSheetOpen = false;
+    document.body.style.overflow = '';
+  }
+
+  ngOnDestroy(): void {
+    if (this.filterSheetOpen) document.body.style.overflow = '';
+  }
+
+  /** Keeps cards in place when fresh data arrives, so an open quick-add survives */
+  trackById = (_: number, product: any) => product._id;
+
+  private familiesFor: any[] | null = null;
+  private families = new Map<string, any[]>();
+
+  /** Other colours of a product among the loaded ones, for the card's colour dots */
+  coloursFor(product: any): any[] {
+    if (this.familiesFor !== this.paginatedProducts) {
+      this.familiesFor = this.paginatedProducts;
+      this.families = colourFamilies(this.paginatedProducts);
+    }
+    return this.families.get(product._id) || [];
   }
 }

@@ -53,14 +53,35 @@
 }
 
 .bar {
+  position: relative;
   width: 70px;
   height: 2px;
   margin: 0 12px;
   background: #e6dcd8;
   border-radius: 2px;
+  overflow: hidden;
 }
 
-.bar.filled,
+/* The finished part of the line fills in when you arrive at the next step */
+.bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #992603;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.bar.filled::after {
+  transform: none;
+  animation: bar-fill 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes bar-fill {
+  from { transform: scaleX(0); }
+  to { transform: none; }
+}
+
 .step.done .num {
   background: #992603;
   border-color: #992603;
@@ -83,6 +104,19 @@
   border-color: #992603;
   color: #992603;
   box-shadow: 0 0 0 4px rgba(153, 38, 3, 0.12);
+  animation: step-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes step-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(153, 38, 3, 0.12); }
+  50% { box-shadow: 0 0 0 7px rgba(153, 38, 3, 0.06); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar.filled::after,
+  .step.current .num {
+    animation: none;
+  }
 }
 
 .secure {

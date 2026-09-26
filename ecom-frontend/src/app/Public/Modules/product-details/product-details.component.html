@@ -1,8 +1,22 @@
 <div class="page-container d-flex flex-column">
   <app-header></app-header>
 
-  <div *ngIf="isLoading" class="state-box d-flex flex-column justify-content-center align-items-center flex-grow-1">
-    <p-progressSpinner strokeWidth="4" styleClass="spinner"></p-progressSpinner>
+  <div *ngIf="isLoading" class="product-page pd-skeleton d-flex flex-grow-1" aria-busy="true" aria-label="Loading product">
+    <div class="left-product skeleton"></div>
+    <div class="right-product d-flex flex-column">
+      <div class="skeleton skeleton-line" style="width: 30%; height: 22px"></div>
+      <div class="skeleton skeleton-line mt-2" style="width: 75%; height: 26px"></div>
+      <div class="skeleton skeleton-line mt-3" style="width: 40%; height: 20px"></div>
+      <div class="d-flex gap-2 mt-4">
+        <div *ngFor="let _ of skeletonThumbs" class="skeleton" style="width: 72px; height: 72px"></div>
+      </div>
+      <div class="d-flex gap-2 mt-4">
+        <div *ngFor="let _ of skeletonThumbs" class="skeleton rounded-circle" style="width: 46px; height: 46px"></div>
+      </div>
+      <div class="skeleton mt-4" style="height: 46px"></div>
+      <div class="skeleton skeleton-line mt-4"></div>
+      <div class="skeleton skeleton-line" style="width: 85%"></div>
+    </div>
   </div>
 
   <div *ngIf="!isLoading && notFound" class="state-box d-flex flex-column justify-content-center align-items-center flex-grow-1 gap-2">
@@ -12,7 +26,7 @@
     <a routerLink="/shop" class="text-orange fw-semibold">Continue shopping</a>
   </div>
 
-  <div *ngIf="!isLoading && product" class="product-page d-flex animate three fadeInUp flex-grow-1 position-relative">
+  <div *ngIf="!isLoading && product" class="product-page d-flex flex-grow-1 position-relative">
     <app-back-button></app-back-button>
 
     <!-- Left: brand panel with vertical logo, thumbnails and main image -->
@@ -50,7 +64,31 @@
           </div>
         </ng-template>
 
-        <img [src]="(activeImage || product.image) | optImg : 560" [alt]="product.name" class="main-img position-absolute" fetchpriority="high" />
+        <button
+          type="button"
+          class="stage position-absolute"
+          aria-label="Open photo viewer"
+          (click)="openZoom()"
+          (touchstart)="onTouchStart($event)"
+          (touchend)="onTouchEnd($event)"
+        >
+          <img [src]="(activeImage || product.image) | optImg : 560" [alt]="product.name" class="main-img" fetchpriority="high" />
+          <span class="zoom-hint" aria-hidden="true"><i class="pi pi-search-plus"></i></span>
+        </button>
+
+        <!-- Phones: dots instead of the thumbnail strip -->
+        <div *ngIf="slides.length > 1" class="slide-dots position-absolute d-flex gap-2" role="tablist" aria-label="Photos">
+          <button
+            *ngFor="let slide of slides; let i = index"
+            type="button"
+            class="dot"
+            role="tab"
+            [class.active]="i === activeSlide"
+            [attr.aria-selected]="i === activeSlide"
+            [attr.aria-label]="slide.variant ? (slide.variant.color || 'Colour ' + (i + 1)) : 'Photo ' + (i + 1)"
+            (click)="goToSlide(i)"
+          ></button>
+        </div>
       </div>
     </div>
 
@@ -104,7 +142,7 @@
       </div>
 
       <!-- Sizes -->
-      <div class="sizes">
+      <div class="sizes" id="size-picker">
         <div class="d-flex align-items-center gap-5">
           <p class="section-title mb-0">Select Size</p>
           <button type="button" class="size-chart d-flex align-items-center gap-1" (click)="isSizeChartVisible = true">
@@ -131,7 +169,7 @@
       </div>
 
       <!-- Actions -->
-      <div class="d-flex gap-2 mt-3 actions">
+      <div #actionsRow class="d-flex gap-2 mt-3 actions">
         <button
           type="button"
           class="bag-btn d-flex justify-content-center align-items-center gap-2"
@@ -152,6 +190,13 @@
         </button>
       </div>
       <p *ngIf="bagError" class="form-error" role="alert">{{ bagError }}</p>
+
+      <ul class="trust-strip list-unstyled d-grid mb-0 mt-3">
+        <li><i class="pi pi-truck"></i><span>Free shipping</span></li>
+        <li><i class="pi pi-wallet"></i><span>Cash on delivery</span></li>
+        <li><i class="pi pi-replay"></i><span>7-day returns</span></li>
+        <li><i class="pi pi-shield"></i><span>Secure checkout</span></li>
+      </ul>
 
       <!-- Delivery -->
       <div class="delivery-options pb-3 mt-4">
@@ -185,25 +230,57 @@
             </p>
           </ng-template>
         </div>
-        <div class="delivery-line d-flex align-items-center gap-3 mt-2">
-          <i class="pi pi-wallet"></i>
-          <p class="mb-0">Pay on delivery available</p>
-        </div>
-        <div class="delivery-line d-flex align-items-center gap-3 mt-2">
-          <i class="pi pi-replay"></i>
-          <p class="mb-0">7 days return &amp; exchange available</p>
-        </div>
       </div>
 
-      <!-- Details -->
-      <div class="mt-3">
-        <p class="section-title mb-1">Product Details <i class="pi pi-tag ms-1 price"></i></p>
-        <p class="description mb-2">{{ product.description }}</p>
-        <p class="description mb-0 text-secondary">
-          Category: <span class="text-dark">{{ product.category }}</span>
-          <span class="mx-2">|</span>
-          Sold by: <span class="text-dark text-uppercase">{{ product.seller }}</span>
-        </p>
+      <!-- Details, fabric & care, shipping & returns -->
+      <div class="pd-accordion mt-2">
+        <div class="acc-item" [class.open]="isSectionOpen('details')">
+          <button type="button" class="acc-head" (click)="toggleSection('details')" [attr.aria-expanded]="isSectionOpen('details')" aria-controls="acc-details">
+            <span><i class="pi pi-tag"></i> Product details</span><i class="pi pi-chevron-down chevron"></i>
+          </button>
+          <div class="acc-body" id="acc-details">
+            <div class="acc-inner">
+              <p class="description mb-2">{{ details.text || product.description }}</p>
+              <p class="description mb-0 text-secondary">
+                Category: <span class="text-dark">{{ product.category }}</span>
+                <span class="mx-2">|</span>
+                Sold by: <span class="text-dark text-uppercase">{{ product.seller }}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="details.specs.length" class="acc-item" [class.open]="isSectionOpen('specs')">
+          <button type="button" class="acc-head" (click)="toggleSection('specs')" [attr.aria-expanded]="isSectionOpen('specs')" aria-controls="acc-specs">
+            <span><i class="pi pi-list"></i> Fabric, fit &amp; care</span><i class="pi pi-chevron-down chevron"></i>
+          </button>
+          <div class="acc-body" id="acc-specs">
+            <div class="acc-inner">
+              <dl class="spec-list mb-0">
+                <ng-container *ngFor="let spec of details.specs">
+                  <dt>{{ spec.label }}</dt>
+                  <dd>{{ spec.value }}</dd>
+                </ng-container>
+              </dl>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item" [class.open]="isSectionOpen('shipping')">
+          <button type="button" class="acc-head" (click)="toggleSection('shipping')" [attr.aria-expanded]="isSectionOpen('shipping')" aria-controls="acc-shipping">
+            <span><i class="pi pi-box"></i> Shipping &amp; returns</span><i class="pi pi-chevron-down chevron"></i>
+          </button>
+          <div class="acc-body" id="acc-shipping">
+            <div class="acc-inner">
+              <p class="description mb-2">Free shipping on every order, with cash on delivery available. Most orders arrive in 3–7 days.</p>
+              <p class="description mb-0">
+                Returns and size exchanges within 7 days of delivery.
+                <a routerLink="/returns-policy" class="text-orange fw-semibold">Returns policy</a> ·
+                <a routerLink="/shipping-policy" class="text-orange fw-semibold">Shipping policy</a>
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -258,6 +335,55 @@
       </div>
     </div>
   </section>
+
+  <!-- You may also like -->
+  <section *ngIf="!isLoading && product && related.length" class="related container pb-5">
+    <div class="d-flex justify-content-between align-items-end mb-3">
+      <div>
+        <span class="related-eyebrow">Complete the look</span>
+        <h4 class="mb-0 fw-bold">You may also like</h4>
+      </div>
+      <a routerLink="/shop" class="text-orange fw-semibold small">View all <i class="pi pi-arrow-right ms-1"></i></a>
+    </div>
+    <div class="related-track d-flex gap-3">
+      <div *ngFor="let item of related; trackBy: relatedTrackBy" class="related-card flex-shrink-0">
+        <app-product-card [product]="item" [colours]="relatedColours.get(item._id) || []" [imageWidth]="260"></app-product-card>
+      </div>
+    </div>
+  </section>
+
+  <!-- Phones: add to bag stays in reach -->
+  <div *ngIf="product && !isLoading" class="sticky-bag d-lg-none" [class.show]="showStickyBar" [attr.aria-hidden]="!showStickyBar" [attr.inert]="showStickyBar ? null : ''">
+    <div class="d-flex align-items-center gap-3">
+      <img [src]="(activeImage || product.image) | optImg : 96" alt="" class="sticky-thumb" />
+      <div class="flex-grow-1 min-w-0">
+        <p class="mb-0 sticky-name">{{ product.name }}</p>
+        <p class="mb-0">
+          <span class="price fw-bold">{{ product.price | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
+          <span class="sticky-size ms-2">{{ selectedSize ? 'Size ' + selectedSize : 'Select a size' }}</span>
+        </p>
+      </div>
+      <button type="button" class="bag-btn sticky-btn" [disabled]="isOutOfStock" (click)="stickyAddToBag()">
+        {{ isOutOfStock ? 'SOLD OUT' : isInBag ? 'GO TO BAG' : 'ADD TO BAG' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Photo viewer -->
+  <div *ngIf="zoomOpen && product" class="viewer" role="dialog" aria-label="Photo viewer" (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
+    <button type="button" class="viewer-close" (click)="closeZoom()" aria-label="Close photo viewer"><i class="pi pi-times"></i></button>
+    <div class="viewer-stage" [class.zoomed]="zoomed" (click)="toggleZoom($event)" (mousemove)="panZoom($event)">
+      <img [src]="(activeImage || product.image) | optImg : 1200" [alt]="product.name" [style.transform-origin]="zoomOrigin" />
+    </div>
+    <ng-container *ngIf="slides.length > 1">
+      <button type="button" class="viewer-nav prev" (click)="goToSlide(activeSlide - 1)" aria-label="Previous photo"><i class="pi pi-angle-left"></i></button>
+      <button type="button" class="viewer-nav next" (click)="goToSlide(activeSlide + 1)" aria-label="Next photo"><i class="pi pi-angle-right"></i></button>
+      <div class="viewer-dots d-flex gap-2">
+        <span *ngFor="let slide of slides; let i = index" class="dot" [class.active]="i === activeSlide"></span>
+      </div>
+    </ng-container>
+    <p class="viewer-hint mb-0">{{ zoomed ? 'Tap to zoom out' : 'Tap to zoom' }}</p>
+  </div>
 </div>
 
 <!-- Size chart -->

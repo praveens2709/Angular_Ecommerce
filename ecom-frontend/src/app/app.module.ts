@@ -49,6 +49,9 @@ import { ScrollProgressComponent } from './Public/shared/scroll-progress/scroll-
 import { SiteFooterComponent } from './Public/shared/site-footer/site-footer.component';
 import { InfoPageComponent } from './Public/Modules/info-page/info-page.component';
 import { ContactComponent } from './Public/Modules/contact/contact.component';
+import { BagDrawerComponent } from './Public/shared/bag-drawer/bag-drawer.component';
+import { ProductCardComponent } from './Public/shared/product-card/product-card.component';
+import { OrderSuccessComponent } from './Public/Modules/order-success/order-success.component';
 import { OptImgPipe } from './Public/shared/pipes/opt-img.pipe';
 import { authInterceptor } from './Admin/auth/Services/auth.intercepter';
 import { ssrApiLogInterceptor } from './Services/ssr-api-log.interceptor';
@@ -113,6 +116,9 @@ const DopeShopeTheme = definePreset(Lara, {
     InfoPageComponent,
     ContactComponent,
     OptImgPipe,
+    BagDrawerComponent,
+    ProductCardComponent,
+    OrderSuccessComponent,
   ],
   imports: [
     BrowserModule,

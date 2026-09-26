@@ -61,6 +61,10 @@ export class UsersComponent {
     this.loadUsers();
   }
 
+  initials(name?: string): string {
+    return (name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+  }
+
   /** Disabled users can't log in or place orders */
   rowError: { id: string; message: string } | null = null;
 

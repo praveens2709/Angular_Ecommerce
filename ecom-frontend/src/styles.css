@@ -1098,3 +1098,67 @@ label,
   right: 0;
   width: 100%;
 }
+
+/* ==========================================================================
+   Motion layer: page fade-up, button press, skeleton shimmer
+   ========================================================================== */
+
+/* The page's sections fade in together; elements with their own entrance animation
+   (.animate) are skipped so the two never run one after the other. */
+
+/* New page on in-app navigation (PageTransition adds body.page-enter).
+   Opacity + transform on the page's children, never on the component that holds the
+   fixed header, so the pinned header doesn't move. */
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+body.page-enter app-root > router-outlet + * > :not(app-header):not(.page-container):not(.pinned-spacer):not(.animate),
+body.page-enter app-root > router-outlet + * > .page-container > :not(app-header):not(.animate) {
+  animation: page-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Buttons feel pressed */
+.btn:active:not(:disabled),
+.p-button:active:not(:disabled),
+.shop-btn:active,
+.bd-btn:active {
+  transform: scale(0.97);
+}
+
+/* Skeleton placeholders */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: #f1e8e5;
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  animation: shimmer 1.3s infinite;
+}
+
+@keyframes shimmer {
+  to { transform: translateX(100%); }
+}
+
+.skeleton-line {
+  height: 12px;
+  margin-bottom: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.page-enter app-root > router-outlet + * > *,
+  body.page-enter app-root > router-outlet + * > .page-container > * {
+    animation: none !important;
+  }
+
+  .skeleton::after {
+    animation: none;
+  }
+}

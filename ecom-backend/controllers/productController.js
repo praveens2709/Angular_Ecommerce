@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 const Product = require('../models/Products');
 const Review = require('../models/Review');
 const Order = require('../models/Order');
-const { parsePaging, escapeRegex } = require('../utils/pagination');
+const { parsePaging } = require('../utils/pagination');
+const { searchProducts, invalidateSearchIndex } = require('../utils/search');
 const { normalizeStock, deriveInventoryStatus, calculateDiscountAndMRP } = require('../utils/catalog');
 
 const SORTS = {
@@ -24,13 +25,11 @@ const priceClauses = (value) =>
       return { price: Number.isFinite(max) ? { $gte: min, $lte: max } : { $gte: min } };
     });
 
-const buildFilter = (query) => {
+/** Mongo filter for a list query; `matches` are the search hits (id -> relevance) when searching */
+const buildFilter = (query, matches) => {
   const filter = {};
   const and = [];
-  if (query.q && String(query.q).trim()) {
-    const pattern = new RegExp(escapeRegex(String(query.q).trim()), 'i');
-    and.push({ $or: [{ name: pattern }, { category: pattern }, { brand: pattern }, { color: pattern }] });
-  }
+  if (matches) and.push({ _id: { $in: [...matches.keys()] } });
   if (query.category) filter.category = { $in: String(query.category).split(',').filter(Boolean) };
   if (query.price) and.push({ $or: priceClauses(query.price) });
   if (query.inStock === 'true') filter.inventoryStatus = { $ne: 'OUTOFSTOCK' };
@@ -65,9 +64,19 @@ const applyProductFields = (body, existing) => {
 // List products: plain array by default, { items, total, page, limit } when paged
 exports.getAllProducts = async (req, res) => {
   try {
-    const filter = buildFilter(req.query);
+    // Forgiving search (spacing, plurals, synonyms, typos) picks the matching ids
+    const matches = String(req.query.q ?? '').trim() ? await searchProducts(String(req.query.q)) : null;
+    const filter = buildFilter(req.query, matches);
     const sort = SORTS[req.query.sort] || { _id: 1 };
     const paging = parsePaging(req.query);
+
+    // Searching without a chosen sort: best matches first
+    if (matches && !SORTS[req.query.sort]) {
+      const found = await Product.find(filter);
+      found.sort((a, b) => matches.get(String(b._id)) - matches.get(String(a._id)) || (String(a._id) < String(b._id) ? -1 : 1));
+      if (!paging) return res.json(found);
+      return res.json({ items: found.slice(paging.skip, paging.skip + paging.limit), total: found.length, page: paging.page, limit: paging.limit });
+    }
 
     if (!paging) return res.json(await Product.find(filter).sort(sort));
 
@@ -110,6 +119,7 @@ exports.addProduct = async (req, res) => {
   try {
     const update = applyProductFields(req.body);
     const saved = await new Product(update).save();
+    invalidateSearchIndex();
     res.status(201).json(saved);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -131,6 +141,7 @@ exports.updateProduct = async (req, res) => {
       unset ? { $set: update, $unset: unset } : update,
       { new: true, runValidators: true }
     );
+    invalidateSearchIndex();
     res.json(updatedProduct);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -142,6 +153,7 @@ exports.deleteProduct = async (req, res) => {
   try {
     const deletedProduct = await Product.findByIdAndDelete(req.params.id);
     if (!deletedProduct) return res.status(404).json({ message: 'Product not found' });
+    invalidateSearchIndex();
     await Review.deleteMany({ productId: deletedProduct._id });
     res.json({ message: 'Product deleted successfully' });
   } catch (error) {

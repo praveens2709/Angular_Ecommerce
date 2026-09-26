@@ -183,11 +183,12 @@ export class PaymentComponent implements OnInit, OnDestroy {
         quantity: item.quantity,
       })),
     }).subscribe({
-      next: () => {
+      next: (orders) => {
         // The server removed the ordered lines from the bag
         this.cartService.removeCoupon();
         this.cartService.loadCartItems();
-        this.router.navigate(['/account/orders']);
+        // replaceUrl: Back from the success page shouldn't return to payment
+        this.router.navigate(['/order-success'], { state: { orders: Array.isArray(orders) ? orders : [orders] }, replaceUrl: true });
       },
       error: (err) => {
         this.isPlacingOrder = false;

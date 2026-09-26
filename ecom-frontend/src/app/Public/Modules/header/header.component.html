@@ -1,5 +1,5 @@
 <!-- Header Section -->
-<div appPinnedHeader class="container-fluid dopeshope-navbar bg-white shadow-lg animate one fadeInUp">
+<div appPinnedHeader class="container-fluid dopeshope-navbar bg-white shadow-lg">
   <div class="container">
     <div class="text-center fs-6 pt-1 dopeshope">DopeShope</div>
     <div class="d-flex justify-content-evenly m-auto navbar">
@@ -14,7 +14,7 @@
         <i class="pi pi-heart"></i>
         <span *ngIf="wishlistCount > 0" class="wish-count position-absolute">{{ wishlistCount }}</span>
       </a>
-      <div class="position-relative">
+      <div class="position-relative bag-link" [class.bump]="bagBump">
         <a routerLink="/cart" routerLinkActive="active" class="position-relative">
           <i class="pi pi-shopping-bag"></i>
         </a>

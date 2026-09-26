@@ -1,0 +1,20 @@
+.cat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #fdf4f2;
+  color: #992603;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+
+.count-inline { display: none; }
+
+/* Phones: the product count moves under the name so the row fits without sideways scrolling */
+@media (max-width: 575px) {
+  .cat-icon,
+  .col-count { display: none; }
+  .count-inline { display: block; }
+}

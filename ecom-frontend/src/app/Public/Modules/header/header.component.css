@@ -85,3 +85,33 @@ a.active .pi-shopping-bag {
   padding-top: 8px !important;
   line-height: 1.6;
 }
+
+/* Bag icon bounce when something is added */
+.bag-link.bump .pi-shopping-bag {
+  display: inline-block;
+  animation: bag-bump 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.bag-link.bump .cart-count {
+  animation: count-pop 0.55s ease-out;
+}
+
+@keyframes bag-bump {
+  0% { transform: scale(1) rotate(0); }
+  30% { transform: scale(1.25) rotate(-8deg); }
+  60% { transform: scale(0.95) rotate(4deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+@keyframes count-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.45); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bag-link.bump .pi-shopping-bag,
+  .bag-link.bump .cart-count {
+    animation: none;
+  }
+}

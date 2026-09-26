@@ -62,11 +62,12 @@ module.exports = async (s, { data }) => {
   s.check('order delivered', (await s.call('GET', `/orders/order/${order._id}`, null, userToken)).body.status === 'Delivered');
   await s.call('POST', `/orders/${order._id}/return`, { type: 'Exchange', reason: 'Too small', exchangeSize: 'L' }, userToken);
   await s.go('/admin/orders', 1800);
-  await s.click('.filter-chip', 'Return Requested');
+  await s.click('.status-tab', 'Return Requested');
   await s.sleep(1200);
   await s.click('button', 'View details');
   await s.sleep(800);
-  await s.click('.p-dialog button', 'Approve exchange');
+  s.check('order panel opens', await page().$eval('.order-drawer', (e) => e.classList.contains('open')));
+  await s.click('.order-drawer button', 'Approve exchange');
   await s.sleep(500);
   await page().evaluate(() => [...document.querySelectorAll('.p-dialog button')].filter((b) => b.textContent.trim() === 'Yes').pop().click());
   await s.sleep(1800);
@@ -94,7 +95,7 @@ module.exports = async (s, { data }) => {
 
   await s.go('/admin/messages', 1500);
   s.check('contact message in inbox', (await s.text()).includes('Where is my parcel?'));
-  await s.click('.list-group-item .cursor-pointer');
+  await s.click('.msg-head');
   await s.sleep(400);
   await s.click('button', 'Mark resolved');
   await s.sleep(1200);

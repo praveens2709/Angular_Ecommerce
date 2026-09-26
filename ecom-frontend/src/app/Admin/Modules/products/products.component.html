@@ -1,91 +1,98 @@
-<div class="card shadow-sm border-0 rounded-3">
-  <div class="card-header bg-light d-flex flex-wrap gap-2 justify-content-between align-items-center">
-    <h3 class="mb-0 text-primary fs-5 fw-bold">Products</h3>
-    <div class="d-flex gap-2 align-items-center">
-      <select class="form-select form-select-sm" [(ngModel)]="categoryFilter" (ngModelChange)="onCategoryFilter()">
+<div class="admin-page">
+  <header class="page-head">
+    <div>
+      <h1 class="page-title">Products</h1>
+      <p class="page-sub">{{ totalRecords }} {{ totalRecords === 1 ? 'product' : 'products' }} in the catalogue. Stock is tracked per size.</p>
+    </div>
+    <div class="page-actions">
+      <button type="button" class="btn btn-brand btn-sm" (click)="openDialog('add')"><i class="pi pi-plus"></i>Add product</button>
+    </div>
+  </header>
+
+  <section class="admin-card">
+  <div class="card-toolbar">
+    <div class="tools">
+      <label class="search-field mb-0">
+        <i class="pi pi-search"></i>
+        <input type="search" class="form-control form-control-sm" placeholder="Search products" aria-label="Search products"
+          [(ngModel)]="search" (ngModelChange)="onSearch()" />
+      </label>
+      <select class="form-select form-select-sm category-filter" aria-label="Category" [(ngModel)]="categoryFilter" (ngModelChange)="onCategoryFilter()">
         <option [ngValue]="null">All categories</option>
         <option *ngFor="let c of categories" [ngValue]="c.name">{{ c.name }}</option>
       </select>
-      <input type="search" class="form-control form-control-sm search-input" placeholder="Search products"
-        [(ngModel)]="search" (ngModelChange)="onSearch()" />
-      <button class="btn btn-outline-primary btn-sm px-2 py-1" title="Add product" (click)="openDialog('add')">
-        <i class="pi pi-plus pt-1"></i>
-      </button>
     </div>
   </div>
-  <p *ngIf="pageError" class="form-error mx-3" role="alert">{{ pageError }}</p>
+  <p *ngIf="pageError" class="form-error" role="alert">{{ pageError }}</p>
 
-  <div>
-    <p-table
-      [value]="products"
-      [lazy]="true"
-      (onLazyLoad)="onLazyLoad($event)"
-      [loading]="loading"
-      [paginator]="true"
-      [rows]="rows"
-      [first]="first"
-      [totalRecords]="totalRecords"
-      [rowsPerPageOptions]="[5, 10, 20]"
-      [scrollable]="true"
-      [scrollHeight]="'520px'"
-      [tableStyle]="{ 'min-width': '100%' }"
-      class="table-striped table-hover align-middle mb-0"
-    >
-      <ng-template pTemplate="header">
-        <tr class="bg-secondary text-white">
-          <th class="py-3 px-4">Name</th>
-          <th class="py-3 px-4">Image</th>
-          <th class="py-3 px-4">Price</th>
-          <th class="py-3 px-4">Category</th>
-          <th class="py-3 px-4">Stock</th>
-          <th class="py-3 px-4">Status</th>
-          <th class="py-3 px-4">Actions</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-product>
-        <tr>
-          <td class="py-3 px-4 text-dark fw-semibold">
-            {{ product.name }}
-            <small *ngIf="product.color" class="d-block text-muted fw-normal">{{ product.color }}</small>
-          </td>
-          <td class="py-3 px-4">
-            <img [src]="product.image || 'assets/images/placeholder.png'" [alt]="product.name" class="rounded shadow-sm product-img" />
-          </td>
-          <td class="py-3 px-4 text-success fw-bold">{{ product.price | currency : "INR" }}</td>
-          <td class="py-3 px-4 text-muted">{{ product.category || 'No Category' }}</td>
-          <td class="py-3 px-4">
-            <ng-container *ngIf="isStockTracked(product); else untracked">
-              <span class="fw-semibold">{{ totalStock(product) }}</span>
-              <small class="d-block text-muted">
-                <ng-container *ngFor="let s of sizes; let last = last">{{ s }} {{ product.stock?.[s] ?? 0 }}{{ last ? '' : ' · ' }}</ng-container>
-              </small>
-            </ng-container>
-            <ng-template #untracked><small class="text-muted">Not tracked</small></ng-template>
-          </td>
-          <td class="py-3 px-4">
-            <p-tag [value]="product.inventoryStatus" [severity]="getSeverity(product.inventoryStatus)"></p-tag>
-          </td>
-          <td class="px-4">
-            <div class="d-flex gap-2">
-              <button class="btn btn-sm btn-outline-primary p-0 px-2 py-1" title="Edit" (click)="openDialog('edit', product)">
-                <i class="pi pi-pencil pt-1"></i>
-              </button>
-              <button class="btn btn-sm btn-outline-danger p-0 px-2 py-1" title="Delete" (click)="openDeleteDialog(product)">
-                <i class="pi pi-trash pt-1"></i>
-              </button>
+  <p-table
+    [value]="products"
+    [lazy]="true"
+    (onLazyLoad)="onLazyLoad($event)"
+    [loading]="loading"
+    [paginator]="true"
+    [rows]="rows"
+    [first]="first"
+    [totalRecords]="totalRecords"
+    [rowsPerPageOptions]="[5, 10, 20]"
+    [scrollable]="true"
+    [scrollHeight]="'560px'"
+    [tableStyle]="{ 'min-width': '760px' }"
+    styleClass="admin-table"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Product</th>
+        <th>Category</th>
+        <th>Price</th>
+        <th style="width: 240px">Stock</th>
+        <th style="width: 100px">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-product>
+      <tr>
+        <td>
+          <div class="d-flex align-items-center gap-3">
+            <img [src]="product.image || 'assets/images/placeholder.png'" [alt]="product.name" class="thumb" loading="lazy" />
+            <div class="min-w-0">
+              <span class="cell-strong">{{ product.name }}</span>
+              <span class="cell-sub" *ngIf="product.color || product.brand">{{ product.color }}{{ product.color && product.brand ? ' · ' : '' }}{{ product.brand }}</span>
             </div>
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="emptymessage">
-        <tr><td colspan="7" class="text-center py-4">No products found.</td></tr>
-      </ng-template>
-    </p-table>
-  </div>
-
-  <div class="card-footer bg-light text-secondary text-center py-3">
-    {{ totalRecords }} {{ totalRecords === 1 ? 'product' : 'products' }}
-  </div>
+          </div>
+        </td>
+        <td><span class="cat-chip">{{ product.category || 'No category' }}</span></td>
+        <td class="cell-strong nowrap">{{ product.price | currency : 'INR' : 'symbol' : '1.0-0' }}</td>
+        <td>
+          <ng-container *ngIf="isStockTracked(product); else untracked">
+            <div class="stock-line">
+              <span class="stock-count" [ngClass]="stockLevel(product)">{{ totalStock(product) }} units</span>
+              <span class="stock-state" [ngClass]="stockLevel(product)">{{ stockLevel(product) === 'out' ? 'Out of stock' : stockLevel(product) === 'low' ? 'Low' : 'In stock' }}</span>
+            </div>
+            <div class="stock-bar" role="img" [attr.aria-label]="totalStock(product) + ' units in stock'">
+              <span [ngClass]="stockLevel(product)" [style.width.%]="stockPercent(product)"></span>
+            </div>
+            <div class="size-row">
+              <span *ngFor="let s of sizes" [class.zero]="!(product.stock?.[s])">{{ s }} {{ product.stock?.[s] ?? 0 }}</span>
+            </div>
+          </ng-container>
+          <ng-template #untracked>
+            <span class="pill" [ngClass]="statusPill(product.inventoryStatus)">{{ statusLabel(product.inventoryStatus) }}</span>
+            <span class="cell-sub mt-1">Stock not tracked</span>
+          </ng-template>
+        </td>
+        <td>
+          <div class="row-actions">
+            <button type="button" class="icon-btn" title="Edit" aria-label="Edit" (click)="openDialog('edit', product)"><i class="pi pi-pencil"></i></button>
+            <button type="button" class="icon-btn danger" title="Delete" aria-label="Delete" (click)="openDeleteDialog(product)"><i class="pi pi-trash"></i></button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="5">No products found.</td></tr>
+    </ng-template>
+  </p-table>
+  </section>
 
   <!-- Add/Edit Dialog -->
   <p-dialog [(visible)]="dialogVisible" [modal]="true" [closable]="true" [header]="dialogMode === 'edit' ? 'Edit Product' : 'Add Product'" [style]="{ width: '760px' }">

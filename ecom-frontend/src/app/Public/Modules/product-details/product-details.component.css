@@ -76,15 +76,79 @@
     }
 }
 
-.main-img {
+/* The photo sits in a button: tap/click opens the viewer, swipe changes photo */
+.stage {
     top: 50%;
     left: 190px;
     width: 540px;
     max-width: calc(52vw - 210px);
     transform: translateY(-50%);
-    object-fit: contain;
     z-index: 1;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+    touch-action: pan-y;
+}
+
+.main-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
     filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.25));
+    transition: transform 0.4s ease;
+}
+
+.stage:hover .main-img {
+    transform: scale(1.02);
+}
+
+.zoom-hint {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.92);
+    color: #992603;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.stage:hover .zoom-hint,
+.stage:focus-visible .zoom-hint {
+    opacity: 1;
+}
+
+.slide-dots {
+    display: none !important;
+    left: 50%;
+    bottom: 16px;
+    transform: translateX(-50%);
+    z-index: 3;
+}
+
+.slide-dots .dot,
+.viewer-dots .dot {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.5);
+    transition: width 0.25s ease, background-color 0.25s ease;
+}
+
+.slide-dots .dot.active,
+.viewer-dots .dot.active {
+    width: 22px;
+    background: #ffffff;
 }
 
 /* ---------- Right: details ---------- */
@@ -359,14 +423,20 @@
         }
     }
 
-    .main-img {
+    .stage {
         position: relative !important;
         left: auto !important;
         top: auto !important;
         transform: none !important;
         width: auto !important;
         max-width: min(70%, 420px) !important;
-        max-height: 340px !important;
+        margin: 0 auto;
+    }
+
+    .stage .main-img {
+        width: auto;
+        max-width: 100%;
+        max-height: 340px;
         margin: 0 auto;
     }
 
@@ -408,7 +478,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 20px 10px 65px;
+        padding: 24px 10px 48px;
     }
 
     .product-bg .dope-text {
@@ -418,27 +488,37 @@
         top: 25%;
     }
 
-    .main-img {
+    .stage {
         position: relative !important;
         left: auto !important;
         top: auto !important;
         transform: none !important;
         width: auto !important;
         max-width: 75% !important;
-        max-height: 220px !important;
         margin: 0 auto;
         z-index: 1;
     }
 
+    .stage .main-img {
+        width: auto;
+        max-width: 100%;
+        max-height: 250px;
+        margin: 0 auto;
+    }
+
+    /* Phones: swipe + dots replace the thumbnail strip (colours are listed below anyway) */
     .left-images {
-        position: absolute !important;
-        bottom: 10px !important;
-        left: 50% !important;
-        top: auto !important;
-        transform: translateX(-50%) !important;
-        flex-direction: row !important;
-        gap: 8px !important;
-        z-index: 3;
+        display: none !important;
+    }
+
+    .slide-dots {
+        display: flex !important;
+    }
+
+    .zoom-hint {
+        opacity: 1;
+        width: 32px;
+        height: 32px;
     }
 
     .more-imgs {

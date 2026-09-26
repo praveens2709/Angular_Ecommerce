@@ -1,37 +1,52 @@
-<div class="card shadow-sm border-0 rounded-3">
-  <div class="card-header bg-light d-flex flex-wrap gap-2 justify-content-between align-items-center">
-    <h3 class="mb-0 text-primary fs-5 fw-bold">
-      Messages <span *ngIf="unread" class="badge bg-danger ms-1">{{ unread }} new</span>
-    </h3>
-    <div class="d-flex gap-2">
-      <button *ngFor="let f of [{ v: 'New', l: 'New' }, { v: 'Resolved', l: 'Resolved' }, { v: '', l: 'All' }]" type="button"
-        class="btn btn-sm filter-chip" [class.active]="filter === f.v" (click)="setFilter($any(f.v))">{{ f.l }}</button>
+<div class="admin-page">
+  <header class="page-head">
+    <div>
+      <h1 class="page-title">Messages</h1>
+      <p class="page-sub">From the contact form. {{ unread ? unread + ' waiting for a reply.' : 'All caught up.' }}</p>
     </div>
-  </div>
+  </header>
 
-  <div class="list-group list-group-flush">
-    <p *ngIf="!loading && messages.length === 0" class="text-center text-muted py-5 mb-0">No messages here.</p>
-    <div *ngFor="let m of messages" class="list-group-item py-3">
-      <div class="d-flex justify-content-between align-items-start gap-3 cursor-pointer" (click)="toggle(m)">
+  <section class="admin-card">
+    <div class="status-tabs" role="tablist" aria-label="Filter messages">
+      <button
+        *ngFor="let f of [{ v: 'New', l: 'New' }, { v: 'Resolved', l: 'Resolved' }, { v: '', l: 'All' }]"
+        type="button"
+        role="tab"
+        class="status-tab"
+        [class.active]="filter === f.v"
+        [attr.aria-selected]="filter === f.v"
+        (click)="setFilter($any(f.v))"
+      >
+        {{ f.l }}<span *ngIf="f.v === 'New' && unread" class="count">{{ unread }}</span>
+      </button>
+    </div>
+
+    <p *ngIf="!loading && messages.length === 0" class="empty">
+      <i class="pi pi-inbox"></i>
+      No messages here.
+    </p>
+    <div *ngFor="let m of messages" class="msg" [class.open]="expanded === m._id" [class.unread]="m.status === 'New'">
+      <div class="msg-head" role="button" tabindex="0" [attr.aria-expanded]="expanded === m._id" (click)="toggle(m)" (keydown.enter)="toggle(m)">
+        <span class="avatar">{{ (m.name || '?')[0] | uppercase }}</span>
         <div class="flex-grow-1 overflow-hidden">
-          <div class="d-flex align-items-center gap-2">
-            <span *ngIf="m.status === 'New'" class="dot"></span>
+          <div class="d-flex align-items-center gap-2 flex-wrap">
             <strong>{{ m.name }}</strong>
-            <small class="text-muted">&lt;{{ m.email }}&gt;</small>
+            <small class="text-muted">{{ m.email }}</small>
+            <span *ngIf="m.status === 'New'" class="pill pill-danger">New</span>
           </div>
-          <div class="fw-semibold mt-1">{{ m.subject }}<span *ngIf="m.orderId" class="text-muted fw-normal"> · Order {{ m.orderId }}</span></div>
+          <div class="subject">{{ m.subject }}<span *ngIf="m.orderId" class="text-muted fw-normal"> · Order {{ m.orderId }}</span></div>
           <div class="text-muted preview" [class.full]="expanded === m._id">{{ m.message }}</div>
         </div>
         <small class="text-muted text-nowrap">{{ m.createdAt | date : 'MMM d, h:mm a' }}</small>
       </div>
-      <div *ngIf="expanded === m._id" class="d-flex gap-2 mt-3">
+      <div *ngIf="expanded === m._id" class="msg-actions">
         <a class="btn btn-sm btn-primary" [href]="replyLink(m)"><i class="pi pi-reply me-1"></i>Reply by email</a>
-        <button *ngIf="m.status === 'New'" class="btn btn-sm btn-outline-success" (click)="setStatus(m, 'Resolved')">
+        <button *ngIf="m.status === 'New'" type="button" class="btn btn-sm btn-outline-secondary" (click)="setStatus(m, 'Resolved')">
           <i class="pi pi-check me-1"></i>Mark resolved
         </button>
-        <button *ngIf="m.status === 'Resolved'" class="btn btn-sm btn-outline-secondary" (click)="setStatus(m, 'New')">Reopen</button>
+        <button *ngIf="m.status === 'Resolved'" type="button" class="btn btn-sm btn-outline-secondary" (click)="setStatus(m, 'New')">Reopen</button>
       </div>
-      <p *ngIf="rowError?.id === m._id" class="form-error mb-0" role="alert">{{ rowError?.message }}</p>
+      <p *ngIf="rowError?.id === m._id" class="form-error mb-0 mx-0" role="alert">{{ rowError?.message }}</p>
     </div>
-  </div>
+  </section>
 </div>

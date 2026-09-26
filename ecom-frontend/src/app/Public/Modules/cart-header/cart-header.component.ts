@@ -19,6 +19,8 @@ export class CartHeaderComponent {
 
   get currentIndex(): number {
     const url = this.router.url.split('?')[0];
+    // Order placed: every step is done
+    if (url.startsWith('/order-success')) return this.steps.length;
     return Math.max(0, this.steps.findIndex((s) => s.path === url));
   }
 

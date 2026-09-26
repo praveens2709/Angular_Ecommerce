@@ -1,29 +1,48 @@
-<div class="card shadow-sm border-0 rounded-3">
-  <div class="card-header bg-light d-flex flex-wrap gap-2 justify-content-between align-items-center">
-    <h3 class="mb-0 text-primary fs-5 fw-bold">Orders</h3>
-    <input
-      type="search"
-      class="form-control form-control-sm search-input"
-      placeholder="Search customer or order ID"
-      [(ngModel)]="search"
-      (ngModelChange)="onSearch()"
-    />
-  </div>
+<div class="admin-page">
+  <header class="page-head">
+    <div>
+      <h1 class="page-title">Orders</h1>
+      <p class="page-sub">Click an order to see its items, address and payment, and to move it along.</p>
+    </div>
+  </header>
 
-  <div class="px-3 pt-3 d-flex flex-wrap gap-2">
-    <button
-      *ngFor="let s of statusFilters"
-      type="button"
-      class="btn btn-sm filter-chip"
-      [class.active]="statusFilter === s"
-      (click)="setStatusFilter(s)"
-    >
-      {{ s || 'All' }}
-    </button>
-  </div>
-  <p *ngIf="loadError" class="form-error mx-3" role="alert">{{ loadError }}</p>
+  <section class="admin-card">
+    <!-- Status tabs -->
+    <div class="status-tabs" role="tablist" aria-label="Filter by status">
+      <button
+        *ngFor="let s of statusFilters"
+        type="button"
+        role="tab"
+        class="status-tab"
+        [class.active]="statusFilter === s"
+        [attr.aria-selected]="statusFilter === s"
+        (click)="setStatusFilter(s)"
+      >
+        {{ s || 'All' }}
+        <span class="count" *ngIf="countFor(s) !== null">{{ countFor(s) }}</span>
+      </button>
+    </div>
 
-  <div>
+    <div class="card-toolbar">
+      <div class="tools">
+        <label class="search-field mb-0">
+          <i class="pi pi-search"></i>
+          <input
+            type="search"
+            class="form-control form-control-sm"
+            placeholder="Search customer or order ID"
+            aria-label="Search orders"
+            [(ngModel)]="search"
+            (ngModelChange)="onSearch()"
+          />
+        </label>
+      </div>
+      <span class="text-muted small">
+        {{ totalRecords }} {{ totalRecords === 1 ? 'order' : 'orders' }}{{ statusFilter ? ' · ' + statusFilter : '' }}{{ search.trim() ? ' matching “' + search.trim() + '”' : '' }}
+      </span>
+    </div>
+    <p *ngIf="loadError" class="form-error" role="alert">{{ loadError }}</p>
+
     <p-table
       [value]="orders"
       [lazy]="true"
@@ -35,53 +54,76 @@
       [totalRecords]="totalRecords"
       [rowsPerPageOptions]="[10, 25, 50]"
       [scrollable]="true"
-      [scrollHeight]="'520px'"
-      [tableStyle]="{ 'min-width': '100%' }"
-      class="table-striped table-hover align-middle mb-0"
+      [scrollHeight]="'560px'"
+      [tableStyle]="{ 'min-width': '860px' }"
+      styleClass="admin-table"
     >
       <ng-template pTemplate="header">
-        <tr class="bg-secondary text-white">
-          <th class="py-3 px-4">Order</th>
-          <th class="py-3 px-4">Customer</th>
-          <th class="py-3 px-4">Date</th>
-          <th class="py-3 px-4">Total</th>
-          <th class="py-3 px-4">Status</th>
-          <th class="py-3 px-4">Actions</th>
+        <tr>
+          <th>Order</th>
+          <th>Customer</th>
+          <th>Date</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th style="width: 150px">Actions</th>
         </tr>
       </ng-template>
 
       <ng-template pTemplate="body" let-order>
-        <tr>
-          <td class="py-3 px-4">
-            <div class="d-flex align-items-center gap-2">
-              <img [src]="order.products[0]?.image || 'assets/images/placeholder.png'" alt="" class="thumb rounded" />
-              <div>
-                <div class="fw-semibold">{{ order.products[0]?.productName }}</div>
-                <small class="text-muted">
-                  {{ order.products[0]?.size ? 'Size ' + order.products[0]?.size + ' · ' : '' }}Qty {{ order.products[0]?.quantity }}
-                </small>
+        <tr
+          class="order-row clickable"
+          [class.selected]="viewDialogVisible && selectedOrder?._id === order._id"
+          tabindex="0"
+          (click)="viewOrderDetails(order)"
+          (keydown.enter)="viewOrderDetails(order)"
+        >
+          <td>
+            <div class="d-flex align-items-center gap-3">
+              <div class="thumb-stack">
+                <img [src]="order.products[0]?.image || 'assets/images/placeholder.png'" alt="" class="thumb sm" loading="lazy" />
+                <span *ngIf="order.products.length > 1" class="more">+{{ order.products.length - 1 }}</span>
+              </div>
+              <div class="min-w-0">
+                <span class="cell-strong order-ref" [title]="order._id">#{{ shortId(order) }}</span>
+                <span class="cell-sub text-truncate item-line">
+                  {{ order.products[0]?.productName }}{{ order.products.length > 1 ? ' + ' + (order.products.length - 1) + ' more' : '' }}
+                </span>
               </div>
             </div>
           </td>
-          <td class="py-3 px-4">{{ order.customerName }}</td>
-          <td class="py-3 px-4">{{ order.orderDate | date }}</td>
-          <td class="py-3 px-4">{{ order.totalAmount | currency : 'INR' }}</td>
-          <td class="py-3 px-4">
-            <p-tag [value]="order.status" [severity]="getSeverity(order.status)"></p-tag>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <span class="avatar">{{ initials(order.customerName) }}</span>
+              <div class="min-w-0">
+                <span class="cell-strong">{{ order.customerName }}</span>
+                <span class="cell-sub" *ngIf="order.userId?.email">{{ order.userId.email }}</span>
+              </div>
+            </div>
           </td>
-          <td class="px-4">
-            <div class="d-flex gap-2">
-              <button class="btn btn-sm btn-outline-primary p-0 px-2 py-1" title="View details" (click)="viewOrderDetails(order)">
-                <i class="pi pi-eye pt-1"></i>
+          <td class="nowrap">
+            {{ order.orderDate | date : 'd MMM y' }}
+            <span class="cell-sub">{{ order.orderDate | date : 'h:mm a' }}</span>
+          </td>
+          <td class="nowrap">
+            <span class="cell-strong">{{ order.totalAmount | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
+            <span class="cell-sub">{{ order.paymentMethod }} · {{ itemCount(order) }} {{ itemCount(order) === 1 ? 'item' : 'items' }}</span>
+          </td>
+          <td><span class="pill" [ngClass]="statusPill(order.status)">{{ order.status }}</span></td>
+          <td (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
+            <div class="row-actions">
+              <button type="button" class="icon-btn" title="View details" aria-label="View details" (click)="viewOrderDetails(order)">
+                <i class="pi pi-eye"></i>
               </button>
               <button
                 *ngFor="let action of actionsFor(order)"
-                class="btn btn-sm p-0 px-2 py-1"
-                [ngClass]="action.className"
+                type="button"
+                class="icon-btn"
+                [ngClass]="toneOf(action)"
                 [title]="action.label"
+                [attr.aria-label]="action.label"
                 (click)="askAction(order, action)"
               >
-                <i class="pi pt-1" [ngClass]="action.icon"></i>
+                <i class="pi" [ngClass]="action.icon"></i>
               </button>
             </div>
           </td>
@@ -89,111 +131,135 @@
       </ng-template>
 
       <ng-template pTemplate="emptymessage">
-        <tr><td colspan="6" class="text-center py-4">No orders found.</td></tr>
+        <tr><td colspan="6">No orders found.</td></tr>
       </ng-template>
     </p-table>
-  </div>
+  </section>
 
-  <div class="card-footer bg-light text-secondary text-center py-3">
-    {{ totalRecords }} {{ totalRecords === 1 ? 'order' : 'orders' }}{{ statusFilter ? ' · ' + statusFilter : '' }}
-  </div>
-
-  <!-- View Order Details Dialog -->
-  <p-dialog [(visible)]="viewDialogVisible" [modal]="true" header="Order Details" [style]="{ width: '640px' }">
-    <div class="container" *ngIf="selectedOrder">
-      <div class="row mb-3">
-        <div class="col-6">
-          <p class="mb-1 fw-semibold">Order ID</p>
-          <p class="text-secondary">{{ selectedOrder._id }}</p>
-        </div>
-        <div class="col-6">
-          <p class="mb-1 fw-semibold">Order Date</p>
-          <p class="text-secondary">{{ selectedOrder.orderDate | date : 'medium' }}</p>
-        </div>
-      </div>
-
-      <div class="row mb-3">
-        <div class="col-6">
-          <p class="mb-1 fw-semibold">Customer</p>
-          <p class="text-secondary mb-0">{{ selectedOrder.customerName }}</p>
-          <small class="text-secondary">{{ selectedOrder.userId?.email }}</small>
-        </div>
-        <div class="col-6">
-          <p class="mb-1 fw-semibold">Amount</p>
-          <p class="text-secondary mb-0">{{ selectedOrder.totalAmount | currency : 'INR' }} · {{ selectedOrder.paymentMethod }}</p>
-          <small class="text-secondary" *ngIf="selectedOrder.couponCode">
-            Coupon {{ selectedOrder.couponCode }} (−{{ selectedOrder.discount | currency : 'INR' }})
-          </small>
-        </div>
-      </div>
-
-      <div class="row mb-3" *ngFor="let product of selectedOrder.products">
-        <div class="col-2">
-          <img [src]="product.image || 'assets/images/placeholder.png'" alt="" class="w-100 rounded" />
-        </div>
-        <div class="col-10">
-          <p class="mb-0 fw-semibold">{{ product.productName }}</p>
-          <p class="mb-0 text-secondary">
-            {{ product.size ? 'Size ' + product.size + ' · ' : '' }}{{ product.quantity }} × {{ product.price | currency : 'INR' }}
-          </p>
-        </div>
-      </div>
-
-      <div class="row mb-3" *ngIf="selectedOrder.shippingAddress?.street">
-        <div class="col">
-          <p class="mb-1 fw-semibold">Ship To</p>
-          <p class="text-secondary mb-0">
-            {{ selectedOrder.shippingAddress?.fullName }}, {{ selectedOrder.shippingAddress?.street }},
-            {{ selectedOrder.shippingAddress?.city }}, {{ selectedOrder.shippingAddress?.state }} -
-            {{ selectedOrder.shippingAddress?.postalCode }} ({{ selectedOrder.shippingAddress?.mobile }})
-          </p>
-        </div>
-      </div>
-
-      <div class="row mb-3" *ngIf="selectedOrder.returnRequest">
-        <div class="col">
-          <div class="return-box p-2">
-            <p class="mb-1 fw-semibold">{{ selectedOrder.returnRequest.type }} request</p>
-            <p class="mb-0 text-secondary">
-              {{ selectedOrder.returnRequest.reason }}
-              <span *ngIf="selectedOrder.returnRequest.exchangeSize">· Wants size {{ selectedOrder.returnRequest.exchangeSize }}</span>
-            </p>
+  <!-- Order detail: slides in from the right -->
+  <div class="drawer-backdrop" [class.open]="viewDialogVisible" (click)="closeDetails()" aria-hidden="true"></div>
+  <aside
+    class="order-drawer"
+    [class.open]="viewDialogVisible"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="order-drawer-title"
+    [attr.aria-hidden]="!viewDialogVisible"
+    [attr.inert]="viewDialogVisible ? null : ''"
+  >
+    <ng-container *ngIf="selectedOrder as o">
+      <div class="drawer-head">
+        <div class="min-w-0">
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h2 id="order-drawer-title">Order #{{ shortId(o) }}</h2>
+            <span class="pill" [ngClass]="statusPill(o.status)">{{ o.status }}</span>
           </div>
+          <p class="drawer-sub">{{ o.orderDate | date : 'medium' }} · <span class="text-break">{{ o._id }}</span></p>
         </div>
+        <button type="button" class="icon-btn" aria-label="Close" title="Close" (click)="closeDetails()"><i class="pi pi-times"></i></button>
       </div>
 
-      <div class="mb-3">
-        <p class="mb-2 fw-semibold">History</p>
-        <ul class="history list-unstyled mb-0">
-          <li *ngFor="let h of selectedOrder.statusHistory" class="d-flex gap-2">
-            <p-tag [value]="h.status" [severity]="getSeverity(h.status)"></p-tag>
-            <span class="text-secondary">{{ h.at | date : 'medium' }}</span>
-            <span *ngIf="h.note" class="text-secondary">· {{ h.note }}</span>
-          </li>
-        </ul>
+      <div class="drawer-body">
+        <!-- Return / exchange request -->
+        <div class="return-box" *ngIf="o.returnRequest">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <i class="pi pi-replay"></i>
+            <strong>{{ o.returnRequest.type }} request</strong>
+            <small class="text-muted ms-auto">{{ o.returnRequest.requestedAt | date : 'd MMM, h:mm a' }}</small>
+          </div>
+          <p class="mb-0">
+            {{ o.returnRequest.reason }}
+            <span *ngIf="o.returnRequest.exchangeSize"> · Wants size <strong>{{ o.returnRequest.exchangeSize }}</strong></span>
+          </p>
+        </div>
+
+        <section class="drawer-section">
+          <h3>Items <span class="text-muted">({{ itemCount(o) }})</span></h3>
+          <div class="item" *ngFor="let product of o.products">
+            <img [src]="product.image || 'assets/images/placeholder.png'" alt="" class="thumb" />
+            <div class="min-w-0 flex-grow-1">
+              <div class="cell-strong">{{ product.productName }}</div>
+              <span class="cell-sub">
+                {{ product.size ? 'Size ' + product.size + ' · ' : '' }}{{ product.quantity }} × {{ product.price | currency : 'INR' : 'symbol' : '1.0-0' }}
+              </span>
+            </div>
+            <span class="cell-strong nowrap">{{ product.price * product.quantity | currency : 'INR' : 'symbol' : '1.0-0' }}</span>
+          </div>
+        </section>
+
+        <section class="drawer-section totals">
+          <div><span>Subtotal</span><span>{{ subtotalOf(o) | currency : 'INR' : 'symbol' : '1.0-2' }}</span></div>
+          <div *ngIf="o.discount">
+            <span>Discount<span *ngIf="o.couponCode" class="coupon">{{ o.couponCode }}</span></span>
+            <span class="discount">−{{ o.discount | currency : 'INR' : 'symbol' : '1.0-2' }}</span>
+          </div>
+          <div class="grand"><span>Total</span><span>{{ o.totalAmount | currency : 'INR' : 'symbol' : '1.0-2' }}</span></div>
+        </section>
+
+        <div class="info-grid">
+          <section class="drawer-section">
+            <h3>Customer</h3>
+            <div class="d-flex align-items-center gap-2">
+              <span class="avatar">{{ initials(o.customerName) }}</span>
+              <div class="min-w-0">
+                <div class="cell-strong">{{ o.customerName }}</div>
+                <span class="cell-sub text-truncate" *ngIf="o.userId?.email" [title]="o.userId?.email">{{ o.userId?.email }}</span>
+              </div>
+            </div>
+          </section>
+          <section class="drawer-section">
+            <h3>Payment</h3>
+            <div class="cell-strong">{{ o.paymentMethod }}</div>
+            <span class="cell-sub text-break" *ngIf="o.paymentId">{{ o.paymentId }}</span>
+            <span class="cell-sub" *ngIf="!o.paymentId && o.paymentMethod === 'COD'">Collect on delivery</span>
+          </section>
+        </div>
+
+        <section class="drawer-section" *ngIf="o.shippingAddress?.street">
+          <h3>Ship to</h3>
+          <address class="mb-0">
+            <strong>{{ o.shippingAddress?.fullName }}</strong><br />
+            {{ o.shippingAddress?.street }}<br />
+            {{ o.shippingAddress?.city }}, {{ o.shippingAddress?.state }} {{ o.shippingAddress?.postalCode }}<br />
+            <span class="text-muted"><i class="pi pi-phone me-1"></i>{{ o.shippingAddress?.mobile }}</span>
+          </address>
+        </section>
+
+        <section class="drawer-section" *ngIf="o.statusHistory?.length">
+          <h3>History</h3>
+          <ol class="timeline">
+            <li *ngFor="let h of o.statusHistory">
+              <span class="pill" [ngClass]="statusPill(h.status)">{{ h.status }}</span>
+              <span class="text-muted">{{ h.at | date : 'd MMM y, h:mm a' }}</span>
+              <span *ngIf="h.note" class="text-muted">· {{ h.note }}</span>
+            </li>
+          </ol>
+        </section>
       </div>
 
-      <div class="d-flex justify-content-end flex-wrap gap-2">
+      <div class="drawer-foot">
+        <p *ngIf="invoiceError" class="form-error w-100 m-0" role="alert">{{ invoiceError }}</p>
         <button
-          *ngFor="let action of actionsFor(selectedOrder)"
+          *ngFor="let action of actionsFor(o)"
+          type="button"
           class="btn btn-sm"
           [ngClass]="action.className"
-          (click)="askAction(selectedOrder, action)"
+          (click)="askAction(o, action)"
         >
           <i class="pi me-1" [ngClass]="action.icon"></i>{{ action.label }}
         </button>
         <button
-          *ngIf="selectedOrder.status !== 'Cancelled' && (selectedOrder.totalAmount ?? 0) > 0"
-          class="btn btn-sm btn-outline-primary"
-          (click)="downloadInvoice(selectedOrder)"
+          *ngIf="o.status !== 'Cancelled' && (o.totalAmount ?? 0) > 0"
+          type="button"
+          class="btn btn-sm btn-outline-secondary"
+          (click)="downloadInvoice(o)"
         >
           <i class="pi pi-file-pdf me-1"></i>Invoice
         </button>
-        <button class="btn btn-sm btn-outline-secondary" (click)="viewDialogVisible = false">Close</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary ms-auto foot-close" (click)="closeDetails()">Close</button>
       </div>
-      <p *ngIf="invoiceError" class="form-error mb-0" role="alert">{{ invoiceError }}</p>
-    </div>
-  </p-dialog>
+    </ng-container>
+  </aside>
 
   <!-- Confirm status change -->
   <p-dialog

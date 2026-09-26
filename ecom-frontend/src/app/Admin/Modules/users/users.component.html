@@ -1,27 +1,36 @@
-<div class="card shadow-sm border-0 rounded-3">
-  <div class="card-header bg-light d-flex flex-wrap gap-2 justify-content-between align-items-center">
-    <h3 class="mb-0 text-primary fs-5 fw-bold">Users</h3>
-    <div class="d-flex gap-2 align-items-center">
-      <p-dropdown
-        [options]="genders"
-        [(ngModel)]="gender"
-        (onChange)="onGenderChange()"
-        placeholder="All genders"
-        [showClear]="true"
-        styleClass="gender-filter"
-      ></p-dropdown>
-      <input
-        pInputText
-        type="search"
-        [(ngModel)]="search"
-        (ngModelChange)="onSearch()"
-        placeholder="Search name, email or mobile"
-        class="p-inputtext-sm search-input"
-      />
+<div class="admin-page">
+  <header class="page-head">
+    <div>
+      <h1 class="page-title">Users</h1>
+      <p class="page-sub">{{ totalRecords }} registered {{ totalRecords === 1 ? 'customer' : 'customers' }}. Disabled users can't log in or place orders.</p>
     </div>
-  </div>
+  </header>
 
-  <div>
+  <section class="admin-card">
+    <div class="card-toolbar">
+      <div class="tools">
+        <label class="search-field mb-0">
+          <i class="pi pi-search"></i>
+          <input
+            type="search"
+            class="form-control form-control-sm"
+            [(ngModel)]="search"
+            (ngModelChange)="onSearch()"
+            placeholder="Search name, email or mobile"
+            aria-label="Search users"
+          />
+        </label>
+        <p-dropdown
+          [options]="genders"
+          [(ngModel)]="gender"
+          (onChange)="onGenderChange()"
+          placeholder="All genders"
+          [showClear]="true"
+          styleClass="gender-filter"
+        ></p-dropdown>
+      </div>
+    </div>
+
     <p-table
       [value]="users"
       dataKey="_id"
@@ -34,52 +43,55 @@
       [rowsPerPageOptions]="[10, 25, 50]"
       [paginator]="true"
       [scrollable]="true"
-      [scrollHeight]="'520px'"
-      [tableStyle]="{ 'min-width': '100%' }"
-      class="p-datatable p-datatable-striped"
+      [scrollHeight]="'560px'"
+      [tableStyle]="{ 'min-width': '760px' }"
+      styleClass="admin-table"
     >
       <ng-template pTemplate="header">
         <tr>
           <th>Name</th>
-          <th>Email</th>
-          <th>Gender</th>
           <th>Mobile</th>
+          <th>Gender</th>
           <th>Joined</th>
           <th>Status</th>
+          <th style="width: 120px"></th>
         </tr>
       </ng-template>
 
       <ng-template pTemplate="body" let-user>
-        <tr style="border-bottom: 1px solid #e5e7eb">
-          <td class="px-3 fw-semibold">{{ user.fullName }}</td>
-          <td class="px-3">{{ user.email }}</td>
-          <td class="px-3">{{ user.gender || '—' }}</td>
-          <td class="px-3">{{ user.mobile }}</td>
-          <td class="px-3">{{ user.createdAt | date }}</td>
-          <td class="px-3">
+        <tr [class.is-disabled]="user.active === false">
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <span class="avatar">{{ initials(user.fullName) }}</span>
+              <div>
+                <span class="cell-strong">{{ user.fullName }}</span>
+                <span class="cell-sub">{{ user.email }}</span>
+              </div>
+            </div>
+          </td>
+          <td class="nowrap">{{ user.mobile }}</td>
+          <td>{{ user.gender || '—' }}</td>
+          <td class="nowrap">{{ user.createdAt | date : 'd MMM y' }}</td>
+          <td>
+            <span class="pill" [ngClass]="user.active === false ? 'pill-muted' : 'pill-success'">{{ user.active === false ? 'Disabled' : 'Active' }}</span>
+          </td>
+          <td>
             <button
               type="button"
-              class="btn btn-sm px-2 py-1"
-              [ngClass]="user.active === false ? 'btn-outline-success' : 'btn-outline-danger'"
+              class="btn btn-sm btn-outline-secondary toggle-btn"
+              [class.enable]="user.active === false"
               (click)="toggleActive(user)"
             >
               {{ user.active === false ? 'Enable' : 'Disable' }}
             </button>
-            <span *ngIf="user.active === false" class="ms-2 badge bg-secondary">Disabled</span>
-            <p *ngIf="rowError?.id === user._id" class="form-error mb-0" role="alert">{{ rowError?.message }}</p>
+            <p *ngIf="rowError?.id === user._id" class="form-error mb-0 mx-0" role="alert">{{ rowError?.message }}</p>
           </td>
         </tr>
       </ng-template>
 
       <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="6" class="text-center py-4">No users found.</td>
-        </tr>
+        <tr><td colspan="6">No users found.</td></tr>
       </ng-template>
     </p-table>
-  </div>
-
-  <div class="card-footer bg-light text-secondary text-center py-3">
-    {{ totalRecords }} {{ totalRecords === 1 ? 'user' : 'users' }}
-  </div>
+  </section>
 </div>

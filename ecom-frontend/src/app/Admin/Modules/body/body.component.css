@@ -1,34 +1,39 @@
-.body{
-    width: calc(100% - 5rem);
-    height: 100vh;
-    margin-left: 5rem;
-    z-index: 0;
-    position: relative;
-    top: 0;
-    transition: all .5s ease;
-    background: #f4f7fa;
-    padding: 2rem;
+.body {
+  /* No z-index here: it would trap the order panel and dialogs under the fixed top bar */
+  position: relative;
+  min-height: 100vh;
+  margin-left: 5rem;
+  padding: calc(64px + 28px) 28px 40px;
+  background: #faf7f6;
+  transition: margin-left 220ms ease;
 }
 
-.body-trimmed{
-    width: calc(100% - 16.5625rem);
-    margin-left: 16.5625rem;
+/* Keeps wide tables from stretching the page; they scroll inside their card instead */
+.body > * { min-width: 0; }
+
+.body-trimmed { margin-left: 16.5625rem; }
+
+.body-md-screen { margin-left: 5rem; }
+
+/* Tablets: the wide menu floats over the page */
+@media (min-width: 768px) and (max-width: 991px) {
+  .body-trimmed { margin-left: 5rem; }
 }
 
-.body-md-screen{
-    width: calc(100% - 5rem);
-    margin-left: 5rem;
+@media (min-width: 1600px) {
+  .body { padding-left: 40px; padding-right: 40px; }
 }
 
-/* Phones: full width; the nav is a bottom bar (see sidenav), so leave room under the content */
+/* Phones: full width; the nav is a bottom bar, so leave room under the content */
 @media (max-width: 767px) {
-    .body,
-    .body-trimmed,
-    .body-md-screen {
-        width: 100%;
-        margin-left: 0;
-        height: auto;
-        min-height: 100vh;
-        padding: 12px 10px calc(84px + env(safe-area-inset-bottom));
-    }
+  .body,
+  .body-trimmed,
+  .body-md-screen {
+    margin-left: 0;
+    padding: calc(56px + 16px) 16px calc(88px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .body { transition: none; }
 }
