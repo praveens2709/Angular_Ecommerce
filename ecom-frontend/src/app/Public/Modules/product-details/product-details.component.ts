@@ -68,6 +68,8 @@ export class ProductDetailsComponent implements OnInit {
   checkingPincode = false;
   isPincodeDialogVisible = false;
   savedAddresses: any[] = [];
+  /** Product id from the URL currently being loaded */
+  private requestedId: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -100,11 +102,20 @@ export class ProductDetailsComponent implements OnInit {
         map((params) => params.get('id')),
         // Colour switches update the URL but the product is already on screen
         filter((id) => id !== this.product?._id),
-        tap(() => {
-          this.isLoading = true;
+        tap((id) => {
           this.selectedSize = null;
           this.notFound = false;
           this.viewportScroller.scrollToPosition([0, 0]);
+          // Opened from a list: show what we already have now; full details and colours follow
+          this.requestedId = id;
+          const known = id ? this.productService.peek(id) : undefined;
+          if (known) {
+            this.isLoading = false;
+            this.variants = [known];
+            this.showProduct(known);
+          } else {
+            this.isLoading = true;
+          }
         }),
         switchMap((id) =>
           forkJoin({
@@ -116,14 +127,25 @@ export class ProductDetailsComponent implements OnInit {
       )
       .subscribe(({ product, variants }) => {
         this.isLoading = false;
-        this.notFound = !product;
+        // If the list version is already showing, a failed refresh keeps it rather than "not found"
+        const shownFromList = !!this.requestedId && this.product?._id === this.requestedId;
+        this.notFound = !product && !shownFromList;
         this.showSizeError = false;
-        this.variants = variants;
+        if (product || !shownFromList) this.variants = variants;
         if (product) {
-          this.showProduct(product);
+          if (this.product?._id === product._id) {
+            // Already on screen from the list: refresh details without resetting the photo or reviews
+            this.product = product;
+            this.gallery = [product.image, ...(product.images || [])].filter(Boolean);
+            if (!this.gallery.includes(this.activeImage)) this.activeImage = this.gallery[0] || '';
+            // A size picked from the list's (older) stock may have sold out since
+            if (this.selectedSize && this.isSizeSoldOut(this.selectedSize)) this.selectedSize = null;
+          } else {
+            this.showProduct(product);
+          }
           // A pre-rendered page's stock and price are from build time: fetch the live ones
           this.prerenderRefresh.afterStartup(() => this.refreshLiveData(product._id));
-        } else this.title.setTitle('Product not found | DopeShope');
+        } else if (!shownFromList) this.title.setTitle('Product not found | DopeShope');
       });
   }
 

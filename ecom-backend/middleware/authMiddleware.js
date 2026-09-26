@@ -14,8 +14,14 @@ const decodeToken = (req) => {
   }
 };
 
-const loadUser = async (decoded) =>
-  decoded?.role === "user" ? User.findById(decoded.id).select("fullName email mobile active") : null;
+/** The shopper for a token, unless the token predates their last password change */
+const loadUser = async (decoded) => {
+  if (decoded?.role !== "user") return null;
+  const user = await User.findById(decoded.id).select("fullName email mobile active passwordChangedAt");
+  if (!user) return null;
+  if (user.passwordChangedAt && decoded.iat * 1000 < user.passwordChangedAt.getTime() - 1000) return null;
+  return user;
+};
 
 const loadAdmin = async (decoded) =>
   decoded?.role === "admin" ? Admin.findById(decoded.id).select("name email") : null;
@@ -56,6 +62,7 @@ const requireSelfOrAdmin = (param = "id") => async (req, res, next) => {
     return next();
   }
   const user = await loadUser(decoded).catch(() => null);
+  if (user && user.active === false) return res.status(403).json({ message: "This account has been disabled" });
   if (user && String(user._id) === req.params[param]) {
     req.user = user;
     return next();
@@ -68,3 +75,4 @@ module.exports.requireUser = requireUser;
 module.exports.requireAdmin = requireAdmin;
 module.exports.requireSelfOrAdmin = requireSelfOrAdmin;
 module.exports.decodeToken = decodeToken;
+module.exports.loadUser = loadUser;

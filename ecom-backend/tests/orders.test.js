@@ -202,3 +202,102 @@ test("dashboard counts today's orders in today's bucket", async () => {
   expect(res.body.revenue.total).toBe(1000);
   expect(res.body.topProducts[0].quantity).toBe(2);
 });
+
+test("a double cancel restocks once; racing admin updates apply once", async () => {
+  const { admin, product, order, user } = await setup();
+  const placed = (await order([{ productId: product._id, size: "M", quantity: 2 }])).body[0];
+  expect((await Product.findById(product._id)).stock.M).toBe(3);
+
+  // Customer double-clicks "Cancel"
+  const [a, b] = await Promise.all([
+    api().patch(`/api/orders/${placed._id}/cancel`).set(auth(user.token)),
+    api().patch(`/api/orders/${placed._id}/cancel`).set(auth(user.token)),
+  ]);
+  expect([a.status, b.status].sort()).toEqual([200, 400]);
+  expect((await Product.findById(product._id)).stock.M).toBe(5);
+
+  // Two admins cancel the same order at once
+  const second = (await order([{ productId: product._id, size: "M", quantity: 1 }])).body[0];
+  const results = await Promise.all([
+    api().put(`/api/orders/${second._id}`).set(auth(admin)).send({ status: "Cancelled" }),
+    api().put(`/api/orders/${second._id}`).set(auth(admin)).send({ status: "Cancelled" }),
+  ]);
+  expect(results.map((r) => r.status).sort()).toEqual([200, 409].sort());
+  expect((await Product.findById(product._id)).stock.M).toBe(5);
+  expect((await Order.findById(second._id)).statusHistory.filter((h) => h.status === "Cancelled")).toHaveLength(1);
+});
+
+test("discount shares add up, are never negative and never exceed a line", () => {
+  const { splitDiscount } = require("../controllers/orderController");
+  const cases = [
+    [[500, 500, 500, 500], 2],
+    [[999, 1, 1], 150],
+    [[100, 250, 650], 1000],
+    [[300], 45],
+  ];
+  for (const [lines, discount] of cases) {
+    const shares = splitDiscount(lines, discount);
+    expect(shares.reduce((x, y) => x + y, 0)).toBe(Math.min(discount, lines.reduce((x, y) => x + y, 0)));
+    shares.forEach((share, i) => {
+      expect(share).toBeGreaterThanOrEqual(0);
+      expect(share).toBeLessThanOrEqual(lines[i]);
+    });
+  }
+});
+
+test("an approved exchange still counts as revenue", async () => {
+  const { admin, product, order } = await setup();
+  const placed = (await order([{ productId: product._id, size: "M", quantity: 1 }])).body[0];
+  for (const status of ["Shipped", "Delivered"]) await api().put(`/api/orders/${placed._id}`).set(auth(admin)).send({ status });
+  const revenueBefore = (await api().get("/api/dashboard").set(auth(admin))).body;
+  await Order.updateOne(
+    { _id: placed._id },
+    { status: "Return Requested", returnRequest: { type: "Exchange", reason: "Too small", exchangeSize: "L", requestedAt: new Date() } }
+  );
+  const approved = await api().put(`/api/orders/${placed._id}`).set(auth(admin)).send({ status: "Returned" });
+  expect(approved.status).toBe(200);
+  const after = (await api().get("/api/dashboard").set(auth(admin))).body;
+  // The original sale stays (500); the free replacement adds nothing
+  expect(revenueBefore.revenue.total).toBe(500);
+  expect(after.revenue.total).toBe(500);
+});
+
+test("coupon rules: first order only, once per customer, usage limit, start date", async () => {
+  const { admin, product, address, user } = await setup();
+  const other = await registerUser("other@test.com");
+  const otherAddress = await createAddress(other.token);
+  const placeAs = (who, addr, couponCode) =>
+    api().post("/api/orders").set(auth(who.token))
+      .send({ addressId: addr._id, couponCode, items: [{ productId: product._id, size: "M", quantity: 1 }] });
+  const makeCoupon = (body) => api().post("/api/coupons").set(auth(admin)).send({ type: "FLAT", value: 50, minOrder: 499, ...body });
+
+  await makeCoupon({ code: "WELCOME", firstOrderOnly: true });
+  await makeCoupon({ code: "ONCE", oncePerUser: true });
+  await makeCoupon({ code: "FIRST1", usageLimit: 1 });
+  await makeCoupon({ code: "LATER", startsAt: new Date(Date.now() + 86400000).toISOString() });
+
+  // Suggestions for a brand-new customer include the welcome coupon but not the future one
+  const suggested = (await api().get("/api/coupons/active").set(auth(user.token))).body.map((c) => c.code);
+  expect(suggested).toEqual(expect.arrayContaining(["WELCOME", "ONCE", "FIRST1"]));
+  expect(suggested).not.toContain("LATER");
+  expect((await placeAs(user, address, "LATER")).body.message).toMatch(/isn't active yet/);
+
+  // First order with WELCOME works; a second order can't use it, and it's no longer suggested
+  expect((await placeAs(user, address, "WELCOME")).status).toBe(201);
+  expect((await placeAs(user, address, "WELCOME")).body.message).toMatch(/first order only/);
+  expect((await api().get("/api/coupons/active").set(auth(user.token))).body.map((c) => c.code)).not.toContain("WELCOME");
+  expect((await api().post("/api/coupons/validate").set(auth(user.token)).send({ code: "WELCOME", subtotal: 600 })).status).toBe(400);
+
+  // ONCE: once per customer
+  expect((await placeAs(user, address, "ONCE")).status).toBe(201);
+  expect((await placeAs(user, address, "ONCE")).body.message).toMatch(/already used/);
+
+  // FIRST1: the first checkout takes the only use
+  expect((await placeAs(user, address, "FIRST1")).status).toBe(201);
+  expect((await placeAs(other, otherAddress, "FIRST1")).body.message).toMatch(/usage limit/);
+
+  // A cancelled order gives the coupon back
+  const mine = (await api().get("/api/orders/my").set(auth(user.token))).body.find((o) => o.couponCode === "ONCE");
+  await api().patch(`/api/orders/${mine._id}/cancel`).set(auth(user.token));
+  expect((await placeAs(user, address, "ONCE")).status).toBe(201);
+});

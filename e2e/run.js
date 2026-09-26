@@ -1,6 +1,8 @@
 /**
  * Starts a throwaway stack (in-memory MongoDB + API + SSR storefront), seeds it, runs the walkthroughs.
  * Usage: node run.js [shop|admin]
+ * E2E_STATIC=1 tests the Cloudflare Pages build instead: after seeding, it runs `npm run build:cloudflare`
+ * against the throwaway API and serves the result with `wrangler pages dev` (routing, headers, functions).
  */
 const { spawn } = require('child_process');
 const path = require('path');
@@ -18,8 +20,8 @@ const SSR_ENTRY = path.join(ROOT, 'ecom-frontend/dist/ecom/server/server.mjs');
 
 const suites = { shop: require('./shop.spec'), admin: require('./admin.spec') };
 
-const start = (name, cmd, args, env, logs) => {
-  const child = spawn(cmd, args, { env: { ...process.env, ...env }, stdio: ['ignore', 'pipe', 'pipe'] });
+const start = (name, cmd, args, env, logs, cwd) => {
+  const child = spawn(cmd, args, { cwd, env: { ...process.env, ...env }, stdio: ['ignore', 'pipe', 'pipe'] });
   child.stdout.on('data', (d) => logs.push(d.toString()));
   child.stderr.on('data', (d) => logs.push(d.toString()));
   child.on('exit', (code) => code && code !== 143 && console.error(`${name} exited with ${code}\n${logs.join('').slice(-2000)}`));
@@ -40,7 +42,8 @@ const waitFor = async (url, label) => {
 };
 
 (async () => {
-  if (!fs.existsSync(SSR_ENTRY)) {
+  const isStatic = !!process.env.E2E_STATIC;
+  if (!isStatic && !fs.existsSync(SSR_ENTRY)) {
     console.error('Build the storefront first: cd ecom-frontend && npm run build');
     process.exit(1);
   }
@@ -70,12 +73,24 @@ const waitFor = async (url, label) => {
         STORE_PINCODE: '110001',
       }, apiLogs)
     );
-    children.push(start('Storefront', 'node', [SSR_ENTRY], { PORT: WEB_PORT, API_URL: API }, webLogs));
+    if (!isStatic) children.push(start('Storefront', 'node', [SSR_ENTRY], { PORT: WEB_PORT, API_URL: API }, webLogs));
     await waitFor(`${API}/health`, 'API');
-    await waitFor(`${WEB}/home`, 'Storefront');
+    if (!isStatic) await waitFor(`${WEB}/home`, 'Storefront');
+    let staticReady = false;
 
     for (const name of selected) {
       const data = await seed(API, mongoUri);
+      if (isStatic && !staticReady) {
+        // Pre-render from the seeded catalogue, then serve like Cloudflare Pages
+        const frontend = path.join(ROOT, 'ecom-frontend');
+        const build = require('child_process').spawnSync('node', ['scripts/build-cloudflare.mjs'], {
+          cwd: frontend, env: { ...process.env, API_URL: API }, encoding: 'utf8',
+        });
+        if (build.status !== 0) throw new Error(`Static build failed:\n${(build.stdout + build.stderr).slice(-2000)}`);
+        children.push(start('Static site', 'npx', ['wrangler@4', 'pages', 'dev', 'dist/ecom/browser', '--port', String(WEB_PORT), '--ip', '127.0.0.1'], {}, webLogs, frontend));
+        await waitFor(`${WEB}/`, 'Static site');
+        staticReady = true;
+      }
       const session = await createSession({ web: WEB, api: API });
       const started = Date.now();
       try {

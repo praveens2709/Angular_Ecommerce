@@ -11,7 +11,7 @@
       <tr>
         <th class="py-3 px-4">Code</th>
         <th class="py-3 px-4">Offer</th>
-        <th class="py-3 px-4">Expires</th>
+        <th class="py-3 px-4">Valid</th>
         <th class="py-3 px-4">Status</th>
         <th class="py-3 px-4">Actions</th>
       </tr>
@@ -19,10 +19,20 @@
     <ng-template pTemplate="body" let-coupon>
       <tr>
         <td class="py-3 px-4"><span class="code-chip">{{ coupon.code }}</span></td>
-        <td class="py-3 px-4">{{ describe(coupon) }}</td>
-        <td class="py-3 px-4">{{ coupon.expiresAt ? (coupon.expiresAt | date) : 'Never' }}</td>
         <td class="py-3 px-4">
-          <p-tag *ngIf="isExpired(coupon); else liveTag" value="Expired" severity="secondary"></p-tag>
+          {{ describe(coupon) }}
+          <div *ngIf="rules(coupon).length" class="d-flex flex-wrap gap-1 mt-1">
+            <span *ngFor="let rule of rules(coupon)" class="rule-chip">{{ rule }}</span>
+          </div>
+        </td>
+        <td class="py-3 px-4 text-nowrap">
+          {{ coupon.startsAt ? (coupon.startsAt | date : 'd MMM') + ' – ' : '' }}{{ coupon.expiresAt ? (coupon.expiresAt | date : 'd MMM y') : (coupon.startsAt ? 'no end' : 'Always') }}
+        </td>
+        <td class="py-3 px-4">
+          <p-tag *ngIf="isExpired(coupon); else scheduledTag" value="Expired" severity="secondary"></p-tag>
+          <ng-template #scheduledTag>
+            <p-tag *ngIf="isScheduled(coupon) && coupon.active; else liveTag" value="Scheduled" severity="info"></p-tag>
+          </ng-template>
           <ng-template #liveTag>
             <p-tag [value]="coupon.active ? 'Active' : 'Paused'" [severity]="coupon.active ? 'success' : 'warn'"></p-tag>
           </ng-template>
@@ -80,14 +90,28 @@
       </div>
       <div class="d-flex gap-3">
         <div class="form-group flex-fill">
+          <label for="startsAt">Starts on (optional)</label>
+          <input id="startsAt" type="date" class="form-control" formControlName="startsAt" />
+        </div>
+        <div class="form-group flex-fill">
           <label for="expiresAt">Expires on (optional)</label>
           <input id="expiresAt" type="date" class="form-control" formControlName="expiresAt" />
         </div>
-        <div class="form-group flex-fill d-flex align-items-end">
-          <label class="d-flex align-items-center gap-2 mb-2">
-            <input type="checkbox" formControlName="active" /> Active
-          </label>
+      </div>
+      <div class="d-flex flex-wrap gap-3 align-items-end">
+        <div class="form-group">
+          <label for="usageLimit">Total uses (0 = unlimited)</label>
+          <input id="usageLimit" type="number" min="0" class="form-control" formControlName="usageLimit" />
         </div>
+        <label class="d-flex align-items-center gap-2 mb-2">
+          <input type="checkbox" formControlName="firstOrderOnly" /> First order only
+        </label>
+        <label class="d-flex align-items-center gap-2 mb-2">
+          <input type="checkbox" formControlName="oncePerUser" /> Once per customer
+        </label>
+        <label class="d-flex align-items-center gap-2 mb-2">
+          <input type="checkbox" formControlName="active" /> Active
+        </label>
       </div>
       <div class="form-group">
         <label for="description">Description shown to shoppers (optional)</label>

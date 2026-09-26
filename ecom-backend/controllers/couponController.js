@@ -1,12 +1,15 @@
 const mongoose = require('mongoose');
 const Coupon = require('../models/Coupon');
+const { couponRuleError } = require('../utils/couponRules');
+const { decodeToken } = require('../middleware/authMiddleware');
 
-const FIELDS = ['code', 'description', 'type', 'value', 'minOrder', 'maxDiscount', 'expiresAt', 'active'];
+const FIELDS = ['code', 'description', 'type', 'value', 'minOrder', 'maxDiscount', 'startsAt', 'expiresAt', 'active', 'firstOrderOnly', 'oncePerUser', 'usageLimit'];
 const pick = (body) => Object.fromEntries(FIELDS.filter((f) => body[f] !== undefined).map((f) => [f, body[f] === '' ? null : body[f]]));
 
 const validateCoupon = (data) => {
   if (data.type === 'PERCENT' && (data.value <= 0 || data.value > 90)) return 'Percentage must be between 1 and 90';
   if (data.type === 'FLAT' && data.value <= 0) return 'Flat discount must be more than 0';
+  if (data.startsAt && data.expiresAt && new Date(data.startsAt) >= new Date(data.expiresAt)) return 'The start date must be before the expiry date';
   return null;
 };
 
@@ -21,6 +24,8 @@ exports.validateCoupon = async (req, res) => {
     if (!coupon) return res.status(404).json({ message: 'Invalid coupon code' });
     const result = coupon.evaluate(subtotal);
     if (result.error) return res.status(400).json({ message: result.error });
+    const ruleError = await couponRuleError(coupon, req.user._id);
+    if (ruleError) return res.status(400).json({ message: ruleError });
 
     res.json({
       code: coupon.code,
@@ -29,6 +34,7 @@ exports.validateCoupon = async (req, res) => {
       value: coupon.value,
       minOrder: coupon.minOrder,
       maxDiscount: coupon.maxDiscount,
+      firstOrderOnly: coupon.firstOrderOnly,
       discount: result.discount,
     });
   } catch (error) {
@@ -36,16 +42,27 @@ exports.validateCoupon = async (req, res) => {
   }
 };
 
-// Shopper: coupons currently usable (shown as suggestions in the bag)
+// Shopper: coupons currently usable (shown as suggestions in the bag). A signed-in shopper only
+// sees ones they're allowed to use (e.g. no first-order coupon after their first order).
 exports.getActiveCoupons = async (req, res) => {
   try {
+    const now = new Date();
     const coupons = await Coupon.find({
       active: true,
-      $or: [{ expiresAt: null }, { expiresAt: { $exists: false } }, { expiresAt: { $gt: new Date() } }],
+      $and: [
+        { $or: [{ expiresAt: null }, { expiresAt: { $exists: false } }, { expiresAt: { $gt: now } }] },
+        { $or: [{ startsAt: null }, { startsAt: { $exists: false } }, { startsAt: { $lte: now } }] },
+      ],
     })
-      .select('code description type value minOrder maxDiscount expiresAt')
+      .select('code description type value minOrder maxDiscount expiresAt firstOrderOnly oncePerUser usageLimit')
       .sort({ minOrder: 1 });
-    res.json(coupons);
+    const decoded = decodeToken(req);
+    const userId = decoded?.role === 'user' ? decoded.id : null;
+    const usable = [];
+    for (const coupon of coupons) {
+      if (!(await couponRuleError(coupon, userId))) usable.push(coupon);
+    }
+    res.json(usable);
   } catch (error) {
     res.status(500).json({ message: 'Failed to load coupons' });
   }

@@ -27,7 +27,8 @@ export class WishlistService {
   load(): void {
     if (!this.authService.isUserLoggedIn()) return;
     this.http.get<any[]>(this.apiUrl).subscribe({
-      next: (items) => this.itemsSubject.next(items),
+      // A reply that lands after logout must not refill the wishlist
+      next: (items) => this.itemsSubject.next(this.authService.isUserLoggedIn() ? items : []),
       error: () => this.itemsSubject.next([]),
     });
   }

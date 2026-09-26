@@ -6,7 +6,8 @@
     "test": "node run.js",
     "test:shop": "node run.js shop",
     "test:admin": "node run.js admin",
-    "test:responsive": "node responsive.js"
+    "test:responsive": "node responsive.js",
+    "test:static": "E2E_STATIC=1 node run.js"
   },
   "engines": {
     "node": ">=20.19"

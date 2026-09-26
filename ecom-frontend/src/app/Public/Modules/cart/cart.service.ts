@@ -56,7 +56,8 @@ export class CartService {
       return;
     }
     this.http.get<any[]>(this.apiUrl).subscribe({
-      next: (data) => this.setCartItems(data),
+      // A reply that lands after logout must not refill the bag
+      next: (data) => this.setCartItems(this.authService.isUserLoggedIn() ? data : []),
       error: () => this.setCartItems([]),
     });
   }

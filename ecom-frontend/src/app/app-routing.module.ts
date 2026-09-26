@@ -12,7 +12,7 @@ const routes: Routes = [
   // Admin routes are prefixed with 'admin'
   {
     path: 'admin',
-    loadChildren: () => import('./Admin/admin-routing.module').then(m => m.AdminRoutingModule),
+    loadChildren: () => import('./Admin/admin.module').then(m => m.AdminModule),
   },
 
   // Public routes

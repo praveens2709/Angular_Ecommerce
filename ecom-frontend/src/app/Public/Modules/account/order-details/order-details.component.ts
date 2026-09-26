@@ -139,15 +139,21 @@ export class OrderDetailsComponent implements OnInit {
     this.isDialogVisible = false;
   }
 
+  cancelling = false;
+
   confirmCancelOrder() {
-    if (!this.orderId) return;
+    // Ignore repeat clicks while the first request is on its way
+    if (!this.orderId || this.cancelling) return;
+    this.cancelling = true;
 
     this.orderService.cancelMyOrder(this.orderId).subscribe({
       next: (updatedOrder) => {
+        this.cancelling = false;
         this.order = updatedOrder;
         this.closeDialog();
       },
       error: (error) => {
+        this.cancelling = false;
         // Keep the dialog open with the reason (e.g. it has already shipped)
         this.cancelError = error.error?.message || 'Could not cancel this order. Please try again.';
       },

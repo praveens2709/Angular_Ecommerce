@@ -5,7 +5,8 @@ const Product = require('../models/Products');
 const Address = require('../models/Address');
 const Cart = require('../models/Cart');
 const Coupon = require('../models/Coupon');
-const { decodeToken } = require('../middleware/authMiddleware');
+const { decodeToken, loadUser } = require('../middleware/authMiddleware');
+const { couponRuleError } = require('../utils/couponRules');
 const Admin = require('../models/Admin');
 const { SIZES, isStockTracked, deriveInventoryStatus } = require('../utils/catalog');
 const { parsePaging, escapeRegex } = require('../utils/pagination');
@@ -75,13 +76,6 @@ const restockOrder = (order) =>
 
 // ---------- Helpers ----------
 
-const pushStatus = (order, status, note) => {
-  order.status = status;
-  order.statusHistory = order.statusHistory || [];
-  order.statusHistory.push({ status, at: new Date(), note });
-  if (status === 'Delivered') order.deliveredAt = new Date();
-};
-
 const notifyStatus = async (order) => {
   const populated = order.populated?.('userId') ? order : await order.populate('userId', 'fullName email');
   const user = populated.userId;
@@ -111,23 +105,35 @@ const normalizeItems = (items) => {
   return [...merged.values()];
 };
 
-/** Split a coupon discount across order lines in proportion to their value */
+/**
+ * Split a coupon discount (whole rupees) across order lines in proportion to their value.
+ * Largest-remainder rounding: shares add up exactly, are never negative and never exceed a line.
+ */
 const splitDiscount = (lineTotals, discount) => {
   const subtotal = lineTotals.reduce((a, b) => a + b, 0);
-  let remaining = discount;
-  return lineTotals.map((line, index) => {
-    if (index === lineTotals.length - 1) return remaining;
-    const share = subtotal ? Math.round((discount * line) / subtotal) : 0;
-    remaining -= share;
-    return share;
-  });
+  if (!subtotal || !discount) return lineTotals.map(() => 0);
+  const total = Math.min(Math.round(discount), subtotal);
+  const exact = lineTotals.map((line) => (total * line) / subtotal);
+  const shares = exact.map((x, i) => Math.min(Math.floor(x), lineTotals[i]));
+  let left = total - shares.reduce((a, b) => a + b, 0);
+  const order = exact.map((x, i) => [x - Math.floor(x), i]).sort((a, b) => b[0] - a[0]);
+  for (const [, i] of order) {
+    if (left <= 0) break;
+    if (shares[i] < lineTotals[i]) {
+      shares[i] += 1;
+      left -= 1;
+    }
+  }
+  return shares;
 };
 
 const canViewOrder = async (req, order) => {
   const decoded = decodeToken(req);
   if (!decoded) return false;
   if (decoded.role === 'admin') return !!(await Admin.exists({ _id: decoded.id }));
-  return decoded.role === 'user' && String(order.userId?._id || order.userId) === String(decoded.id);
+  // Same checks as requireUser: current session, account not disabled, own order
+  const user = await loadUser(decoded).catch(() => null);
+  return !!user && user.active !== false && String(order.userId?._id || order.userId) === String(user._id);
 };
 
 // ---------- Handlers ----------
@@ -229,6 +235,8 @@ exports.createOrder = async (req, res) => {
       if (!coupon) throw new OrderError(400, 'Invalid coupon code');
       const result = coupon.evaluate(subtotal);
       if (result.error) throw new OrderError(400, result.error);
+      const ruleError = await couponRuleError(coupon, req.user._id);
+      if (ruleError) throw new OrderError(400, ruleError);
       couponCode = coupon.code;
       discount = result.discount;
     }
@@ -275,6 +283,9 @@ exports.createOrder = async (req, res) => {
       })
     );
 
+    // The orders now own the reserved stock; a failure below must not release it
+    reserved.length = 0;
+
     // Ordered lines leave the bag
     await Cart.deleteMany({
       userId: req.user._id,
@@ -302,20 +313,42 @@ exports.updateOrderStatus = async (req, res) => {
       return res.status(400).json({ message: `Can't change an order from ${order.status} to ${next}` });
     }
 
-    let replacement;
+    // Claim the change atomically from the status we validated; only the request that wins does the
+    // side effects (restock, replacement order), so double clicks or two admins can't repeat them
+    const now = new Date();
+    const set = { status: next };
+    if (next === 'Delivered') set.deliveredAt = now;
+    if (order.returnRequest && (next === 'Returned' || next === 'Return Rejected')) set['returnRequest.resolvedAt'] = now;
+    const entry = { status: next, at: now, note: req.body.note };
+    let updated = await Order.findOneAndUpdate(
+      { _id: order._id, status: order.status },
+      { $set: set, $push: { statusHistory: entry } },
+      { new: true }
+    );
+    if (!updated) return res.status(409).json({ message: 'This order was just changed. Refresh and try again.' });
+
     if (next === 'Returned' && order.returnRequest?.type === 'Exchange') {
-      replacement = await createExchangeOrder(order);
+      let replacement;
+      try {
+        replacement = await createExchangeOrder(updated);
+      } catch (error) {
+        // Put the order back as it was so the admin can choose again
+        await Order.updateOne(
+          { _id: order._id, status: next },
+          { $set: { status: order.status }, $unset: { 'returnRequest.resolvedAt': '' }, $pull: { statusHistory: { at: now, status: next } } }
+        );
+        throw error;
+      }
+      updated = await Order.findOneAndUpdate(
+        { _id: order._id },
+        { $set: { 'statusHistory.$[e].note': `Exchange order ${replacement._id} created` } },
+        { new: true, arrayFilters: [{ 'e.at': now, 'e.status': next }] }
+      );
     }
-    if (next === 'Cancelled' || next === 'Returned') await restockOrder(order);
-    if (order.returnRequest && (next === 'Returned' || next === 'Return Rejected')) {
-      order.returnRequest.resolvedAt = new Date();
-    }
+    if (next === 'Cancelled' || next === 'Returned') await restockOrder(updated);
+    notifyStatus(updated);
 
-    pushStatus(order, next, replacement ? `Exchange order ${replacement._id} created` : req.body.note);
-    await order.save();
-    notifyStatus(order);
-
-    res.status(200).json(order);
+    res.status(200).json(updated);
   } catch (error) {
     sendError(res, error, 'Error updating order');
   }
@@ -352,15 +385,19 @@ const createExchangeOrder = async (order) => {
 exports.cancelMyOrder = async (req, res) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ message: 'Invalid order ID' });
-    const order = await Order.findOne({ _id: req.params.id, userId: req.user._id });
-    if (!order) return res.status(404).json({ message: 'Order not found' });
-    if (order.status !== 'Pending') {
+    // One atomic switch from Pending: a double-click or a race with the admin can't restock twice
+    const order = await Order.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user._id, status: 'Pending' },
+      { $set: { status: 'Cancelled' }, $push: { statusHistory: { status: 'Cancelled', at: new Date(), note: 'Cancelled by customer' } } },
+      { new: true }
+    );
+    if (!order) {
+      const exists = await Order.exists({ _id: req.params.id, userId: req.user._id });
+      if (!exists) return res.status(404).json({ message: 'Order not found' });
       return res.status(400).json({ message: 'Only orders that haven\'t shipped yet can be cancelled' });
     }
 
     await restockOrder(order);
-    pushStatus(order, 'Cancelled', 'Cancelled by customer');
-    await order.save();
     notifyStatus(order);
     res.json(order);
   } catch (error) {
@@ -391,11 +428,19 @@ exports.requestReturn = async (req, res) => {
       if (exchangeSize === order.products[0].size) return res.status(400).json({ message: 'Choose a different size' });
     }
 
-    order.returnRequest = { type, reason, exchangeSize, requestedAt: new Date() };
-    pushStatus(order, 'Return Requested', `${type}: ${reason}`);
-    await order.save();
-    notifyStatus(order);
-    res.json(order);
+    // Atomic from Delivered, so a double submit can't file the request twice
+    const now = new Date();
+    const updated = await Order.findOneAndUpdate(
+      { _id: order._id, status: 'Delivered' },
+      {
+        $set: { status: 'Return Requested', returnRequest: { type, reason, exchangeSize, requestedAt: now } },
+        $push: { statusHistory: { status: 'Return Requested', at: now, note: `${type}: ${reason}` } },
+      },
+      { new: true }
+    );
+    if (!updated) return res.status(409).json({ message: 'This order was just changed. Refresh and try again.' });
+    notifyStatus(updated);
+    res.json(updated);
   } catch (error) {
     sendError(res, error, 'Error requesting return');
   }
@@ -422,11 +467,13 @@ exports.getInvoice = async (req, res) => {
     if (!order) return res.status(404).json({ message: 'Order not found' });
     if (!(await canViewOrder(req, order))) return res.status(403).json({ message: 'You can only view your own orders' });
 
-    // Every item bought together goes on one invoice; cancelled items are left off
+    // Every item bought together goes on one invoice; cancelled and refunded (returned) items are left
+    // off. An exchanged item stays: it was paid for and replaced free of charge.
     const group = order.groupId
       ? await Order.find({ groupId: order.groupId, userId: order.userId }).sort({ _id: 1 })
       : [order];
-    const billable = group.filter((o) => o.status !== 'Cancelled' && o.totalAmount > 0);
+    const refunded = (o) => o.status === 'Returned' && o.returnRequest?.type !== 'Exchange';
+    const billable = group.filter((o) => o.status !== 'Cancelled' && !refunded(o) && o.totalAmount > 0);
     if (billable.length === 0) return res.status(400).json({ message: 'There is nothing to invoice for this order' });
 
     let invoiceNumber = billable.find((o) => o.invoiceNumber)?.invoiceNumber;
@@ -436,6 +483,17 @@ exports.getInvoice = async (req, res) => {
       const fy = financialYear(invoiceDate);
       const seq = await Counter.next(`invoice-${fy}`);
       invoiceNumber = `${(process.env.INVOICE_PREFIX || 'DS').toUpperCase()}/${fy}/${String(seq).padStart(5, '0')}`;
+      // Two first downloads at once: only one number is kept (the other request reuses it)
+      const claimed = await Order.findOneAndUpdate(
+        { _id: group[0]._id, invoiceNumber: { $in: [null, ''] } },
+        { $set: { invoiceNumber, invoiceDate } },
+        { new: true }
+      );
+      if (!claimed) {
+        const winner = await Order.findById(group[0]._id);
+        invoiceNumber = winner.invoiceNumber;
+        invoiceDate = winner.invoiceDate;
+      }
       await Order.updateMany({ _id: { $in: group.map((o) => o._id) } }, { invoiceNumber, invoiceDate });
     }
 
@@ -448,3 +506,4 @@ exports.getInvoice = async (req, res) => {
 };
 
 exports.RETURN_WINDOW_DAYS = RETURN_WINDOW_DAYS;
+exports.splitDiscount = splitDiscount;

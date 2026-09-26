@@ -145,6 +145,8 @@ exports.resetPassword = async (req, res) => {
     user.password = await bcrypt.hash(password, 10);
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
+    // Signs out every existing session (e.g. on a lost phone)
+    user.passwordChangedAt = new Date();
     await user.save();
 
     res.json({ message: "Password updated. You can now log in." });

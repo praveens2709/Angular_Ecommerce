@@ -13,6 +13,8 @@ const UserSchema = new mongoose.Schema({
   // SHA-256 of the emailed reset token, never the token itself
   resetPasswordToken: { type: String, select: false },
   resetPasswordExpires: { type: Date, select: false },
+  // Tokens issued before this are rejected (set when the password changes)
+  passwordChangedAt: { type: Date },
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', UserSchema);

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 import { Paged } from '../orders/order.service';
 
@@ -40,7 +40,15 @@ export const stockFor = (product: any, size: string): number | null =>
 export class ProductService {
   private apiUrl = `${environment.apiUrl}/products`;
 
+  /** Products seen in lists this session, so opening one from the shop can show it instantly */
+  private seen = new Map<string, any>();
+
   constructor(private http: HttpClient) {}
+
+  /** A product from an earlier list (may be slightly stale; the page refreshes it) */
+  peek(productId: string): any | undefined {
+    return this.seen.get(productId);
+  }
 
   private toParams(query: ProductQuery, page?: number, limit?: number): HttpParams {
     let params = new HttpParams();
@@ -63,7 +71,9 @@ export class ProductService {
   }
 
   getProductsPage(query: ProductQuery, page: number, limit: number): Observable<Paged<any>> {
-    return this.http.get<Paged<any>>(this.apiUrl, { params: this.toParams(query, page, limit) });
+    return this.http
+      .get<Paged<any>>(this.apiUrl, { params: this.toParams(query, page, limit) })
+      .pipe(tap((res) => res.items?.forEach((p) => this.seen.set(p._id, p))));
   }
 
   getProductById(productId: string): Observable<any> {

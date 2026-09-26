@@ -26,4 +26,7 @@ const productSchema = new mongoose.Schema({
 });
 
 
+// Colour variants are looked up by name + category
+productSchema.index({ name: 1, category: 1 });
+
 module.exports = mongoose.model('Product', productSchema);

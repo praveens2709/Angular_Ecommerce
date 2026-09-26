@@ -94,3 +94,14 @@ span {
     color: #992603 !important;
     margin: 0;
 }
+
+.first-order-tag {
+    margin-left: 6px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #992603;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}

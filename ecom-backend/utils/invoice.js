@@ -28,7 +28,8 @@ const buildLines = (orders, sameState) => {
     const item = order.products[0];
     const total = order.totalAmount;
     const unitAfterDiscount = item.quantity ? total / item.quantity : total;
-    const rate = unitAfterDiscount > threshold ? high : low;
+    // The slab threshold applies to the taxable value, and prices here include GST
+    const rate = unitAfterDiscount / (1 + low / 100) > threshold ? high : low;
     const taxable = round2(total / (1 + rate / 100));
     const tax = round2(total - taxable);
     return {

@@ -11,12 +11,18 @@ export interface Coupon {
   value: number;
   minOrder: number;
   maxDiscount: number;
+  startsAt?: string | null;
   expiresAt?: string | null;
   active?: boolean;
+  firstOrderOnly?: boolean;
+  oncePerUser?: boolean;
+  /** Total checkouts allowed (0 = unlimited) */
+  usageLimit?: number;
 }
 
 /** Same rule as the API; used to show the discount live while the bag changes */
 export const evaluateCoupon = (coupon: Coupon, subtotal: number): { discount: number } | { error: string } => {
+  if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date()) return { error: `${coupon.code} has expired` };
   if (subtotal < coupon.minOrder) return { error: `Add items worth ₹${coupon.minOrder - subtotal} more to use ${coupon.code}` };
   let discount = coupon.type === 'PERCENT' ? (subtotal * coupon.value) / 100 : coupon.value;
   if (coupon.type === 'PERCENT' && coupon.maxDiscount > 0) discount = Math.min(discount, coupon.maxDiscount);

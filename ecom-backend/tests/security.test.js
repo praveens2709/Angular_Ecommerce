@@ -171,3 +171,29 @@ test("password reset works once and doesn't reveal which emails exist", async ()
   expect((await api().post("/api/auth/user/login").send({ email: "reset@test.com", password: "user123" })).status).toBe(401);
   expect((await api().post("/api/auth/user/login").send({ email: "reset@test.com", password: "newpass1" })).status).toBe(200);
 });
+
+test("a password reset signs out old sessions; disabled users can't read orders or invoices", async () => {
+  const crypto = require("crypto");
+  const User = require("../models/User");
+  const { token, id } = await registerUser("reset@test.com");
+  expect((await api().get("/api/cart").set(auth(token))).status).toBe(200);
+
+  // Reset the password through the real flow (token stored hashed)
+  const raw = "reset-token-123";
+  await User.updateOne({ _id: id }, {
+    resetPasswordToken: crypto.createHash("sha256").update(raw).digest("hex"),
+    resetPasswordExpires: new Date(Date.now() + 60000),
+  });
+  await new Promise((r) => setTimeout(r, 1100)); // tokens are second-precision
+  const reset = await api().post("/api/auth/user/reset-password").send({ token: raw, password: "newpass123" });
+  expect(reset.status).toBe(200);
+  expect((await api().get("/api/cart").set(auth(token))).status).toBe(401);
+
+  const login = await api().post("/api/auth/user/login").send({ email: "reset@test.com", password: "newpass123" });
+  expect(login.status).toBe(200);
+  expect((await api().get("/api/cart").set(auth(login.body.token))).status).toBe(200);
+
+  // Disabled: own profile and invoices are refused too
+  await User.updateOne({ _id: id }, { active: false });
+  expect((await api().get(`/api/users/${id}`).set(auth(login.body.token))).status).toBe(403);
+});

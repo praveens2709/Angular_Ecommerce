@@ -6,6 +6,7 @@ import { PaymentService } from '../../../Services/payment.service';
 import { OrderService } from '../../../Admin/Modules/orders/order.service';
 import { UsersService } from '../../../Admin/Modules/users/users.service';
 import { AuthService } from '../../../Admin/auth/Services/auth-service.service';
+import { CouponService } from '../../../Services/coupon.service';
 
 @Component({
   selector: 'app-payment',
@@ -48,6 +49,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
     private orderService: OrderService,
     private usersService: UsersService,
     private authService: AuthService,
+    private couponService: CouponService,
     private router: Router
   ) {}
 
@@ -61,6 +63,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
       return;
     }
     this.refreshCaptcha();
+    // Start downloading Razorpay now so "Pay" opens instantly (failures surface when paying)
+    this.paymentService.preload().catch(() => {});
 
     // Subscribe to price details from CartService
     this.priceDetailsSub = this.cartService.getPriceDetails().subscribe((details) => {
@@ -119,13 +123,34 @@ export class PaymentComponent implements OnInit, OnDestroy {
     if (!this.hasItemsToOrder()) return;
     this.orderError = '';
 
-    this.paymentService.payWithRazorpay(
-      this.priceDetails.totalAmount,
-      'INR',
-      { name: this.user?.fullName, email: this.user?.email, contact: this.user?.mobile },
-      (paymentId) => this.createOrder(method, paymentId),
-      (reason) => (this.orderError = `Payment not completed: ${reason}`)
-    );
+    const pay = (amount: number) =>
+      this.paymentService.payWithRazorpay(
+        amount,
+        'INR',
+        { name: this.user?.fullName, email: this.user?.email, contact: this.user?.mobile },
+        (paymentId) => this.createOrder(method, paymentId),
+        (reason) => (this.orderError = `Payment not completed: ${reason}`)
+      );
+
+    // Money is taken before the order is created, so re-check the coupon with the server first:
+    // an expired or no-longer-eligible coupon must not lead to a payment with no order
+    const code = this.appliedCouponCode;
+    if (!code) {
+      pay(this.priceDetails.totalAmount);
+      return;
+    }
+    this.couponService.validate(code, this.priceDetails.subtotal).subscribe({
+      next: (coupon) => pay(this.priceDetails.subtotal - coupon.discount),
+      error: (err) => {
+        this.cartService.removeCoupon();
+        this.orderError = `${err.error?.message || 'This coupon no longer applies'}. We removed it; check the new total and pay again.`;
+      },
+    });
+  }
+
+  /** The coupon only goes with the order when it actually gives a discount on the selected items */
+  private get appliedCouponCode(): string | undefined {
+    return this.priceDetails?.couponDiscount > 0 ? this.cartService.appliedCoupon?.code : undefined;
   }
 
   private hasItemsToOrder(): boolean {
@@ -151,7 +176,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
       addressId: address._id,
       paymentMethod,
       paymentId,
-      couponCode: this.cartService.appliedCoupon?.code,
+      couponCode: this.appliedCouponCode,
       items: this.cartService.getSelectedItems().map((item) => ({
         productId: item.productId,
         size: item.size || undefined,

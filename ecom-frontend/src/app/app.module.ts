@@ -2,36 +2,18 @@ import { NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { AdminComponent } from './Admin/admin.component';
 import { PublicComponent } from './Public/public.component';
-import { UsersComponent } from './Admin/Modules/users/users.component';
-import { ProductsComponent } from './Admin/Modules/products/products.component';
-import { CategoriesComponent } from './Admin/Modules/categories/categories.component';
-import { AuthComponent } from './Admin/auth/auth.component';
 import { HomeComponent } from './Public/Modules/home/home.component';
 import { CartComponent } from './Public/Modules/cart/cart.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { TableModule } from 'primeng/table';
-import { ChartModule } from 'primeng/chart';
-import { DashboardComponent } from './Admin/Modules/dashboard/dashboard.component';
-import { CardModule } from 'primeng/card';
-import { MultiSelectModule } from 'primeng/multiselect';
 import { DropdownModule } from 'primeng/dropdown';
-import { TagModule } from 'primeng/tag';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
 import { ButtonModule } from 'primeng/button';
 import { RatingModule } from 'primeng/rating';
 import { DialogModule } from 'primeng/dialog';
-import { SidebarModule } from 'primeng/sidebar';
-import { AvatarModule } from 'primeng/avatar';
-import { BodyComponent } from './Admin/Modules/body/body.component';
-import { SidenavComponent } from './Admin/Modules/sidenav/sidenav.component';
-import { OrdersComponent } from './Admin/Modules/orders/orders.component';
 import { HeaderComponent } from './Public/Modules/header/header.component';
 import { AccountComponent } from './Public/Modules/account/account.component';
 import { ProductComponent } from './Public/Modules/product/product.component';
@@ -43,7 +25,6 @@ import { ProductDetailsComponent } from './Public/Modules/product-details/produc
 import { CartHeaderComponent } from './Public/Modules/cart-header/cart-header.component';
 import { AddressComponent } from './Public/Modules/address/address.component';
 import { PaymentComponent } from './Public/Modules/payment/payment.component';
-import { PanelModule } from 'primeng/panel';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { PriceDetailsComponent } from './Public/common/price-details/price-details.component';
 import { BackButtonComponent } from './Public/common/back-button/back-button.component';
@@ -61,7 +42,6 @@ import { OrderDetailsComponent } from './Public/Modules/account/order-details/or
 import { CommonDialogComponent } from './Public/shared/common-dialog/common-dialog.component';
 import { RevealDirective } from './Public/shared/directives/reveal.directive';
 import { PinnedHeaderDirective } from './Public/shared/directives/pinned-header.directive';
-import { CouponsComponent } from './Admin/Modules/coupons/coupons.component';
 import { SearchBarComponent } from './Public/shared/search-bar/search-bar.component';
 import { MobileMenuComponent } from './Public/shared/mobile-menu/mobile-menu.component';
 import { WishlistComponent } from './Public/Modules/account/wishlist/wishlist.component';
@@ -69,7 +49,6 @@ import { ScrollProgressComponent } from './Public/shared/scroll-progress/scroll-
 import { SiteFooterComponent } from './Public/shared/site-footer/site-footer.component';
 import { InfoPageComponent } from './Public/Modules/info-page/info-page.component';
 import { ContactComponent } from './Public/Modules/contact/contact.component';
-import { MessagesComponent } from './Admin/Modules/messages/messages.component';
 import { OptImgPipe } from './Public/shared/pipes/opt-img.pipe';
 import { authInterceptor } from './Admin/auth/Services/auth.intercepter';
 import { ssrApiLogInterceptor } from './Services/ssr-api-log.interceptor';
@@ -101,18 +80,9 @@ const DopeShopeTheme = definePreset(Lara, {
 @NgModule({
   declarations: [
     AppComponent,
-    AdminComponent,
     PublicComponent,
-    DashboardComponent,
-    UsersComponent,
-    ProductsComponent,
-    CategoriesComponent,
     HomeComponent,
     CartComponent,
-    AuthComponent,
-    BodyComponent,
-    SidenavComponent,
-    OrdersComponent,
     HeaderComponent,
     AccountComponent,
     ProductComponent,
@@ -135,7 +105,6 @@ const DopeShopeTheme = definePreset(Lara, {
     CommonDialogComponent,
     RevealDirective,
     PinnedHeaderDirective,
-    CouponsComponent,
     SearchBarComponent,
     MobileMenuComponent,
     WishlistComponent,
@@ -143,7 +112,6 @@ const DopeShopeTheme = definePreset(Lara, {
     SiteFooterComponent,
     InfoPageComponent,
     ContactComponent,
-    MessagesComponent,
     OptImgPipe,
   ],
   imports: [
@@ -153,25 +121,15 @@ const DopeShopeTheme = definePreset(Lara, {
     CommonModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
-    TableModule,
-    CardModule,
-    ChartModule,
-    MultiSelectModule,
     DropdownModule,
-    TagModule,
     InputTextModule,
     ProgressSpinnerModule,
-    IconFieldModule,
-    InputIconModule,
     ButtonModule,
     RatingModule,
     DialogModule,
-    SidebarModule,
-    AvatarModule,
     AccordionModule,
     CheckboxModule,
     PaginatorModule,
-    PanelModule,
     RadioButtonModule,
     CalendarModule
   ],

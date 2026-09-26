@@ -34,6 +34,7 @@
           (click)="applyCoupon(c.code)"
         >
           <span class="fw-bold">{{ c.code }}</span> · <small>{{ describe(c) }}</small>
+          <small *ngIf="c.firstOrderOnly" class="first-order-tag">First order</small>
         </button>
       </div>
     </ng-template>

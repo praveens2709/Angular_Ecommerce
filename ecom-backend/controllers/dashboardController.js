@@ -6,6 +6,8 @@ const { SIZES } = require('../utils/catalog');
 
 // Orders that count as revenue
 const REVENUE_STATUSES = ['Pending', 'Shipped', 'Delivered', 'Return Requested', 'Return Rejected'];
+// An approved exchange ends as "Returned" but the sale stands (the replacement is free)
+const IS_REVENUE = { $or: [{ status: { $in: REVENUE_STATUSES } }, { status: 'Returned', 'returnRequest.type': 'Exchange' }] };
 const DAYS = 14;
 // Day buckets follow the shop's timezone (default: the server's), not UTC
 const TIMEZONE = () => process.env.SHOP_TIMEZONE || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
@@ -23,11 +25,11 @@ exports.getDashboardStats = async (req, res) => {
       User.aggregate([{ $group: { _id: '$active', count: { $sum: 1 } } }]),
       Order.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]),
       Order.aggregate([
-        { $match: { status: { $in: REVENUE_STATUSES } } },
+        { $match: IS_REVENUE },
         { $group: { _id: null, total: { $sum: '$totalAmount' }, orders: { $sum: 1 } } },
       ]),
       Order.aggregate([
-        { $match: { orderDate: { $gte: since }, status: { $in: REVENUE_STATUSES } } },
+        { $match: { orderDate: { $gte: since }, ...IS_REVENUE } },
         {
           $group: {
             _id: { $dateToString: { format: '%Y-%m-%d', date: '$orderDate', timezone: TIMEZONE() } },
@@ -37,7 +39,7 @@ exports.getDashboardStats = async (req, res) => {
         },
       ]),
       Order.aggregate([
-        { $match: { status: { $in: REVENUE_STATUSES } } },
+        { $match: IS_REVENUE },
         { $unwind: '$products' },
         {
           $group: {
