@@ -7,7 +7,7 @@
  * Output: dist/ecom/browser (the folder Cloudflare Pages serves).
  */
 import { spawnSync } from 'node:child_process';
-import { copyFileSync, existsSync, readdirSync, renameSync, rmdirSync, statSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, readFileSync, readdirSync, renameSync, rmdirSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const apiUrl = (process.env.API_URL || '').replace(/\/+$/, '');
@@ -75,6 +75,22 @@ const flatten = (dir) => {
   }
 };
 flatten(OUT);
+
+// Cloudflare turns <link rel="modulepreload" href="chunk-X.js"> into Early Hints headers, where a
+// relative address resolves against the page's path (/product-detail/chunk-X.js), ignoring <base>.
+// Make the build's own file references absolute.
+const absolutise = (dir) => {
+  for (const name of readdirSync(dir)) {
+    const path = join(dir, name);
+    if (statSync(path).isDirectory()) absolutise(path);
+    else if (name.endsWith('.html')) {
+      const html = readFileSync(path, 'utf8');
+      const fixed = html.replace(/(\s(?:href|src)=")((?:chunk|main|polyfills|styles|scripts)-[A-Za-z0-9]+\.(?:js|css)")/g, '$1/$2');
+      if (fixed !== html) writeFileSync(path, fixed);
+    }
+  }
+};
+absolutise(OUT);
 
 // Pages that aren't pre-rendered load the plain single-page app, served as /app (a name without
 // ".html", which Cloudflare would otherwise redirect away from). A top-level 404.html also stops
