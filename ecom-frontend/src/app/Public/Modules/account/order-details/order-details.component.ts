@@ -92,7 +92,7 @@ export class OrderDetailsComponent implements OnInit {
     return new Date(new Date(base).getTime() + RETURN_WINDOW_DAYS * 24 * 60 * 60 * 1000);
   }
 
-  /** Pending → Shipped → Delivered, with cancel/return branches */
+  /** Confirmed (stored as Pending) → Shipped → Delivered, with cancel/return branches */
   get timeline(): TimelineStep[] {
     if (!this.order) return [];
     const history = this.order.statusHistory || [];
@@ -101,13 +101,13 @@ export class OrderDetailsComponent implements OnInit {
 
     if (status === 'Cancelled') {
       return [
-        { label: 'Ordered', icon: 'pi-shopping-bag', at: at('Pending') || this.order.orderDate, done: true, current: false },
+        { label: 'Confirmed', icon: 'pi-shopping-bag', at: at('Pending') || this.order.orderDate, done: true, current: false },
         { label: 'Cancelled', icon: 'pi-times', at: at('Cancelled'), done: true, current: true, tone: 'danger' },
       ];
     }
 
     const steps: TimelineStep[] = [
-      { label: 'Ordered', icon: 'pi-shopping-bag', at: at('Pending') || this.order.orderDate, done: true, current: status === 'Pending' },
+      { label: 'Confirmed', icon: 'pi-shopping-bag', at: at('Pending') || this.order.orderDate, done: true, current: status === 'Pending' },
       { label: 'Shipped', icon: 'pi-truck', at: at('Shipped'), done: status !== 'Pending', current: status === 'Shipped' },
       {
         label: 'Delivered',

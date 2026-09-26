@@ -277,6 +277,8 @@
 /* Buttons */
 .bag-btn {
     flex: 1;
+    border-radius: var(--ds-btn-radius);
+    min-height: var(--ds-btn-height);
     padding: 9px 0;
     font-size: 15px;
     letter-spacing: 0.5px;
@@ -326,9 +328,6 @@
     }
 }
 
-.change-btn {
-    color: #992603;
-}
 
 .delivery-line {
     i {
@@ -632,10 +631,6 @@
     border-top: 1px solid #e5d7d2;
 }
 
-.review-btn {
-    flex: 0 0 auto;
-    padding: 8px 18px;
-}
 
 .summary {
     background: #fdf4f2;

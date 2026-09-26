@@ -28,6 +28,7 @@ span {
 
 .apply-btn,
 .link-btn {
+    border-radius: var(--ds-btn-radius);
     background: transparent;
     border: 1px solid #992603;
     color: #992603;
@@ -54,6 +55,7 @@ span {
 }
 
 .suggestion {
+    border-radius: var(--ds-btn-radius);
     background: #faf6f5;
     border: 1px dashed #d9c3bd;
     padding: 5px 8px;

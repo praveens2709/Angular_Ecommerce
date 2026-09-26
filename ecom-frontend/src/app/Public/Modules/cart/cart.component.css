@@ -74,7 +74,7 @@
     background: #f5f5f6;
     padding: 2px 10px;
     color: #000;
-    border-radius: 4px;
+    border-radius: var(--ds-btn-radius);
     line-height: 18px;
     align-self: flex-start;
 }
@@ -157,9 +157,12 @@
 }
 
 .empty-bag-btn {
-    display: inline-block;
-    padding: 12px 30px;
-    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--ds-btn-height);
+    padding: 0 30px;
+    border-radius: var(--ds-btn-radius);
     background: #992603;
     color: #ffffff;
     font-weight: 700;

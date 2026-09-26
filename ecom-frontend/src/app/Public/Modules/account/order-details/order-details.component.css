@@ -72,7 +72,7 @@
     font-size: 15px;
     background: rgb(183, 29, 12);
     color: #ffffff;
-    border-radius: 2px;
+    border-radius: var(--ds-btn-radius);
     line-height: 16px;
     margin-top: 15px;
     letter-spacing: 1px;

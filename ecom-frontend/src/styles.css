@@ -753,6 +753,9 @@ label,
   --ds-ink: #1f1f1f;
   --ds-muted: #7a6a65;
   --ds-radius: 16px;
+  /* Action buttons everywhere match the home hero CTAs */
+  --ds-btn-radius: 5px;
+  --ds-btn-height: 44px;
   --ds-shadow: 0 10px 30px rgba(153, 38, 3, 0.05);
 }
 
@@ -822,7 +825,7 @@ label,
   background: #ffffff !important;
   color: var(--ds-brand) !important;
   border: 1px solid var(--ds-brand) !important;
-  border-radius: 999px !important;
+  border-radius: var(--ds-btn-radius) !important;
   padding: 8px 0 !important;
   font-weight: 700;
   transition: background 0.2s, color 0.2s;
@@ -844,7 +847,7 @@ label,
 .account-content .cancel-order-btn,
 .account-content .delete-btn,
 .account-content .keep-btn {
-  border-radius: 999px !important;
+  border-radius: var(--ds-btn-radius) !important;
 }
 
 /* Checkout: rounded primary buttons and card price summary */
@@ -857,7 +860,7 @@ label,
 }
 
 .cart-right > button {
-  border-radius: 999px !important;
+  border-radius: var(--ds-btn-radius) !important;
   padding: 12px 0 !important;
   font-weight: 700 !important;
   background: var(--ds-brand) !important;
@@ -878,13 +881,20 @@ label,
 }
 
 .cart-body .payment-section button {
-  border-radius: 999px !important;
+  border-radius: var(--ds-btn-radius) !important;
 }
 
 /* Dialog action bars used by address/card/confirm dialogs */
 .common-confirm-btn,
 .save-address-btn {
   background: var(--ds-brand) !important;
+}
+
+.common-confirm-btn,
+.common-cancel-btn,
+.save-address-btn,
+.cancel-address-btn {
+  border-radius: var(--ds-btn-radius) !important;
 }
 
 /* Old rule forces white text inside these buttons; follow the button colour instead */
@@ -896,7 +906,33 @@ label,
 }
 
 .account-content .invoice-btn {
-  border-radius: 999px !important;
+  border-radius: var(--ds-btn-radius) !important;
+}
+
+/* Every storefront action button: one height and the CTA corner radius (home hero CTAs stay larger) */
+.account-content .profile-box2 button:not(.change-link),
+.account-content .edit-remove-address button,
+.account-content .edit-remove-card button,
+.cart-body .edit-remove-address button,
+.account-content .cancel-order-btn,
+.account-content .invoice-btn,
+.account-content .delete-btn,
+.account-content .keep-btn,
+.cart-right > button,
+.cart-body .payment-section button,
+.submit-return,
+.common-confirm-btn,
+.common-cancel-btn,
+.save-address-btn,
+.cancel-address-btn {
+  min-height: var(--ds-btn-height);
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  border-radius: var(--ds-btn-radius) !important;
 }
 
 /* Text-style actions inside account cards (e.g. mobile "Change") */

@@ -244,7 +244,7 @@
 
 .deal-btn {
     padding: 13px 28px;
-    border-radius: 30px;
+    border-radius: var(--ds-btn-radius);
     background: #ffffff;
     color: var(--brand);
     font-weight: 800;

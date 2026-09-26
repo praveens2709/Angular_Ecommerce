@@ -156,6 +156,8 @@
 
 .bd-btn {
   display: block;
+  border-radius: var(--ds-btn-radius);
+  min-height: var(--ds-btn-height);
   width: 100%;
   padding: 13px 16px;
   border: 1px solid #992603;

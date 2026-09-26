@@ -1,6 +1,17 @@
 /* Product page add-ons: skeleton, trust strip, accordions, "you may also like",
    sticky add-to-bag bar and the photo viewer */
 
+/* ---------- Delivery: "Change" pincode button ---------- */
+.change-btn {
+    color: #992603;
+}
+
+/* ---------- Reviews: "Write a review" button ---------- */
+.review-btn {
+    flex: 0 0 auto;
+    padding: 8px 18px;
+}
+
 /* ---------- Loading skeleton ---------- */
 .pd-skeleton .left-product {
     background: #f1e8e5;

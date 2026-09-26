@@ -13,8 +13,8 @@
             class="mb-1 order-status bg-white d-flex gap-1 align-items-center p-1 fw-semibold"
             [ngClass]="getStatusClass(order.status)"
           >
-            {{ order.status }}
-            <img [src]="getStatusIcon(order.status)" alt="{{ order.status }}" />
+            {{ statusLabel(order.status) }}
+            <img [src]="getStatusIcon(order.status)" [alt]="statusLabel(order.status)" />
           </p>
 
           <a *ngIf="order._id" [routerLink]="['/account/order-details', order._id]">

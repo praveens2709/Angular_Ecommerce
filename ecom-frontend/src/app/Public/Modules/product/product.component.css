@@ -20,7 +20,7 @@
     height: 42px;
     padding: 0 12px 0 36px;
     border: 1px solid #e3d6d2;
-    border-radius: 999px;
+    border-radius: var(--ds-btn-radius);
     background: #faf7f6;
     color: #2a1f1c;
     outline: none;
@@ -265,6 +265,8 @@
 
 .sheet-btn {
     flex: 1;
+    border-radius: var(--ds-btn-radius);
+    min-height: var(--ds-btn-height);
     padding: 12px;
     border: 1px solid #992603;
     background: #ffffff;

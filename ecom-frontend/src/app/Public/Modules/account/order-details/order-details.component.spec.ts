@@ -46,13 +46,13 @@ describe('OrderDetailsComponent rules', () => {
       ],
     }) as any;
     const steps = component.timeline;
-    expect(steps.map((s) => s.label)).toEqual(['Ordered', 'Shipped', 'Delivered']);
+    expect(steps.map((s) => s.label)).toEqual(['Confirmed', 'Shipped', 'Delivered']);
     expect(steps.map((s) => s.done)).toEqual([true, true, false]);
     expect(steps.find((s) => s.current)?.label).toBe('Shipped');
   });
 
   it('shows cancelled orders as a short timeline', () => {
     component.order = order({ status: 'Cancelled', statusHistory: [{ status: 'Pending', at: daysAgo(2) }, { status: 'Cancelled', at: daysAgo(1) }] }) as any;
-    expect(component.timeline.map((s) => s.label)).toEqual(['Ordered', 'Cancelled']);
+    expect(component.timeline.map((s) => s.label)).toEqual(['Confirmed', 'Cancelled']);
   });
 });

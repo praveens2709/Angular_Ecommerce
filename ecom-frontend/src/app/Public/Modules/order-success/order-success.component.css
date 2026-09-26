@@ -192,6 +192,8 @@
 
 .success-btn {
   padding: 13px 24px;
+  border-radius: var(--ds-btn-radius);
+  min-height: var(--ds-btn-height);
   border: 1px solid #992603;
   background: #ffffff;
   color: #992603;

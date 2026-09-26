@@ -188,12 +188,43 @@ const findOverflow = () => {
             return `${c.width}x${c.height} inked=${inked}`;
           }).join(' | ')));
         }
+        // AUDIT_BUTTONS=1 lists every visible, boxed button with its corner radius (design consistency checks)
+        if (process.env.AUDIT_BUTTONS) {
+          const found = await page.evaluate(() =>
+            [...document.querySelectorAll('button, a[class*="btn"], a[role="button"], input[type="submit"], .p-button')]
+              .filter((el) => {
+                const r = el.getBoundingClientRect();
+                const cs = getComputedStyle(el);
+                const boxed = parseFloat(cs.borderTopWidth) > 0 || !/rgba\(0, 0, 0, 0\)|transparent/.test(cs.backgroundColor);
+                return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && boxed && !el.closest('.ds-admin');
+              })
+              .map((el) => {
+                const cs = getComputedStyle(el);
+                const r = el.getBoundingClientRect();
+                return {
+                  text: (el.textContent || el.getAttribute('aria-label') || '').replace(/\s+/g, ' ').trim().slice(0, 32),
+                  cls: String(el.className).replace(/ng-\S+/g, '').replace(/\s+/g, ' ').trim().slice(0, 60),
+                  radius: cs.borderTopLeftRadius,
+                  size: `${Math.round(r.width)}x${Math.round(r.height)}`,
+                };
+              })
+          );
+          (global.__audit ||= []).push(...found.map((f) => ({ page: name, ...f })));
+        }
         if (result.scrollWidth > result.vw + 1 || result.offenders.length) {
           problems.push({ width, name, ...result });
         }
         await page.screenshot({ path: path.join(OUT, `${width}-${name}.png`), fullPage: true });
       }
       await page.close();
+    }
+    if (process.env.AUDIT_BUTTONS) {
+      // One line per distinct button (page + text + radius), grouped by radius
+      const seen = new Map();
+      for (const b of global.__audit || []) seen.set(`${b.radius}|${b.page}|${b.text}|${b.cls}`, b);
+      const rows = [...seen.values()].sort((a, b) => a.radius.localeCompare(b.radius) || a.page.localeCompare(b.page));
+      console.log('\nBUTTON AUDIT (radius | page | text | classes | size)');
+      for (const b of rows) console.log(`${b.radius.padEnd(8)} | ${b.page.padEnd(15)} | ${b.text.padEnd(32)} | ${b.cls} | ${b.size}`);
     }
   } finally {
     await browser.close();

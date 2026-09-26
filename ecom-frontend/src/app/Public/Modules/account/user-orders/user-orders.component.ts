@@ -40,8 +40,15 @@ export class UserOrdersComponent implements OnInit {
     });
   }
 
+  /** Customers see "Confirmed" for a new order; "Pending" (admin's "to ship") read as not accepted yet */
+  statusLabel(status: string): string {
+    return status === 'Pending' ? 'Confirmed' : status;
+  }
+
   getStatusIcon(status: string): string {
     switch (status) {
+      case 'Pending':
+        return 'assets/images/check.png';
       case 'Delivered':
       case 'Returned':
         return 'assets/images/check.png';
@@ -55,6 +62,8 @@ export class UserOrdersComponent implements OnInit {
 
   getStatusClass(status: string): string {
     switch (status) {
+      case 'Pending':
+        return 'status-confirmed';
       case 'Delivered':
       case 'Returned':
         return 'status-delivered';
