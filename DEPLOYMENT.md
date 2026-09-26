@@ -57,8 +57,9 @@ each). For email, Resend (3,000/month) also works over SMTP but needs your own d
 ## 1. Accounts to create
 
 1. **Cloudinary**: sign up → Dashboard → copy the *API environment variable* (`cloudinary://<key>:<secret>@<cloud>`).
-2. **Brevo**: sign up → *SMTP & API* → SMTP tab → note the login and create an SMTP key. Under *Senders*, add and verify the
-   address you'll send from (e.g. `orders@yourdomain.com`, or your Gmail while testing).
+2. **Brevo**: sign up → *SMTP & API* → **API Keys** tab → create an API key (starts with `xkeysib-`). Under *Senders*, add and
+   verify the address you'll send from (e.g. `orders@yourdomain.com`, or your Gmail while testing).
+   Use the API key, not SMTP: Render's free plan blocks outgoing SMTP ports (25/465/587), so SMTP sends just time out.
 3. **Atlas**: *Network Access* → allow `0.0.0.0/0` (Render's IPs change). Keep the database user with `readWrite` on your database.
 
 ## 2. Deploy on Render
@@ -72,7 +73,8 @@ each). For email, Resend (3,000/month) also works over SMTP but needs your own d
    - `CLIENT_URL` and `CLIENT_ORIGINS`: `https://dopeshope-web.onrender.com` (or your domain)
    - `PUBLIC_URL`: `https://dopeshope-api.onrender.com`
    - `CLOUDINARY_URL`: from step 1
-   - `SMTP_USER` / `SMTP_PASS`: Brevo SMTP login and key; `MAIL_FROM`: `DopeShope <your-verified-sender>`
+   - `BREVO_API_KEY`: the Brevo API key from step 1; `MAIL_FROM`: `DopeShope <your-verified-sender>`
+     (SMTP via `SMTP_HOST`/`SMTP_PORT`/`SMTP_USER`/`SMTP_PASS` still works on hosts that allow it; the API key wins if both are set)
    - `STORE_*`: your legal name, support email, phone, address, city, state, pincode and GSTIN. These appear on the policy pages,
      the Contact page and every invoice. `STORE_STATE`/`STORE_PINCODE` should be where you ship from.
 
@@ -111,7 +113,8 @@ npm install && npm run dev
 cd ecom-frontend && npm install && npm start
 ```
 
-Without `SMTP_HOST`, emails (including password-reset links) are printed in the API's console.
+Without `BREVO_API_KEY` or `SMTP_HOST`, emails (including password-reset links) are printed in the API's console.
+In production every send logs `Email sent via …` or `Email failed via …: <reason>` in the API logs.
 
 ## Tests
 
