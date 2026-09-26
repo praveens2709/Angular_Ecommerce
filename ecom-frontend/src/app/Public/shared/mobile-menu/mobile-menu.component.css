@@ -25,10 +25,17 @@
   inset: 0;
   z-index: 2000;
   pointer-events: none;
+  /* Hidden (not just slid aside) while closed. Before the app starts, the drawer still sits
+     inside the header, where "off-screen left" can land on screen; hidden can't show anywhere.
+     The delay lets the close animation finish first. */
+  visibility: hidden;
+  transition: visibility 0s linear 0.3s;
 }
 
 .mobile-menu-root.open {
   pointer-events: auto;
+  visibility: visible;
+  transition-delay: 0s;
 }
 
 .mm-overlay {
@@ -132,10 +139,13 @@
 }
 
 .mm-signin {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 4px 12px;
-  padding: 10px 14px;
-  border-radius: 999px;
+  padding: 0 14px;
+  border-radius: var(--ds-btn-radius);
+  min-height: var(--ds-btn-height);
   background: #992603;
   color: #ffffff;
   text-align: center;

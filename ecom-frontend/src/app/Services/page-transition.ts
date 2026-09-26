@@ -14,6 +14,7 @@ const ENTER_MS = 450;
 @Injectable({ providedIn: 'root' })
 export class PageTransition {
   private lastPath = '';
+  private firstNavigation = true;
   private timer?: ReturnType<typeof setTimeout>;
 
   constructor(router: Router, zone: NgZone, @Inject(PLATFORM_ID) platformId: object) {
@@ -25,6 +26,12 @@ export class PageTransition {
       const path = event.urlAfterRedirects.split(/[?#]/)[0];
       const pathChanged = path !== this.lastPath;
       this.lastPath = path;
+      // The first navigation is the page that's already on screen (pre-rendered); fading it in
+      // again would flash it blank. "/" redirecting to "/home" otherwise looks like a page change.
+      if (this.firstNavigation) {
+        this.firstNavigation = false;
+        return;
+      }
       const keepScroll = !!router.getCurrentNavigation()?.extras.state?.['keepScroll'];
       if (!pathChanged || keepScroll) return;
 
