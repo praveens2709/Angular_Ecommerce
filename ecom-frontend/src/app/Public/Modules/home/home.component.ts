@@ -161,7 +161,4 @@ export class HomeComponent implements OnInit, OnDestroy {
     globalThis.document?.getElementById('home-content')?.scrollIntoView({ behavior: 'smooth' });
   }
 
-  scrollUp() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
 }

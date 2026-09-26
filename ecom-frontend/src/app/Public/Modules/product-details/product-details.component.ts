@@ -1,7 +1,7 @@
 import { Component, DestroyRef, ElementRef, HostListener, Inject, NgZone, OnDestroy, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ViewportScroller, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { Meta, Title } from '@angular/platform-browser';
 import { forkJoin, of } from 'rxjs';
 import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
@@ -14,6 +14,7 @@ import { AuthService } from '../../../Admin/auth/Services/auth-service.service';
 import { AddressesService } from '../account/addresses/addresses.service';
 import { BagDrawerService } from '../../../Services/bag-drawer.service';
 import { colourFamilies } from '../../shared/product-card/product-card.component';
+import { jumpTo } from '../../../Services/scroll-manager';
 
 interface SizeChartRow {
   size: string;
@@ -141,7 +142,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     private addressesService: AddressesService,
     private wishlistService: WishlistService,
     private storeService: StoreService,
-    private viewportScroller: ViewportScroller,
     private title: Title,
     private meta: Meta,
     private destroyRef: DestroyRef,
@@ -175,7 +175,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
         tap((id) => {
           this.selectedSize = null;
           this.notFound = false;
-          this.viewportScroller.scrollToPosition([0, 0]);
+          if (this.isBrowser) jumpTo(0);
           // Opened from a list: show what we already have now; full details and colours follow
           this.requestedId = id;
           const known = id ? this.productService.peek(id) : undefined;

@@ -33,7 +33,7 @@
   <div class="delete-account mt-2 d-flex align-items-center justify-content-between gap-2 w-100">
     <button [disabled]="!isAgreed || !isLoggedIn" class="delete-btn w-100" (click)="isDialogVisible = true">DELETE ACCOUNT</button>
     <span class="fs-3 pt-2 fw-lighter">|</span>
-    <button routerLink="/" (click)="scrollUp()" class="keep-btn w-100">
+    <button routerLink="/" class="keep-btn w-100">
       KEEP ACCOUNT
     </button>
   </div>

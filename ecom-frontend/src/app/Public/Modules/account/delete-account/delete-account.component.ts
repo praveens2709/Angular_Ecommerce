@@ -25,9 +25,6 @@ export class DeleteAccountComponent {
     return this.authService.isUserLoggedIn();
   }
 
-  scrollUp(): void {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
 
   confirmDelete(): void {
     const { id } = this.authService.getUserRoleAndId();

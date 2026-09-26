@@ -340,6 +340,9 @@ body {
 /* Cart Body */
 .cart-body {
   padding: 3rem 10rem !important;
+  /* Anchors the floating back button to the page content (not the page top, where the fixed
+     checkout header covers it; the page fade used to switch between the two mid-way) */
+  position: relative;
 }
 
 @media (max-width: 1200px) {
